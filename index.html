@@ -207,6 +207,23 @@ input.ed{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:
   box-shadow:inset 0 0 0 1.5px rgba(200,140,60,.35)}
 .gquip{font-size:.87rem;line-height:1.45;margin:13px 2px 4px;color:var(--ink)}
 .pigrow{font-size:.95rem;letter-spacing:1px;line-height:1.5;margin-top:3px;word-break:break-word}
+/* Mobility-Timer */
+#mob{position:fixed;inset:0;background:var(--bg);z-index:210;display:none;
+  flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
+#mob.on{display:flex}
+#mob .step{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
+#mob .nm{font-size:1.5rem;font-weight:700;line-height:1.2;margin:6px 0 2px;max-width:340px}
+#mob .side{font-size:.9rem;color:var(--accent);font-weight:700;margin-bottom:14px}
+#mob .ring{position:relative;width:230px;height:230px;margin:6px 0 10px}
+#mob .ring svg{transform:rotate(-90deg)}
+#mob .ring .num{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;
+  font-size:3.4rem;font-weight:800;font-variant-numeric:tabular-nums}
+#mob .nx{font-size:.85rem;color:var(--muted);margin-top:4px;min-height:20px}
+#mob .ctl{display:flex;gap:10px;margin-top:20px;width:100%;max-width:340px}
+#mob .ctl button{flex:1;padding:13px;border-radius:11px;font-weight:700;font-size:.9rem;
+  border:1.5px solid var(--line);background:var(--card);color:var(--ink)}
+#mob .ctl button.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+#mob .done{font-size:1.3rem;font-weight:700;margin-bottom:8px}
 details{border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin:9px 0;background:var(--card)}
 summary{font-weight:600;font-size:.92rem;cursor:pointer}
 details ul{padding-left:18px;font-size:.87rem}
@@ -234,6 +251,7 @@ details ul{padding-left:18px;font-size:.87rem}
 
 <div class="toast" id="toast"></div>
 <div id="gains" onclick="closeGains()"></div>
+<div id="mob"></div>
 <div id="upd"><span class="t">Neue Version verfügbar</span>
   <button onclick="applyUpdate()">Laden</button>
   <button class="x" onclick="document.getElementById('upd').className=''">Später</button></div>
@@ -382,12 +400,18 @@ const COOLDOWN = [
 ];
 
 const DAILY = [
-  ['Tiefe Hocke, Fersen am Boden','2 × 60 s',V('deep squat hold täglich mobility')],
-  ['90/90-Hüftwechsel','90 s',V('90 90 hip switch mobility übung')],
-  ['Couch Stretch','45 s je Seite',V('couch stretch anleitung hüftbeuger')],
-  ['Jefferson Curl (0–2 kg)','3 × 5',V('jefferson curl anleitung technik')],
-  ['Open Book BWS-Rotation','8× je Seite',V('open book brustwirbelsäule rotation übung')],
-  ['Cat-Cow + Kindshaltung','90 s',V('katze kuh kindshaltung übung')],
+  {n:'Tiefe Hocke, Fersen am Boden', d:'2 × 60 s', v:V('deep squat hold täglich mobility'),
+   fokus:'Hüfte, Knie, Sprunggelenk', sek:60, runden:2},
+  {n:'90/90-Hüftwechsel', d:'90 s', v:V('90 90 hip switch mobility übung'),
+   fokus:'Hüftrotation', sek:90, runden:1},
+  {n:'Couch Stretch', d:'45 s je Seite', v:V('couch stretch anleitung hüftbeuger'),
+   fokus:'Hüftbeuger – bei Läufern chronisch verkürzt', sek:45, runden:2, seite:true},
+  {n:'Jefferson Curl (0–2 kg)', d:'3 × 5', v:V('jefferson curl anleitung technik'),
+   fokus:'Rückenkette, Wirbelsäule'},
+  {n:'Open Book BWS-Rotation', d:'8× je Seite', v:V('open book brustwirbelsäule rotation übung'),
+   fokus:'BWS – hilft der Schulter direkt'},
+  {n:'Cat-Cow + Kindshaltung', d:'90 s', v:V('katze kuh kindshaltung übung'),
+   fokus:'Wirbelsäule, Entspannung', sek:90, runden:1},
 ];
 
 const DEFAULT_WEEK = [['Mo','A'],['Di','L1'],['Mi','B'],['Do','L2'],['Fr','C'],['Sa','L3'],['So','R']];
@@ -1299,11 +1323,22 @@ function vMob(){
     <div class="row"><div class="grow"><strong>Heute erledigt?</strong>
     <div class="note">Jeden Tag, auch an Trainingstagen (dann abends).</div></div>
     <button class="btn small ${on?'sec':''}" onclick="toggleDaily()">${on?'✓ Ja':'Abhaken'}</button></div></div>`;
+  const timed = DAILY.filter(x=>x.sek);
+  const gesamt = timed.reduce((a,x)=>a+x.sek*(x.runden||1),0);
+  h+=`<div class="card" style="border-color:var(--accent)">
+    <div class="row"><div class="grow"><strong>Geführter Durchlauf</strong>
+      <div class="note">${timed.length} Halteübungen, ${Math.round(gesamt/60)} Minuten. Die App zählt, du atmest.</div></div>
+      <button class="btn small" onclick="startRoutine()">▶ Start</button></div></div>`;
+
   h+=`<h2>Die 10-Minuten-Routine</h2>`;
-  DAILY.forEach(([n,d,v])=>{
+  DAILY.forEach((x,i)=>{
     h+=`<div class="card" style="padding:11px 13px"><div class="row"><div class="grow">
-      <strong style="font-size:.92rem">${n}</strong><div class="muted" style="font-size:.8rem">${d}</div></div>
-      <a class="vid" href="${v}" target="_blank">▶ Video</a></div></div>`;
+      <strong style="font-size:.92rem">${x.n}</strong>
+      <div class="muted" style="font-size:.8rem">${x.d}${x.fokus?' · '+x.fokus:''}</div></div>
+      ${x.sek?`<button class="btn small" style="white-space:nowrap" onclick="startRoutine(${i})">▶ ${x.sek}s</button>`
+             :`<a class="vid" href="${x.v}" target="_blank">▶ Video</a>`}</div>
+      ${x.sek?`<div style="margin-top:6px"><a class="vid" href="${x.v}" target="_blank">▶ Video</a></div>`:''}
+      </div>`;
   });
   h+=`<div class="card"><div class="note" style="margin-top:0">In jeder Endposition ruhig atmen und bewusst entspannen, statt hineinzudrücken. Beweglichkeit ist zu großen Teilen Nervensystem, nicht Muskellänge – dein Körper gibt Bewegungsumfang frei, wenn er die Position als sicher einstuft.</div></div>`;
 
@@ -1794,6 +1829,88 @@ function importData(inp){
 }
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.className='toast on';
   setTimeout(()=>t.className='toast',1800); }
+
+/* ============ MOBILITY-DURCHLAUF ============ */
+let mobQ=[], mobIdx=0, mobLeft=0, mobInt=null, mobPause=false;
+
+function buildQueue(nur){
+  const q=[];
+  DAILY.forEach((x,i)=>{
+    if(!x.sek) return;
+    if(nur!=null && i!==nur) return;
+    const r=x.runden||1;
+    for(let k=0;k<r;k++){
+      q.push({n:x.n, sek:x.sek,
+        side: x.seite ? (k===0?'Linke Seite':'Rechte Seite') : (r>1?`Durchgang ${k+1} von ${r}`:'')});
+    }
+  });
+  return q;
+}
+function startRoutine(nur){
+  mobQ = buildQueue(nur);
+  if(!mobQ.length){ toast('Keine Zeitübung dabei'); return; }
+  mobIdx=0; mobPause=false;
+  document.getElementById('mob').className='on';
+  runStep();
+}
+function runStep(){
+  clearInterval(mobInt);
+  if(mobIdx>=mobQ.length){ finishRoutine(); return; }
+  mobLeft = mobQ[mobIdx].sek;
+  drawMob();
+  mobInt = setInterval(()=>{
+    if(mobPause) return;
+    mobLeft--;
+    if(mobLeft<=0){
+      clearInterval(mobInt);
+      beep();
+      mobIdx++;
+      setTimeout(runStep, 700);
+    }
+    drawMob();
+  }, 1000);
+}
+function drawMob(){
+  const cur=mobQ[mobIdx]; if(!cur) return;
+  const nxt=mobQ[mobIdx+1];
+  const R=104, C=2*Math.PI*R;
+  const anteil = Math.max(0, mobLeft) / cur.sek;
+  const m=Math.floor(Math.max(0,mobLeft)/60), sec=Math.max(0,mobLeft)%60;
+  const zeit = m ? m+':'+String(sec).padStart(2,'0') : String(sec);
+  document.getElementById('mob').innerHTML = `
+    <div class="step">Übung ${mobIdx+1} von ${mobQ.length}</div>
+    <div class="nm">${cur.n}</div>
+    <div class="side">${cur.side||'&nbsp;'}</div>
+    <div class="ring"><svg width="230" height="230">
+      <circle cx="115" cy="115" r="${R}" fill="none" stroke="var(--line)" stroke-width="12"/>
+      <circle cx="115" cy="115" r="${R}" fill="none" stroke="var(--accent)" stroke-width="12"
+        stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}"
+        stroke-dashoffset="${(C*(1-anteil)).toFixed(1)}" style="transition:stroke-dashoffset .95s linear"/>
+    </svg><div class="num">${zeit}</div></div>
+    <div class="nx">${nxt?'Danach: '+nxt.n+(nxt.side?' · '+nxt.side:''):'Letzte Übung'}</div>
+    <div class="ctl">
+      <button onclick="mobToggle()">${mobPause?'Weiter':'Pause'}</button>
+      <button onclick="mobSkip()">Überspringen</button>
+      <button class="pri" onclick="stopRoutine()">Beenden</button>
+    </div>`;
+}
+function mobToggle(){ mobPause=!mobPause; drawMob(); }
+function mobSkip(){ clearInterval(mobInt); mobIdx++; runStep(); }
+function stopRoutine(){ clearInterval(mobInt); document.getElementById('mob').className=''; render(); }
+function finishRoutine(){
+  clearInterval(mobInt);
+  if(navigator.vibrate) navigator.vibrate([40,60,40,60,120]);
+  const d=todayKey(); const schon=!!DB.daily[d];
+  document.getElementById('mob').innerHTML = `
+    <div class="done">Durchlauf geschafft</div>
+    <div class="note" style="max-width:320px">In jeder Endposition ruhig atmen statt hineinzudrücken —
+      Beweglichkeit ist zu großen Teilen Nervensystem, nicht Muskellänge.</div>
+    <div class="ctl" style="flex-direction:column">
+      <button class="pri" onclick="${schon?'stopRoutine()':'toggleDaily();stopRoutine()'}">
+        ${schon?'Fertig':'Als erledigt abhaken'}</button>
+      <button onclick="startRoutine()">Nochmal</button>
+    </div>`;
+}
 
 /* ============ TIMER ============ */
 let tInt=null, tLeft=0;
