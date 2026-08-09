@@ -211,6 +211,12 @@ input.ed{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:
 #mob{position:fixed;inset:0;background:var(--bg);z-index:210;display:none;
   flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
 #mob.on{display:flex}
+#mob .total{width:100%;max-width:340px;margin-bottom:18px}
+#mob .total .tl{font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;font-weight:700}
+#mob .total .tv{font-size:1.6rem;font-weight:800;font-variant-numeric:tabular-nums;margin-left:8px}
+#mob .bar{height:6px;border-radius:3px;background:var(--line);overflow:hidden;margin-top:6px}
+#mob .bar div{height:100%;background:var(--accent);border-radius:3px;transition:width .95s linear}
+#mob .hint2{font-size:.82rem;color:var(--muted);max-width:320px;line-height:1.4;margin-top:2px}
 #mob .step{font-size:.72rem;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:700}
 #mob .nm{font-size:1.5rem;font-weight:700;line-height:1.2;margin:6px 0 2px;max-width:340px}
 #mob .side{font-size:.9rem;color:var(--accent);font-weight:700;margin-bottom:14px}
@@ -406,12 +412,14 @@ const DAILY = [
    fokus:'Hüftrotation', sek:90, runden:1},
   {n:'Couch Stretch', d:'45 s je Seite', v:V('couch stretch anleitung hüftbeuger'),
    fokus:'Hüftbeuger – bei Läufern chronisch verkürzt', sek:45, runden:2, seite:true},
-  {n:'Jefferson Curl (0–2 kg)', d:'3 × 5', v:V('jefferson curl anleitung technik'),
-   fokus:'Rückenkette, Wirbelsäule'},
-  {n:'Open Book BWS-Rotation', d:'8× je Seite', v:V('open book brustwirbelsäule rotation übung'),
-   fokus:'BWS – hilft der Schulter direkt'},
-  {n:'Cat-Cow + Kindshaltung', d:'90 s', v:V('katze kuh kindshaltung übung'),
-   fokus:'Wirbelsäule, Entspannung', sek:90, runden:1},
+  {n:'Jefferson Curl (0–2 kg)', d:'90 s · 3 × 5 langsam', v:V('jefferson curl anleitung technik'),
+   fokus:'Rückenkette, Wirbelsäule', sek:90, runden:1,
+   hinweis:'Wirbel für Wirbel abrollen und wieder aufrollen. Etwa 3 Durchgänge à 5 – lieber langsamer als mehr.'},
+  {n:'Open Book BWS-Rotation', d:'45 s je Seite', v:V('open book brustwirbelsäule rotation übung'),
+   fokus:'BWS – hilft der Schulter direkt', sek:45, runden:2, seite:true,
+   hinweis:'Etwa 8 ruhige Wiederholungen je Seite, am Ende jeweils kurz nachatmen.'},
+  {n:'Cat-Cow + Kindshaltung', d:'2 Min', v:V('katze kuh kindshaltung übung'),
+   fokus:'Wirbelsäule, Entspannung', sek:120, runden:1},
 ];
 
 const DEFAULT_WEEK = [['Mo','A'],['Di','L1'],['Mi','B'],['Do','L2'],['Fr','C'],['Sa','L3'],['So','R']];
@@ -1831,7 +1839,7 @@ function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.
   setTimeout(()=>t.className='toast',1800); }
 
 /* ============ MOBILITY-DURCHLAUF ============ */
-let mobQ=[], mobIdx=0, mobLeft=0, mobInt=null, mobPause=false;
+let mobQ=[], mobIdx=0, mobLeft=0, mobInt=null, mobPause=false, mobGesamt=0;
 
 function buildQueue(nur){
   const q=[];
@@ -1840,7 +1848,7 @@ function buildQueue(nur){
     if(nur!=null && i!==nur) return;
     const r=x.runden||1;
     for(let k=0;k<r;k++){
-      q.push({n:x.n, sek:x.sek,
+      q.push({n:x.n, sek:x.sek, hinweis:x.hinweis||'',
         side: x.seite ? (k===0?'Linke Seite':'Rechte Seite') : (r>1?`Durchgang ${k+1} von ${r}`:'')});
     }
   });
@@ -1850,6 +1858,7 @@ function startRoutine(nur){
   mobQ = buildQueue(nur);
   if(!mobQ.length){ toast('Keine Zeitübung dabei'); return; }
   mobIdx=0; mobPause=false;
+  mobGesamt = mobQ.reduce((x,y)=>x+y.sek,0);
   document.getElementById('mob').className='on';
   runStep();
 }
@@ -1870,6 +1879,13 @@ function runStep(){
     drawMob();
   }, 1000);
 }
+function mobRest(){
+  let r = Math.max(0, mobLeft);
+  for(let i=mobIdx+1;i<mobQ.length;i++) r += mobQ[i].sek;
+  return r;
+}
+function mmss(x){ const m=Math.floor(x/60), s=x%60; return m+':'+String(s).padStart(2,'0'); }
+
 function drawMob(){
   const cur=mobQ[mobIdx]; if(!cur) return;
   const nxt=mobQ[mobIdx+1];
@@ -1877,7 +1893,17 @@ function drawMob(){
   const anteil = Math.max(0, mobLeft) / cur.sek;
   const m=Math.floor(Math.max(0,mobLeft)/60), sec=Math.max(0,mobLeft)%60;
   const zeit = m ? m+':'+String(sec).padStart(2,'0') : String(sec);
+  const rest = mobRest(), ges = mobGesamt || 1;
+  const pct = Math.max(0, Math.min(100, (1 - rest/ges) * 100));
   document.getElementById('mob').innerHTML = `
+    <div class="total">
+      <div class="row" style="width:100%;max-width:340px;align-items:baseline">
+        <span class="tl">Noch</span>
+        <span class="tv">${mmss(rest)}</span>
+        <span class="tl" style="margin-left:auto">von ${mmss(ges)}</span>
+      </div>
+      <div class="bar"><div style="width:${pct.toFixed(1)}%"></div></div>
+    </div>
     <div class="step">Übung ${mobIdx+1} von ${mobQ.length}</div>
     <div class="nm">${cur.n}</div>
     <div class="side">${cur.side||'&nbsp;'}</div>
@@ -1887,6 +1913,7 @@ function drawMob(){
         stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}"
         stroke-dashoffset="${(C*(1-anteil)).toFixed(1)}" style="transition:stroke-dashoffset .95s linear"/>
     </svg><div class="num">${zeit}</div></div>
+    ${cur.hinweis?`<div class="hint2">${cur.hinweis}</div>`:''}
     <div class="nx">${nxt?'Danach: '+nxt.n+(nxt.side?' · '+nxt.side:''):'Letzte Übung'}</div>
     <div class="ctl">
       <button onclick="mobToggle()">${mobPause?'Weiter':'Pause'}</button>
@@ -1903,6 +1930,7 @@ function finishRoutine(){
   const d=todayKey(); const schon=!!DB.daily[d];
   document.getElementById('mob').innerHTML = `
     <div class="done">Durchlauf geschafft</div>
+    <div class="note" style="margin-bottom:6px">${mmss(mobGesamt)} Mobility · ${mobQ.length} Übungen</div>
     <div class="note" style="max-width:320px">In jeder Endposition ruhig atmen statt hineinzudrücken —
       Beweglichkeit ist zu großen Teilen Nervensystem, nicht Muskellänge.</div>
     <div class="ctl" style="flex-direction:column">
