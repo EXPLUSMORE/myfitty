@@ -1,6 +1,6 @@
 {
-  "name": "Trainingslog",
-  "short_name": "Training",
+  "name": "myfitty",
+  "short_name": "myfitty",
   "description": "Krafttraining, Laufen und Mobility mit Schulter-Reha",
   "start_url": "./index.html",
   "scope": "./",

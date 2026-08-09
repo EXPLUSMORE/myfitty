@@ -8,7 +8,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<title>Trainingslog</title>
+<title>myfitty</title>
 <link rel="manifest" href="manifest.json">
 <link rel="apple-touch-icon" href="icon-192.png">
 <link rel="icon" href="icon-192.png">
@@ -133,6 +133,8 @@ input.ed{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:
   color:var(--bg);padding:10px 18px;border-radius:99px;font-size:.85rem;z-index:100;
   opacity:0;transition:opacity .25s;pointer-events:none}
 .toast.on{opacity:.95}
+.brand{font-size:.72rem;font-weight:800;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--accent);margin-bottom:2px}
 #upd{position:fixed;left:12px;right:12px;bottom:calc(74px + env(safe-area-inset-bottom));
   background:var(--accent);color:#fff;border-radius:14px;padding:12px 14px;z-index:60;
   display:none;align-items:center;gap:12px;box-shadow:0 6px 22px rgba(0,0,0,.22)}
@@ -494,8 +496,8 @@ async function restoreHandle(){
 async function linkFile(){
   if(!fsSupported){ toast('Dein Browser kann das nicht – nutze Backup-Code'); return; }
   try{
-    const h=await window.showSaveFilePicker({suggestedName:'trainingslog.json',
-      types:[{description:'Trainingslog',accept:{'application/json':['.json']}}]});
+    const h=await window.showSaveFilePicker({suggestedName:'myfitty.json',
+      types:[{description:'myfitty',accept:{'application/json':['.json']}}]});
     await idb('readwrite',s=>s.put(h,'handle::'+PROFILE));
     fsHandle=h; await writeFs(true); render();
     toast('Verknüpft – wird ab jetzt automatisch gesichert');
@@ -527,7 +529,7 @@ function scheduleFs(){ if(!fsHandle) return; clearTimeout(fsTimer); fsTimer=setT
 async function loadFromFile(){
   if(!fsSupported){ document.getElementById('imp').click(); return; }
   try{
-    const [h]=await window.showOpenFilePicker({types:[{description:'Trainingslog',accept:{'application/json':['.json']}}]});
+    const [h]=await window.showOpenFilePicker({types:[{description:'myfitty',accept:{'application/json':['.json']}}]});
     const f=await h.getFile(); const d=JSON.parse(await f.text());
     if(!d.logs) throw 0;
     DB=Object.assign({logs:{},daily:{},start:todayKey(),meta:{}},d); if(!DB.meta)DB.meta={};
@@ -560,9 +562,9 @@ function fallbackCopy(c,cb){
 }
 async function shareBackup(){
   const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
-  const file=new File([blob],'trainingslog-'+todayKey()+'.json',{type:'application/json'});
+  const file=new File([blob],'myfitty-'+todayKey()+'.json',{type:'application/json'});
   if(navigator.canShare && navigator.canShare({files:[file]})){
-    try{ await navigator.share({files:[file],title:'Trainingslog-Backup'});
+    try{ await navigator.share({files:[file],title:'myfitty-Backup'});
       DB.meta.lastBackup=todayKey(); save(DB); return; }catch(e){ if(e.name==='AbortError') return; }
   }
   exportData();
@@ -650,7 +652,8 @@ function vHome(){
   const p=PLAN[key];
   const dayNames=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
   const dToday = DB.daily[date];
-  let h=`<h1>Heute</h1><div class="muted">${dayNames[di]} · Woche ${weekNum()} des Plans</div>`;
+  let h=`<div class="brand">myfitty</div>
+    <h1>Heute</h1><div class="muted">${dayNames[di]} · Woche ${weekNum()} des Plans</div>`;
   if(simOn()) h+=`<div class="card" style="border-color:var(--accent2);padding:10px 13px">
     <div class="row"><div class="grow"><strong style="font-size:.88rem">🧪 Testmodus aktiv</strong>
       <div class="note">Simuliertes Datum: ${fmtDate(todayKey())}</div></div>
@@ -1714,7 +1717,7 @@ function exportData(){
   const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
   const a=document.createElement('a');
   a.href=URL.createObjectURL(blob);
-  a.download='trainingslog-'+todayKey()+'.json';
+  a.download='myfitty-'+todayKey()+'.json';
   a.click();
   DB.meta.lastBackup=todayKey(); save(DB);
   toast('Exportiert');
