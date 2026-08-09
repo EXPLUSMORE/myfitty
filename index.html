@@ -447,7 +447,11 @@ if(!DB.meta) DB.meta={};
 
 /* Eigener Plan überschreibt den Standard */
 function applyPlan(){
-  PLAN = DB.plan ? DB.plan : clone(DEFAULT_PLAN);
+  // Die mitgelieferten Einheiten bleiben immer verfügbar, außer sie wurden gelöscht.
+  // Eigene und importierte Einheiten kommen dazu.
+  const basis = clone(DEFAULT_PLAN);
+  (DB.deleted||[]).forEach(k=>{ delete basis[k]; });
+  PLAN = Object.assign(basis, DB.plan || {});
   WEEK = DB.week ? DB.week : clone(DEFAULT_WEEK);
   // Sicherheitsnetz: Wochentage dürfen nur auf existierende Einheiten zeigen
   WEEK.forEach(row=>{ if(!PLAN[row[1]]) row[1]='R'; });
@@ -1343,6 +1347,7 @@ function vEdit(){
   h+=`<div class="row" style="gap:8px;margin-top:12px">
     <button class="btn sec grow" onclick="addSession('gym')">+ Krafteinheit</button>
     <button class="btn sec grow" onclick="addSession('run')">+ Lauf</button></div>`;
+  h+=`<div class="note">Alle Einheiten bleiben dauerhaft verfügbar — auch die, die keinem Tag zugeordnet sind. Gelöscht wird nur, was du hier ausdrücklich löschst.</div>`;
 
   h+=`<div class="card" style="margin-top:18px"><button class="btn sec" style="color:var(--warn)" onclick="resetPlan()">Plan auf Standard zurücksetzen</button>
     <div class="note">Setzt nur den Plan zurück, nicht deinen Verlauf.</div></div>`;
@@ -1457,11 +1462,13 @@ function delSession(){
   if(editKey==='R'){ toast('Der Ruhetag wird gebraucht'); return; }
   if(!confirm('„'+p.name+'" wirklich löschen?')) return;
   WEEK.forEach(w=>{ if(w[1]===editKey) w[1]='R'; });
-  delete PLAN[editKey]; planEdited(); go('edit');
+  delete PLAN[editKey];
+  DB.deleted = (DB.deleted||[]).concat([editKey]);
+  planEdited(); go('edit');
 }
 function resetPlan(){
   if(!confirm('Plan auf den Standard zurücksetzen? Dein Verlauf bleibt erhalten.')) return;
-  delete DB.plan; delete DB.week; save(DB); applyPlan(); go('edit'); toast('Plan zurückgesetzt');
+  delete DB.plan; delete DB.week; delete DB.deleted; save(DB); applyPlan(); go('edit'); toast('Plan zurückgesetzt');
 }
 
 /* ============ TESTMODUS ============ */
