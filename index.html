@@ -161,6 +161,7 @@ input.ed{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:
 .chart .b.run{background:var(--run)}
 .chart .b.pain{background:var(--accent)}
 .chart .b.hi{background:var(--warn)}
+.chart .b.pig{background:var(--accent2)}
 .xax{display:flex;gap:4px;font-size:.62rem;color:var(--muted)}
 .xax span{flex:1;text-align:center;overflow:hidden;white-space:nowrap}
 .hm{display:grid;grid-template-columns:22px repeat(7,1fr);gap:3px;font-size:.6rem}
@@ -312,7 +313,7 @@ function mgLabel(list){ return (list||[]).map(k=>MUSCLE[k]).filter(Boolean).join
 /* ============ PLAN ============ */
 const V = q => 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q);
 
-const DEFAULT_PLAN = {
+const DEFAULT_SESSIONS = {
   A:{name:'Einheit A – Beine & Zug', type:'gym', short:'A', sub:'Härtester Beintag',
     ex:[
       {id:'a1',n:'Beinpresse, tiefer ROM', s:4, r:'8–12', rpe:'8', note:'Tief, solange das Becken am Polster bleibt.', v:V('beinpresse richtige ausführung technik')},
@@ -361,9 +362,178 @@ const DEFAULT_PLAN = {
       {id:'i8',n:'Beinpresse', s:3, r:'10–11', rpe:'8', note:'Tiefer Bewegungsumfang, Becken bleibt am Polster.', v:V('beinpresse richtige ausführung technik'), mg:['beine','gesaess'], start:70},
       {id:'i9',n:'Wadenheben an der Maschine', s:3, r:'11', rpe:'8', note:'Unten kurz in die Dehnung, oben durchdrücken.', v:V('wadenheben maschine technik'), mg:['waden'], start:10},
     ]},
+  ppl1:{name:'Push – Brust, Schulter, Trizeps', type:'gym', short:'P1', sub:'Tag 1 · Push',
+    ex:[
+      {id:'p11',n:'LH-Schrägbankdrücken', s:4, r:'8–12', rpe:'', note:'Pause 2 min', v:V('langhantel schrägbankdrücken technik'), mg:['brust','schulter','arme']},
+      {id:'p12',n:'Brustpresse', s:3, r:'8–12', rpe:'', note:'Pause 2 min', v:V('brustpresse maschine technik'), mg:['brust','arme']},
+      {id:'p13',n:'Butterfly', s:3, r:'10–12', rpe:'', note:'Pause 1 min', v:V('butterfly maschine technik'), mg:['brust']},
+      {id:'p14',n:'KH-Schulterdrücken', s:3, r:'8–12', rpe:'', note:'Pause 2 min', v:V('kurzhantel schulterdrücken technik'), mg:['schulter','arme']},
+      {id:'p15',n:'Seitheben am Kabelzug', s:4, r:'10–12', rpe:'', note:'Pause 1 min', v:V('seitheben kabelzug technik'), mg:['schulter']},
+      {id:'p16',n:'Trizeps Pushdown', s:3, r:'8–12', rpe:'', note:'Pause 1 min', v:V('trizeps pushdown seil technik'), mg:['arme']},
+      {id:'p17',n:'Einarmige Kickbacks am Kabelturm', s:2, r:'8–12 je Seite', rpe:'', note:'Pause 1 min', v:V('kickbacks kabelzug trizeps technik'), mg:['arme']},
+    ]},
+  ppl2:{name:'Pull – Rücken, Bizeps', type:'gym', short:'P2', sub:'Tag 2 · Pull',
+    ex:[
+      {id:'p21',n:'Latzug', s:4, r:'8–12', rpe:'', note:'Pause 2 min', v:V('latzug technik anleitung'), mg:['ruecken','arme']},
+      {id:'p22',n:'T-Bar Rudern', s:3, r:'8–12', rpe:'', note:'Pause 2 min', v:V('t bar rudern technik'), mg:['ruecken','arme']},
+      {id:'p23',n:'Kabelrudern eng', s:3, r:'8–12', rpe:'', note:'Pause 1 min', v:V('kabelrudern eng sitzend technik'), mg:['ruecken','arme']},
+      {id:'p24',n:'Hyperextension', s:3, r:'12–15', rpe:'', note:'Pause 1 min', v:V('hyperextension rückenstrecker technik'), mg:['ruecken','gesaess']},
+      {id:'p25',n:'Reverse Butterfly', s:3, r:'12–15', rpe:'', note:'Pause 1 min', v:V('reverse butterfly technik'), mg:['schulter','ruecken']},
+      {id:'p26',n:'KH-Bizepscurls', s:3, r:'8–12', rpe:'', note:'Pause 1 min', v:V('kurzhantel bizepscurls technik'), mg:['arme']},
+      {id:'p27',n:'Bizepsmaschine', s:3, r:'8–12', rpe:'', note:'Pause 1 min', v:V('bizeps maschine technik'), mg:['arme']},
+    ]},
+  ppl3:{name:'Legs – Beine, Rumpf', type:'gym', short:'P3', sub:'Tag 3 · Legs',
+    ex:[
+      {id:'p31',n:'Squats', s:4, r:'8–10', rpe:'', note:'Pause 2–3 min', v:V('kniebeuge langhantel technik'), mg:['beine','gesaess']},
+      {id:'p32',n:'Beinpresse', s:3, r:'8–10', rpe:'', note:'Pause 2 min', v:V('beinpresse richtige ausführung technik'), mg:['beine','gesaess']},
+      {id:'p33',n:'Beinbeuger', s:3, r:'10–12', rpe:'', note:'Pause 1 min', v:V('beinbeuger liegend ausführung'), mg:['beine']},
+      {id:'p34',n:'Beinstrecker', s:3, r:'10–12', rpe:'', note:'Pause 1 min', v:V('beinstrecker maschine ausführung'), mg:['beine']},
+      {id:'p35',n:'Wadenheben stehend', s:4, r:'15–20', rpe:'', note:'Pause 1 min', v:V('wadenheben stehend technik'), mg:['waden']},
+      {id:'p36',n:'Crunches', s:3, r:'15–20', rpe:'', note:'Pause 1 min', v:V('crunches richtig ausführen'), mg:['rumpf']},
+      {id:'p37',n:'Leg Raises', s:2, r:'12–15', rpe:'', note:'Pause 1 min', v:V('leg raises beinheben technik'), mg:['rumpf']},
+    ]},
+  ok1:{name:'OK I – Oberkörper', type:'gym', short:'O1', sub:'Tag 1 · Oberkörper',
+    ex:[
+      {id:'o11',n:'Latzug', s:3, r:'8–12', rpe:'', note:'Pause 2 min', v:V('latzug technik anleitung'), mg:['ruecken','arme']},
+      {id:'o12',n:'LH-Schrägbankdrücken', s:3, r:'8–12', rpe:'', note:'Pause 2 min', v:V('langhantel schrägbankdrücken technik'), mg:['brust','schulter','arme']},
+      {id:'o13',n:'Seitheben am Kabelzug', s:3, r:'12–15', rpe:'', note:'Pause 1 min', v:V('seitheben kabelzug technik'), mg:['schulter']},
+      {id:'o14',n:'LH-Rudern', s:3, r:'8–12', rpe:'', note:'Pause 2 min', v:V('langhantelrudern technik'), mg:['ruecken','arme']},
+      {id:'o15',n:'Butterfly', s:2, r:'12–15', rpe:'', note:'Pause 1–2 min', v:V('butterfly maschine technik'), mg:['brust']},
+      {id:'o16',n:'Reverse Butterfly', s:3, r:'12–15', rpe:'', note:'Pause 1–2 min', v:V('reverse butterfly technik'), mg:['schulter','ruecken']},
+      {id:'o17',n:'KH-Bizepscurls', s:3, r:'8–12', rpe:'', note:'Pause 1 min', v:V('kurzhantel bizepscurls technik'), mg:['arme']},
+      {id:'o18',n:'Trizeps-Pushdown', s:3, r:'8–12', rpe:'', note:'Pause 1 min', v:V('trizeps pushdown seil technik'), mg:['arme']},
+    ]},
+  uk1:{name:'UK I – Unterkörper', type:'gym', short:'U1', sub:'Tag 2 · Unterkörper',
+    ex:[
+      {id:'u11',n:'Squats', s:3, r:'8–12', rpe:'', note:'Pause 2 min', v:V('kniebeuge langhantel technik'), mg:['beine','gesaess']},
+      {id:'u12',n:'Beinpresse', s:3, r:'12–15', rpe:'', note:'Pause 2 min', v:V('beinpresse richtige ausführung technik'), mg:['beine','gesaess']},
+      {id:'u13',n:'Beinbeuger sitzend', s:3, r:'8–12', rpe:'', note:'Pause 1 min', v:V('beinbeuger sitzend maschine technik'), mg:['beine']},
+      {id:'u14',n:'Beinstrecker', s:3, r:'8–12', rpe:'', note:'Pause 1 min', v:V('beinstrecker maschine ausführung'), mg:['beine']},
+      {id:'u15',n:'Adduktoren', s:3, r:'12–15', rpe:'', note:'Pause 1–2 min', v:V('adduktoren maschine technik'), mg:['beine']},
+      {id:'u16',n:'Wadenheben-Maschine sitzend', s:3, r:'8–12', rpe:'', note:'Pause 1–2 min', v:V('wadenheben sitzend maschine technik'), mg:['waden']},
+      {id:'u17',n:'Negativ-Crunches', s:3, r:'12–15', rpe:'', note:'Pause 1 min', v:V('negativ crunches schrägbank technik'), mg:['rumpf']},
+    ]},
+  ok2:{name:'OK II – Oberkörper', type:'gym', short:'O2', sub:'Tag 3 · Oberkörper',
+    ex:[
+      {id:'o21',n:'T-Bar Rudern', s:3, r:'8–10', rpe:'', note:'Pause 2–3 min', v:V('t bar rudern technik'), mg:['ruecken','arme']},
+      {id:'o22',n:'KH-Bankdrücken', s:3, r:'6–10', rpe:'', note:'Pause 2 min', v:V('kurzhantel bankdrücken technik'), mg:['brust','arme']},
+      {id:'o23',n:'Latzug eng', s:3, r:'8–12', rpe:'', note:'Pause 1–2 min', v:V('latzug eng griff technik'), mg:['ruecken','arme']},
+      {id:'o24',n:'Butterfly am Kabelturm', s:3, r:'12–15', rpe:'', note:'Pause 1–2 min', v:V('kabelzug fliegende brust technik'), mg:['brust']},
+      {id:'o25',n:'Schulterpresse', s:3, r:'8–12', rpe:'', note:'Pause 1–2 min', v:V('schulterpresse maschine technik'), mg:['schulter','arme']},
+      {id:'o26',n:'Face Pulls', s:2, r:'12–15', rpe:'', note:'Pause 1 min', v:V('face pull technik anleitung'), mg:['schulter','ruecken']},
+      {id:'o27',n:'Bizepscurl-Maschine', s:3, r:'8–12', rpe:'', note:'Pause 1 min', v:V('bizeps maschine technik'), mg:['arme']},
+      {id:'o28',n:'SZ-Skullcrushers', s:3, r:'8–12', rpe:'', note:'Pause 1 min', v:V('sz stange skullcrusher technik'), mg:['arme']},
+    ]},
+  uk2:{name:'UK II – Unterkörper', type:'gym', short:'U2', sub:'Tag 4 · Unterkörper',
+    ex:[
+      {id:'u21',n:'KH-Rumänisches Kreuzheben', s:3, r:'12–15', rpe:'', note:'Pause 2–3 min', v:V('rumänisches kreuzheben kurzhantel technik'), mg:['beine','gesaess','ruecken']},
+      {id:'u22',n:'Hackenschmidt-Maschine', s:3, r:'8–12', rpe:'', note:'Pause 2 min', v:V('hackenschmidt maschine technik'), mg:['beine','gesaess']},
+      {id:'u23',n:'Multipresse-Hip Thrusts', s:3, r:'8–12', rpe:'', note:'Pause 2 min', v:V('hip thrust multipresse technik'), mg:['gesaess','beine']},
+      {id:'u24',n:'Multipresse-Split Squats', s:3, r:'10–12', rpe:'', note:'Pause 1–2 min', v:V('split squat multipresse technik'), mg:['beine','gesaess']},
+      {id:'u25',n:'Wadenheben', s:4, r:'15–20', rpe:'', note:'Pause 1 min', v:V('wadenheben technik voller bewegungsumfang'), mg:['waden']},
+      {id:'u26',n:'Beinheben im Liegen', s:3, r:'12–15', rpe:'', note:'Pause 1 min', v:V('beinheben liegend technik'), mg:['rumpf']},
+      {id:'u27',n:'Crunches', s:3, r:'12–15', rpe:'', note:'Pause 1 min', v:V('crunches richtig ausführen'), mg:['rumpf']},
+    ]},
+  gk1:{name:'GK I – Ganzkörper', type:'gym', short:'G1', sub:'Tag 1 · Ganzkörper',
+    ex:[
+      {id:'g11',n:'Beinpresse', s:3, r:'8–12', rpe:'', note:'Pause 2 min', v:V('beinpresse richtige ausführung technik'), mg:['beine','gesaess']},
+      {id:'g12',n:'Latzug', s:3, r:'8–12', rpe:'', note:'Pause 1–2 min', v:V('latzug technik anleitung'), mg:['ruecken','arme']},
+      {id:'g13',n:'Brustpresse', s:3, r:'8–12', rpe:'', note:'Pause 1–2 min', v:V('brustpresse maschine technik'), mg:['brust','arme']},
+      {id:'g14',n:'Beinbeuger', s:3, r:'8–12', rpe:'', note:'Pause 1–2 min', v:V('beinbeuger liegend ausführung'), mg:['beine']},
+      {id:'g15',n:'Seitheben am Kabelzug', s:3, r:'12–15', rpe:'', note:'Pause 1–2 min', v:V('seitheben kabelzug technik'), mg:['schulter']},
+      {id:'g16',n:'Trizeps-Pulldown', s:3, r:'8–12', rpe:'', note:'Pause 1 min', v:V('trizeps pushdown seil technik'), mg:['arme']},
+      {id:'g17',n:'Hyperextension', s:3, r:'12–15', rpe:'', note:'Pause 1 min', v:V('hyperextension rückenstrecker technik'), mg:['ruecken','gesaess']},
+      {id:'g18',n:'Beinheben im Liegen', s:3, r:'15–20', rpe:'', note:'Pause 1 min', v:V('beinheben liegend technik'), mg:['rumpf']},
+    ]},
+  gk2:{name:'GK II – Ganzkörper', type:'gym', short:'G2', sub:'Tag 2 · Ganzkörper',
+    ex:[
+      {id:'g21',n:'Goblet Squats', s:3, r:'8–12', rpe:'', note:'Pause 2 min', v:V('goblet squat technik tief anleitung'), mg:['beine','gesaess']},
+      {id:'g22',n:'KH-Schrägbankdrücken', s:3, r:'8–12', rpe:'', note:'Pause 1–2 min', v:V('kurzhantel schrägbankdrücken technik'), mg:['brust','schulter','arme']},
+      {id:'g23',n:'Rudern breit', s:3, r:'8–12', rpe:'', note:'Pause 1 min', v:V('rudern breiter griff technik'), mg:['ruecken','schulter']},
+      {id:'g24',n:'Beinstrecker', s:3, r:'8–12', rpe:'', note:'Pause 1–2 min', v:V('beinstrecker maschine ausführung'), mg:['beine']},
+      {id:'g25',n:'Schulterpresse', s:3, r:'8–12', rpe:'', note:'Pause 2 min', v:V('schulterpresse maschine technik'), mg:['schulter','arme']},
+      {id:'g26',n:'Bizepsmaschine', s:3, r:'8–12', rpe:'', note:'Pause 1–2 min', v:V('bizeps maschine technik'), mg:['arme']},
+      {id:'g27',n:'Reverse Butterfly', s:3, r:'12–15', rpe:'', note:'Pause 1 min', v:V('reverse butterfly technik'), mg:['schulter','ruecken']},
+      {id:'g28',n:'Negative Crunches', s:3, r:'12–15', rpe:'', note:'Pause 1 min', v:V('negativ crunches schrägbank technik'), mg:['rumpf']},
+    ]},
+  sp1:{name:'Brust', type:'gym', short:'B', sub:'Tag 1 · Brust',
+    ex:[
+      {id:'x11',n:'KH-Schrägbankdrücken', s:4, r:'6–10', rpe:'', note:'Pause 2–3 min', v:V('kurzhantel schrägbankdrücken technik'), mg:['brust','schulter','arme']},
+      {id:'x12',n:'Brustpresse', s:4, r:'8–12', rpe:'', note:'Pause 2 min', v:V('brustpresse maschine technik'), mg:['brust','arme']},
+      {id:'x13',n:'Butterfly am Kabelturm', s:4, r:'12–15', rpe:'', note:'Pause 1–2 min', v:V('kabelzug fliegende brust technik'), mg:['brust']},
+      {id:'x14',n:'Dips', s:3, r:'Max', rpe:'', note:'Pause 1–2 min', v:V('dips technik anleitung'), mg:['brust','arme']},
+      {id:'x15',n:'Crunches am Kabelturm', s:3, r:'12–15', rpe:'', note:'Pause 1–2 min', v:V('crunches kabelzug technik'), mg:['rumpf']},
+    ]},
+  sp2:{name:'Rücken', type:'gym', short:'R', sub:'Tag 2 · Rücken',
+    ex:[
+      {id:'x21',n:'LH-Rudern', s:4, r:'6–10', rpe:'', note:'Pause 2 min', v:V('langhantelrudern technik'), mg:['ruecken','arme']},
+      {id:'x22',n:'High Row-Maschine', s:3, r:'8–12', rpe:'', note:'Pause 2 min', v:V('high row maschine technik'), mg:['ruecken','arme']},
+      {id:'x23',n:'KH-Rudern', s:3, r:'8–12', rpe:'', note:'Pause 2 min', v:V('kurzhantel rudern einarmig technik'), mg:['ruecken','arme']},
+      {id:'x24',n:'Latzug Untergriff eng', s:3, r:'8–12', rpe:'', note:'Pause 2 min', v:V('latzug untergriff technik'), mg:['ruecken','arme']},
+      {id:'x25',n:'Seil-Überzüge am Kabelturm', s:4, r:'12–15', rpe:'', note:'Pause 1–2 min', v:V('überzüge kabelzug lat pullover technik'), mg:['ruecken']},
+    ]},
+  sp3:{name:'Schulter', type:'gym', short:'S', sub:'Tag 3 · Schulter',
+    ex:[
+      {id:'x31',n:'Multipresse-Schulterdrücken', s:4, r:'8–12', rpe:'', note:'Pause 2 min', v:V('schulterdrücken multipresse technik'), mg:['schulter','arme']},
+      {id:'x32',n:'Aufrechtes Rudern', s:3, r:'8–12', rpe:'', note:'Pause 2 min', v:V('aufrechtes rudern technik'), mg:['schulter','ruecken']},
+      {id:'x33',n:'KH-Seitheben', s:3, r:'12–15', rpe:'', note:'Pause 1–2 min', v:V('kurzhantel seitheben technik'), mg:['schulter']},
+      {id:'x34',n:'Reverse Butterfly-Maschine', s:3, r:'12–15', rpe:'', note:'Pause 1–2 min', v:V('reverse butterfly technik'), mg:['schulter','ruecken']},
+      {id:'x35',n:'Schulterpresse', s:3, r:'8–12', rpe:'', note:'Pause 2 min', v:V('schulterpresse maschine technik'), mg:['schulter','arme']},
+      {id:'x36',n:'Planks', s:4, r:'1 Min', rpe:'', note:'Pause 1 min', v:V('plank unterarmstütz technik'), mg:['rumpf']},
+    ]},
+  sp4:{name:'Beine', type:'gym', short:'B4', sub:'Tag 4 · Beine',
+    ex:[
+      {id:'x41',n:'45°-Beinpresse', s:4, r:'6–10', rpe:'', note:'Pause 2–3 min', v:V('beinpresse richtige ausführung technik'), mg:['beine','gesaess']},
+      {id:'x42',n:'LH-Ausfallschritte', s:3, r:'8–12', rpe:'', note:'Pause 2–3 min', v:V('ausfallschritte langhantel technik'), mg:['beine','gesaess']},
+      {id:'x43',n:'Beinbeuger-Maschine liegend', s:3, r:'12–15', rpe:'', note:'Pause 1–2 min', v:V('beinbeuger liegend ausführung'), mg:['beine']},
+      {id:'x44',n:'Beinstrecker-Maschine', s:3, r:'8–12', rpe:'', note:'Pause 1–2 min', v:V('beinstrecker maschine ausführung'), mg:['beine']},
+      {id:'x45',n:'Adduktoren-Maschine', s:3, r:'12–15', rpe:'', note:'Pause 1–2 min', v:V('adduktoren maschine technik'), mg:['beine']},
+      {id:'x46',n:'Wadenheben sitzend', s:3, r:'8–12', rpe:'', note:'Pause 1–2 min', v:V('wadenheben sitzend maschine technik'), mg:['waden']},
+    ]},
+  sp5:{name:'Arme', type:'gym', short:'A5', sub:'Tag 5 · Arme',
+    ex:[
+      {id:'x51',n:'SZ-French Press', s:3, r:'8–12', rpe:'', note:'Pause 1–2 min', v:V('sz stange french press technik'), mg:['arme']},
+      {id:'x52',n:'Hammer Curls', s:4, r:'8–12', rpe:'', note:'Pause 1–2 min', v:V('hammercurls technik anleitung'), mg:['arme']},
+      {id:'x53',n:'KH-Trizepsstrecken überkopf', s:3, r:'12–15', rpe:'', note:'Pause 1–2 min', v:V('trizepsdrücken überkopf kurzhantel technik'), mg:['arme']},
+      {id:'x54',n:'Bizepscurls am Kabelturm', s:4, r:'12–15', rpe:'', note:'Pause 1–2 min', v:V('bizepscurls kabelzug technik'), mg:['arme']},
+      {id:'x55',n:'Trizeps-Pushdown mit Seil', s:3, r:'8–12', rpe:'', note:'Pause 1–2 min', v:V('trizeps pushdown seil technik'), mg:['arme']},
+      {id:'x56',n:'Unterarm-Curls', s:3, r:'8–12', rpe:'', note:'Pause 1–2 min', v:V('unterarm curls handgelenk technik'), mg:['arme']},
+    ]},
+  bw1:{name:'BW I', type:'gym', short:'B1', sub:'Tag 1 · Körpergewicht',
+    ex:[
+      {id:'w11',n:'Klimmzüge', s:3, r:'8–12', rpe:'', note:'Pause 1 min', v:V('klimmzüge technik anleitung'), mg:['ruecken','arme']},
+      {id:'w12',n:'Bank Dips', s:3, r:'8–12', rpe:'', note:'Pause 1 min', v:V('bank dips technik'), mg:['arme','brust']},
+      {id:'w13',n:'Burpees', s:3, r:'8–12', rpe:'', note:'Pause 1 min', v:V('burpees technik anleitung'), mg:['beine','brust','rumpf']},
+      {id:'w14',n:'Bird Dogs', s:3, r:'8–12', rpe:'', note:'Pause 1 min', v:V('bird dog übung anleitung'), mg:['rumpf','ruecken']},
+      {id:'w15',n:'Box Jumps', s:3, r:'12–15', rpe:'', note:'Pause 1 min', v:V('box jumps technik'), mg:['beine','gesaess']},
+      {id:'w16',n:'Crunches', s:3, r:'8–12', rpe:'', note:'Pause 1 min', v:V('crunches richtig ausführen'), mg:['rumpf']},
+      {id:'w17',n:'Step Ups mit Knie heben', s:3, r:'12–15', rpe:'', note:'Pause 1 min', v:V('step ups mit knieheben technik'), mg:['beine','gesaess']},
+      {id:'w18',n:'Inch Worms', s:3, r:'15–20', rpe:'', note:'Pause 1 min', v:V('inchworm übung anleitung'), mg:['rumpf','brust']},
+    ]},
+  bw2:{name:'BW II', type:'gym', short:'B2', sub:'Tag 2 · Körpergewicht',
+    ex:[
+      {id:'w21',n:'Horizontales Rudern', s:3, r:'12–15', rpe:'', note:'Pause 1 min', v:V('horizontales rudern körpergewicht technik'), mg:['ruecken','arme']},
+      {id:'w22',n:'Box Jumps', s:3, r:'12–15', rpe:'', note:'Pause 1 min', v:V('box jumps technik'), mg:['beine','gesaess']},
+      {id:'w23',n:'Hand Release Push Ups', s:3, r:'12–15', rpe:'', note:'Pause 1 min', v:V('hand release push up technik'), mg:['brust','arme']},
+      {id:'w24',n:'Burpees', s:3, r:'12–15', rpe:'', note:'Pause 1 min', v:V('burpees technik anleitung'), mg:['beine','brust','rumpf']},
+      {id:'w25',n:'Jump Lunges', s:3, r:'12–15', rpe:'', note:'Pause 1 min', v:V('jump lunges technik'), mg:['beine','gesaess']},
+      {id:'w26',n:'Swiss Ball Pikes', s:3, r:'12–15', rpe:'', note:'Pause 1 min', v:V('swiss ball pike technik'), mg:['rumpf','schulter']},
+      {id:'w27',n:'Single Arm Planks', s:3, r:'1 Min', rpe:'', note:'Pause 1 min', v:V('single arm plank technik'), mg:['rumpf','schulter']},
+    ]},
+  bw3:{name:'BW III', type:'gym', short:'B3', sub:'Tag 3 · Körpergewicht',
+    ex:[
+      {id:'w31',n:'Squat Jumps', s:3, r:'8–12', rpe:'', note:'Pause 1 min', v:V('squat jumps technik'), mg:['beine','gesaess']},
+      {id:'w32',n:'Liegestütze mit Beinen erhöht', s:3, r:'8–12', rpe:'', note:'Pause 1 min', v:V('liegestütze beine erhöht technik'), mg:['brust','schulter','arme']},
+      {id:'w33',n:'Klimmzüge', s:3, r:'8–12', rpe:'', note:'Pause 1 min', v:V('klimmzüge technik anleitung'), mg:['ruecken','arme']},
+      {id:'w34',n:'Glute Bridges', s:3, r:'12–15', rpe:'', note:'Pause 1 min', v:V('glute bridge technik'), mg:['gesaess','beine']},
+      {id:'w35',n:'Dead Bugs', s:3, r:'12–15', rpe:'', note:'Pause 1 min', v:V('dead bug übung anleitung deutsch'), mg:['rumpf']},
+      {id:'w36',n:'Mountain Climbers', s:3, r:'12–15', rpe:'', note:'Pause 1 min', v:V('mountain climbers technik'), mg:['rumpf','beine']},
+      {id:'w37',n:'Reverse Lunge Knee Up', s:3, r:'12–15', rpe:'', note:'Pause 1 min', v:V('reverse lunge knee up technik'), mg:['beine','gesaess']},
+      {id:'w38',n:'Side Planks', s:3, r:'1 Min', rpe:'', note:'Pause 1 min', v:V('side plank seitstütz übung anleitung'), mg:['rumpf']},
+    ]},
   R:{name:'Ruhetag', type:'rest', short:'–', sub:'Nur die 10-Minuten-Mobility'},
 };
-let PLAN={}, WEEK=[];
+let PLAN={}, WEEK=[], SESSIONS={};
 const clone=o=>JSON.parse(JSON.stringify(o));
 const APP_BUILD = (s=>s.indexOf('__')===0?'lokal':s)('__BUILD__');
 
@@ -422,8 +592,38 @@ const DAILY = [
    fokus:'Wirbelsäule, Entspannung', sek:120, runden:1},
 ];
 
-const DEFAULT_WEEK = [['Mo','A'],['Di','L1'],['Mi','B'],['Do','L2'],['Fr','C'],['Sa','L3'],['So','R']];
-const EMPTY_WEEK  = [['Mo','R'],['Di','R'],['Mi','R'],['Do','R'],['Fr','R'],['Sa','R'],['So','R']];
+const W = (...paare) => {
+  const t=['Mo','Di','Mi','Do','Fr','Sa','So'], m=Object.fromEntries(paare);
+  return t.map(d=>[d, m[d]||'R']);
+};
+const DEFAULT_PLANS = {
+  reha:{name:'Schulter-Reha + Laufen', sub:'3× Kraft, 3× Laufen, täglich Mobility',
+    quelle:'Für die vordere Schulter gebaut – meidet Überkopfarbeit und den schmerzhaften Bogen.',
+    sess:['A','L1','B','L2','C','L3'],
+    week:W(['Mo','A'],['Di','L1'],['Mi','B'],['Do','L2'],['Fr','C'],['Sa','L3'])},
+  ische:{name:'ISCHE OWN 3', sub:'1 Ganzkörper-Einheit', quelle:'Aus Gainsfire übernommen, inkl. Startgewichte.',
+    sess:['W1'], week:W()},
+  ppl:{name:'Push Pull Legs', sub:'3× pro Woche · Muskelaufbau',
+    quelle:'ESN-Plan, 8 Wochen, 60–90 Min pro Einheit.',
+    warn:'Enthält Schulterdrücken und Seitheben über Schulterhöhe – mit deiner Schulter aktuell nicht geeignet.',
+    sess:['ppl1','ppl2','ppl3'], week:W(['Mo','ppl1'],['Mi','ppl2'],['Fr','ppl3'])},
+  okuk:{name:'Oberkörper / Unterkörper', sub:'4× pro Woche · Muskelaufbau',
+    quelle:'ESN-Plan, klassischer Upper-Lower-Split.',
+    warn:'Enthält Schulterpresse und Seitheben – bei gereizter Schulter anpassen.',
+    sess:['ok1','uk1','ok2','uk2'], week:W(['Mo','ok1'],['Di','uk1'],['Do','ok2'],['Fr','uk2'])},
+  gk:{name:'Ganzkörper', sub:'2× pro Woche · Einstieg',
+    quelle:'ESN-Plan, ideal bei wenig Zeit oder als Wiedereinstieg.',
+    sess:['gk1','gk2'], week:W(['Di','gk1'],['Fr','gk2'])},
+  split5:{name:'5er Split', sub:'5× pro Woche · Fortgeschritten',
+    quelle:'ESN-Plan, ein Muskelbereich pro Tag.',
+    warn:'Enthält Dips, aufrechtes Rudern und Überkopfdrücken – für deine Schulter derzeit tabu.',
+    sess:['sp1','sp2','sp3','sp4','sp5'],
+    week:W(['Mo','sp1'],['Di','sp2'],['Mi','sp3'],['Do','sp4'],['Fr','sp5'])},
+  bw:{name:'Bodyweight', sub:'3× pro Woche · ohne Geräte',
+    quelle:'ESN-Plan, nur Körpergewicht – für unterwegs.',
+    sess:['bw1','bw2','bw3'], week:W(['Mo','bw1'],['Mi','bw2'],['Fr','bw3'])},
+};
+const EMPTY_WEEK_BASE = W();
 
 /* ============ STORAGE ============ */
 let mem = {};
@@ -454,7 +654,7 @@ function addProfile(){
   try{
     localStorage.setItem('tlog::'+nm, JSON.stringify({
       logs:{}, daily:{}, start:todayKey(), meta:{}, v:2,
-      plan: clone(DEFAULT_PLAN), week: clone(EMPTY_WEEK)
+      plan: clone(DEFAULT_PLAN), week: clone(EMPTY_WEEK_BASE)
     }));
   }catch(e){}
   switchProfile(nm);
@@ -490,24 +690,98 @@ let DB = Object.assign({logs:{}, daily:{}, start:null, meta:{}}, load());
 if(!DB.meta) DB.meta={};
 
 /* Eigener Plan überschreibt den Standard */
-function applyPlan(){
-  // Die mitgelieferten Einheiten bleiben immer verfügbar, außer sie wurden gelöscht.
-  // Eigene und importierte Einheiten kommen dazu.
-  const basis = clone(DEFAULT_PLAN);
-  (DB.deleted||[]).forEach(k=>{ delete basis[k]; });
-  PLAN = Object.assign(basis, DB.plan || {});
-  WEEK = DB.week ? DB.week : clone(DEFAULT_WEEK);
-  // Sicherheitsnetz: Wochentage dürfen nur auf existierende Einheiten zeigen
-  WEEK.forEach(row=>{ if(!PLAN[row[1]]) row[1]='R'; });
-  if(!PLAN.R) PLAN.R={name:'Ruhetag',type:'rest',short:'–',sub:'Nur die 10-Minuten-Mobility'};
+function activePlanId(){
+  const id = DB.activePlan || 'reha';
+  return (DEFAULT_PLANS[id] || (DB.plans&&DB.plans[id])) ? id : 'reha';
 }
-function planEdited(){ DB.plan=PLAN; DB.week=WEEK; save(DB); }
+function activePlan(){
+  const id = activePlanId();
+  return Object.assign({}, DEFAULT_PLANS[id]||{}, (DB.plans&&DB.plans[id])||{});
+}
+function allPlans(){
+  const o = {};
+  Object.keys(DEFAULT_PLANS).forEach(k=>o[k]=Object.assign({},DEFAULT_PLANS[k],(DB.plans&&DB.plans[k])||{}));
+  Object.keys(DB.plans||{}).forEach(k=>{ if(!o[k]) o[k]=DB.plans[k]; });
+  (DB.deletedPlans||[]).forEach(k=>delete o[k]);
+  return o;
+}
+function applyPlan(){
+  const id = activePlanId(), pl = activePlan();
+  SESSIONS = Object.assign(clone(DEFAULT_SESSIONS), DB.sess||{});
+  (DB.deleted||[]).forEach(k=>{ delete SESSIONS[k]; });
+  PLAN = {};
+  (pl.sess||[]).forEach(k=>{ if(SESSIONS[k]) PLAN[k]=SESSIONS[k]; });
+  PLAN.R = SESSIONS.R || {name:'Ruhetag',type:'rest',short:'–',sub:'Nur die 10-Minuten-Mobility'};
+  WEEK = (DB.weeks && DB.weeks[id]) ? DB.weeks[id] : clone(pl.week || EMPTY_WEEK_BASE);
+  WEEK.forEach(row=>{ if(!PLAN[row[1]]) row[1]='R'; });
+}
+function planEdited(){
+  const id = activePlanId();
+  DB.sess = DB.sess || {};
+  Object.keys(PLAN).forEach(k=>{ if(k!=='R') DB.sess[k]=PLAN[k]; });
+  DB.weeks = DB.weeks || {}; DB.weeks[id] = WEEK;
+  DB.plans = DB.plans || {};
+  DB.plans[id] = Object.assign({}, DB.plans[id]||{}, activePlan(), {sess:Object.keys(PLAN).filter(k=>k!=='R')});
+  save(DB);
+}
+function newPlanId(){ let i=1; const a=allPlans(); while(a['eigen'+i]) i++; return 'eigen'+i; }
+function addPlan(){
+  const n=prompt('Name des neuen Trainingsplans:');
+  if(!n||!n.trim()) return;
+  const id=newPlanId();
+  DB.plans = DB.plans || {};
+  DB.plans[id] = {name:n.trim().slice(0,40), sub:'Eigener Plan', quelle:'Selbst angelegt.',
+                  sess:[], week:clone(EMPTY_WEEK_BASE)};
+  DB.activePlan = id; save(DB); applyPlan(); go('edit');
+  toast('Plan angelegt – jetzt Einheiten hinzufügen');
+}
+function renamePlan(){
+  const id=activePlanId(), pl=activePlan();
+  const n=prompt('Neuer Name für den Plan:', pl.name);
+  if(!n||!n.trim()) return;
+  DB.plans = DB.plans || {};
+  DB.plans[id] = Object.assign({}, pl, {name:n.trim().slice(0,40)});
+  save(DB); applyPlan(); render();
+}
+function delPlan(id){
+  const a=allPlans();
+  if(Object.keys(a).length<2){ toast('Der letzte Plan bleibt'); return; }
+  if(!confirm('Plan „'+a[id].name+'" löschen? Deine Trainingseinträge bleiben erhalten.')) return;
+  if(DB.plans) delete DB.plans[id];
+  if(DB.weeks) delete DB.weeks[id];
+  if(DEFAULT_PLANS[id]) DB.deletedPlans = (DB.deletedPlans||[]).concat([id]);
+  if(DB.activePlan===id) DB.activePlan = Object.keys(allPlans())[0];
+  save(DB); applyPlan(); render(); toast('Plan gelöscht');
+}
+/* Einheit aus dem Gesamtkatalog in den aktiven Plan holen */
+function addFromLib(k){
+  const pl=activePlan();
+  if(PLAN[k]){ toast('Ist schon im Plan'); return; }
+  PLAN[k]=SESSIONS[k]; planEdited(); applyPlan(); render();
+  toast('„'+SESSIONS[k].name+'" hinzugefügt');
+}
+function switchPlan(id){
+  DB.activePlan = id; save(DB); applyPlan(); go('home');
+  toast('Plan: ' + (allPlans()[id]||{}).name);
+}
 applyPlan();
+
+/* Migration: alter Einzelplan wird zum Plan "Schulter-Reha" */
+if(DB.plan && !DB.sess){
+  DB.sess = DB.plan; delete DB.plan;
+  DB.weeks = DB.weeks || {};
+  if(DB.week){ DB.weeks.reha = DB.week; delete DB.week; }
+  DB.activePlan = DB.activePlan || 'reha';
+  const eigene = Object.keys(DB.sess).filter(k=>k!=='R');
+  DB.plans = DB.plans || {};
+  DB.plans.reha = Object.assign({}, DEFAULT_PLANS.reha, {sess: eigene.filter(k=>DEFAULT_PLANS.reha.sess.includes(k)||!DEFAULT_SESSIONS[k])});
+  save(DB);
+}
 
 /* Einmalige Migration: Satz-Schlüssel von Index auf Übungs-ID */
 if(!DB.v){
-  const order={}; Object.keys(DEFAULT_PLAN).forEach(k=>{
-    if(DEFAULT_PLAN[k].ex) order[k]=DEFAULT_PLAN[k].ex.map(e=>e.id); });
+  const order={}; Object.keys(DEFAULT_SESSIONS).forEach(k=>{
+    if(DEFAULT_SESSIONS[k].ex) order[k]=DEFAULT_SESSIONS[k].ex.map(e=>e.id); });
   Object.values(DB.logs||{}).forEach(l=>{
     if(!l.sets||!order[l.key]) return;
     const ns={};
@@ -522,6 +796,7 @@ if(!DB.v){
   save(DB);
 }
 if(!DB.start){ DB.start = todayKey(); save(DB); }
+applyPlan();   // nach den Migrationen neu aufbauen
 
 /* ===== Datensicherung ===== */
 var fsHandle=null, fsTimer=null;
@@ -656,6 +931,10 @@ function weekNum(){
   const s=new Date(DB.start+'T00:00:00'), n=now();
   return Math.max(1,Math.floor((n-s)/(7*864e5))+1);
 }
+const WTAG=['Sonntag','Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag'];
+const WKURZ=['So','Mo','Di','Mi','Do','Fr','Sa'];
+function wochentag(k){ return WTAG[new Date(k+'T12:00:00').getDay()]; }
+function wkurz(k){ return WKURZ[new Date(k+'T12:00:00').getDay()]; }
 function fmtDate(k){ const [y,m,d]=k.split('-'); return d+'.'+m+'.'; }
 
 /* ============ STATE ============ */
@@ -718,7 +997,8 @@ function vHome(){
   const dayNames=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
   const dToday = DB.daily[date];
   let h=`<div class="brand">myfitty</div>
-    <h1>Heute</h1><div class="muted">${dayNames[di]} · Woche ${weekNum()} des Plans</div>`;
+    <h1>Heute</h1>
+    <div class="muted">${dayNames[di]} · ${activePlan().name} · Woche ${weekNum()}</div>`;
   if(simOn()) h+=`<div class="card" style="border-color:var(--accent2);padding:10px 13px">
     <div class="row"><div class="grow"><strong style="font-size:.88rem">🧪 Testmodus aktiv</strong>
       <div class="note">Simuliertes Datum: ${fmtDate(todayKey())}</div></div>
@@ -741,6 +1021,10 @@ function vHome(){
     h+=`<div class="note">Antippen, um sie heute zu trainieren — auch ohne feste Zuordnung.</div>`;
   } else {
     h+=`<div style="margin-top:14px">${tile('',key,date,true)}</div>`;
+    if(PLAN[key] && PLAN[key].type==='rest'){
+      h+=`<h2>Trotzdem trainieren?</h2>`;
+      Object.keys(PLAN).filter(k=>PLAN[k].type!=='rest').forEach(k=>{ h+=tile('',k,date,false); });
+    }
   }
   if(p.type==='rest'){
     h+=`<div class="card"><strong>Ruhetag.</strong><div class="note" style="margin-top:4px">
@@ -772,7 +1056,8 @@ function vHome(){
 function vWeek(){
   const di=dayIdx();
   const monday=now(); monday.setDate(monday.getDate()-di);
-  let h=`<h1>Woche ${weekNum()}</h1><div class="muted">3× Kraft · 3× Laufen · 1 Ruhetag</div><div style="margin-top:12px">`;
+  const apl=activePlan();
+  let h=`<h1>Woche ${weekNum()}</h1><div class="muted">${apl.name} · ${apl.sub||''}</div><div style="margin-top:12px">`;
   WEEK.forEach(([l,k],i)=>{
     const d=new Date(monday); d.setDate(monday.getDate()+i);
     h+=tile(l,k,todayKey(d),i===di);
@@ -802,7 +1087,14 @@ function vSession(){
     <button class="btn sec small" onclick="go('week')">‹ Zurück</button>
     <span class="pill ${p.type==='run'?'r':'g'}" style="margin-left:auto">${p.type==='run'?'Laufen':'Kraft'}</span></div>
     <h1 style="margin-top:10px">${p.name}</h1>
-    <div class="muted">${fmtDate(activeDate)}${isToday?' · heute':''} · ${p.sub}</div>`;
+    <div class="row" style="align-items:center;gap:8px">
+      <span class="muted">${wochentag(activeDate)}, ${fmtDate(activeDate)}${isToday?' · heute':''} · ${p.sub}</span>
+    </div>
+    <div style="margin-top:8px"><details><summary style="font-size:.85rem">Datum ändern oder nachtragen</summary>
+      <div class="note">Trainiert, aber vergessen einzutragen? Datum setzen, der Eintrag wandert mit.</div>
+      <input class="ed" type="date" value="${activeDate}" onchange="moveLog(this.value)" style="margin-top:8px">
+      ${L.dauer?`<div class="note">Erfasste Dauer: ${L.dauer} Min</div>`:''}
+    </details></div>`;
 
   if(p.type==='run'){
     h+=`<div class="card"><div class="row" style="gap:12px"><div class="icobox lg">${bodyIcon(['beine','waden','gesaess'])}</div>
@@ -940,8 +1232,9 @@ const PIG={e:'🐹',s:'Meerschweinchen',p:'Meerschweinchen',kg:1};
 
 /* Gemeinsame Zerlegung. Liefert immer eine exakte Summe und
    eine Kleineinheit (Meerschweinchen bzw. Dackel) zwischen 3 und 33. */
-function packLadder(T, ladder){
-  if(T<=33) return {items:[], small:Math.max(3,T), total:T};
+function packLadder(T, ladder, lo, hi){
+  lo = lo||3; hi = hi||33;
+  if(T<=hi) return {items:[], small:Math.max(lo,T), total:T};
 
   // Leiter über die Größenordnungen wählen, damit die Stückzahlen klein bleiben
   const start=ladder.findIndex(i=>i.w<=T);
@@ -951,11 +1244,13 @@ function packLadder(T, ladder){
   if(!pal.some(i=>i.w===fine.w)) pal.push(fine);
   pal.sort((a,b)=>b.w-a.w);
 
-  // Grundbudget der Kleineinheit: immer ≥3, variabel damit die Zahl nicht immer gleich ist
-  let small = 3 + (T % 19);                 // 3–21
+  // Grundbudget der Kleineinheit: variabel, aber so, dass auch nach dem
+  // Aufaddieren des Restes (< kleinste Stufe) die Obergrenze hält.
+  const spanne = Math.max(1, Math.min(19, hi - lo + 1 - (fine.w - 1)));
+  let small = lo + (T % spanne);
   let rest  = T - small;
   // Den größten Posten nicht wegbudgetieren (sonst wird aus 1 Marathon plötzlich 15 Brücken)
-  if(pal.length && T-pal[0].w >= 3 && rest < pal[0].w){ small = T - pal[0].w; rest = pal[0].w; }
+  if(pal.length && T-pal[0].w >= lo && rest < pal[0].w){ small = T - pal[0].w; rest = pal[0].w; }
 
   const items=[];
   for(const it of pal){
@@ -969,10 +1264,22 @@ function packLadder(T, ladder){
   return {items,small,total:T};
 }
 
-// Meerschweinchen immer 3–33
-function gainsBreak(kg){
-  const r=packLadder(Math.round(kg), GITEMS.map(i=>({...i,w:i.kg})));
-  return {items:r.items.map(i=>({...i,kg:i.w})), pigs:r.small, total:r.total};
+/* Spanne der Meerschweinchen je Trainingsplan.
+   Jeder Plan mit "ISCHE" im Namen laeuft mit 1-9, alle anderen mit 3-33. */
+function istIsche(planId){
+  const id = planId || (typeof activePlanId==='function' ? activePlanId() : '');
+  let name = '';
+  try { const alle = allPlans(); name = (alle[id] && alle[id].name) || ''; } catch(e){}
+  if(!name && id==='ische') name = 'ISCHE OWN 3';
+  return /(^|[^a-zäöüß])ische([^a-zäöüß]|$)/i.test(name);
+}
+function pigRange(planId){
+  return istIsche(planId) ? {lo:1, hi:9} : {lo:3, hi:33};
+}
+function gainsBreak(kg, planId){
+  const R = pigRange(planId);
+  const r = packLadder(Math.round(kg), GITEMS.map(i=>({...i,w:i.kg})), R.lo, R.hi);
+  return {items:r.items.map(i=>({...i,kg:i.w})), pigs:r.small, total:r.total, lo:R.lo, hi:R.hi};
 }
 
 /* --- Laufstrecken-Gadget --- */
@@ -1079,8 +1386,35 @@ function closeGains(){
 
 /* --- Dashboard-Helfer --- */
 function mondayOf(d){ const x=new Date(d.getTime?d.getTime():d); const i=x.getDay()===0?6:x.getDay()-1; x.setDate(x.getDate()-i); x.setHours(0,0,0,0); return x; }
+/* Einheit zu einem Log auflösen – auch wenn sie zu einem anderen Plan gehört
+   oder inzwischen gelöscht wurde. Sonst reißt der Verlauf beim Planwechsel ab. */
+function sessOf(k){
+  return PLAN[k] || (typeof SESSIONS!=='undefined' && SESSIONS[k]) || DEFAULT_SESSIONS[k]
+      || {name:k, short:'?', type:'gym', ex:[]};
+}
+/* Meerschweinchen einer Einheit. Beim Abschliessen festgeschrieben,
+   fuer aeltere Eintraege deterministisch nachgerechnet. */
+function pigsOf(l){
+  if(!l || !l.done) return 0;
+  if(l.pigs!=null) return l.pigs;
+  const t = tonnage(l);
+  return t>0 ? gainsBreak(t, l.pigPlan).pigs : 0;
+}
+const PIGSTUFEN=[
+  {n:0,    name:'Erstes Gehege',   txt:'<strong>Das Gehege ist eröffnet.</strong> Jede Krafteinheit bringt Nachwuchs.'},
+  {n:50,   name:'Kleiner Stall',   txt:'<strong>Ein kleiner Stall.</strong> 50 Meerschweinchen wollen täglich Heu – bleib dran.'},
+  {n:150,  name:'Zuchtbetrieb',    txt:'<strong>Zuchtbetrieb.</strong> Über 150 Tiere. Das ist keine Laune mehr, das ist Routine.'},
+  {n:300,  name:'Meerschweinhof',  txt:'<strong>Ein ganzer Hof.</strong> 300 Meerschweinchen sind rund eine Dreiviertelstunde reines Quieken.'},
+  {n:600,  name:'Meerschweinstadt',txt:'<strong>Eine Kleinstadt aus Fell.</strong> 600 Tiere, aneinandergereiht gut 150 Meter.'},
+  {n:1000, name:'Meerschweinreich',txt:'<strong>Ein Reich.</strong> Vierstellig. Du hast dir das Wappen verdient.'},
+];
+function pigStufe(sum){
+  let cur=PIGSTUFEN[0], next=null, nextName='';
+  for(const s of PIGSTUFEN){ if(sum>=s.n) cur=s; else { next=s.n; nextName=s.name; break; } }
+  return {txt:cur.txt, name:cur.name, next, nextName};
+}
 function tonnage(l){
-  if(PLAN[l.key].type!=='gym') return 0;
+  if(sessOf(l.key).type!=='gym') return 0;
   let t=0; Object.values(l.sets).forEach(s=>{ if(s.d&&s.w&&s.r) t+=s.w*s.r; });
   return t;
 }
@@ -1093,9 +1427,9 @@ function weeks(n){ // letzte n Wochen, älteste zuerst
     out.push({
       monday:m, keys, logs,
       label:String(m.getDate()).padStart(2,'0')+'.'+String(m.getMonth()+1).padStart(2,'0'),
-      gym:logs.filter(l=>PLAN[l.key].type==='gym').length,
-      runs:logs.filter(l=>PLAN[l.key].type==='run').length,
-      km:logs.filter(l=>PLAN[l.key].type==='run').reduce((a,l)=>a+(parseFloat(l.km)||PLAN[l.key].km||0),0),
+      gym:logs.filter(l=>sessOf(l.key).type==='gym').length,
+      runs:logs.filter(l=>sessOf(l.key).type==='run').length,
+      km:logs.filter(l=>sessOf(l.key).type==='run').reduce((a,l)=>a+(parseFloat(l.km)||sessOf(l.key).km||0),0),
       ton:logs.reduce((a,l)=>a+tonnage(l),0),
       mob:keys.filter(k=>DB.daily[k]).length,
       pains:logs.filter(l=>l.pain!=null).map(l=>l.pain),
@@ -1116,9 +1450,9 @@ function bars(vals,opt){
 
 function vStats(){
   const all=Object.values(DB.logs).filter(l=>l.done);
-  const gym=all.filter(l=>PLAN[l.key].type==='gym').length;
-  const runs=all.filter(l=>PLAN[l.key].type==='run');
-  const kmTot=runs.reduce((a,l)=>a+(parseFloat(l.km)||PLAN[l.key].km||0),0);
+  const gym=all.filter(l=>sessOf(l.key).type==='gym').length;
+  const runs=all.filter(l=>sessOf(l.key).type==='run');
+  const kmTot=runs.reduce((a,l)=>a+(parseFloat(l.km)||sessOf(l.key).km||0),0);
   const tonTot=all.reduce((a,l)=>a+tonnage(l),0);
   const setsTot=all.reduce((a,l)=>a+Object.values(l.sets).filter(s=>s.d).length,0);
   const W=weeks(8), cur=W[W.length-1];
@@ -1163,8 +1497,9 @@ function vStats(){
   W.forEach(w=>{
     h+=`<div class="lbl">${w.label}</div>`;
     w.keys.forEach((k,i)=>{
-      const l=DB.logs[k+'|'+WEEK[i][1]];
-      const done=l&&l.done, run=PLAN[WEEK[i][1]].type==='run';
+      // irgendeine an diesem Tag abgeschlossene Einheit, unabhängig vom Plan
+      const l=Object.values(DB.logs).find(x=>x.date===k && x.done);
+      const done=!!l, run=done && sessOf(l.key).type==='run';
       const mob=DB.daily[k];
       const fut=k>tk;
       let cls='c'; if(done) cls+=run?' r':' d'; else if(mob) cls+=' m';
@@ -1202,6 +1537,35 @@ function vStats(){
     h+=`<div class="note">Gewicht × Wiederholungen aller abgehakten Sätze. Steigt diese Kurve langsam und stetig, machst du es richtig. Springt sie stark, wird die Regeneration zum Engpass – bei sechs Belastungstagen ist das die Größe, die kippt.</div></div>`;
   }
 
+  /* Meerschweinchen-Konto */
+  const pigLogs = all.filter(l=>pigsOf(l)>0).sort((a,b)=>a.date.localeCompare(b.date));
+  if(pigLogs.length){
+    const pigSum   = pigLogs.reduce((a,l)=>a+pigsOf(l),0);
+    const pigBest  = pigLogs.slice().sort((a,b)=>pigsOf(b)-pigsOf(a))[0];
+    const pigAvg   = (pigSum/pigLogs.length).toFixed(1);
+    const R        = pigRange();
+    // Woche
+    const pigWeek  = cur.logs.reduce((a,l)=>a+pigsOf(l),0);
+    // letzte 12 Einheiten als Balken
+    const letzte   = pigLogs.slice(-12);
+    const st       = pigStufe(pigSum);
+    h+=`<h2>Meerschweinchen-Konto</h2><div class="card" style="border-color:var(--accent2)">
+      <div class="row" style="gap:14px">
+        <div style="font-size:2.4rem;line-height:1">🐹</div>
+        <div class="grow"><div class="big">${pigSum}</div>
+          <div class="muted">Meerschweinchen gesammelt · ${pigLogs.length} Einheiten</div></div></div>`;
+    h+=bars(letzte.map(l=>({v:pigsOf(l), l:wkurz(l.date), t:fmtDate(l.date)+': '+pigsOf(l)})),{cls:()=>'pig'});
+    h+=`<div class="kpi" style="margin-top:12px">
+      <div class="stat"><div class="v">${pigWeek}</div><div class="l">diese Woche</div></div>
+      <div class="stat"><div class="v">${pigAvg}</div><div class="l">Ø pro Einheit</div></div>
+      <div class="stat"><div class="v">${pigsOf(pigBest)}</div><div class="l">Rekord (${fmtDate(pigBest.date)})</div></div>
+      <div class="stat"><div class="v">${R.lo}–${R.hi}</div><div class="l">Spanne je Einheit</div></div>
+    </div>`;
+    h+=`<div class="verdict">${st.txt}</div>`;
+    if(st.next) h+=`<div class="note">Noch ${st.next-pigSum} bis „${st.nextName}".</div>`;
+    h+=`<div class="note">Getrennt vom Volumen gezählt: jede abgeschlossene Krafteinheit bringt ${R.lo} bis ${R.hi} Meerschweinchen, und die werden hier aufaddiert. Anders als in der Tierkarte, wo das Gesamtgewicht jedes Mal neu zerlegt wird.</div></div>`;
+  }
+
   /* Schulter */
   const painLogs=all.filter(l=>l.pain!=null).sort((a,b)=>a.date.localeCompare(b.date));
   h+=`<h2>Schulter – dein Hauptziel</h2><div class="card" style="border-color:var(--accent)">`;
@@ -1228,7 +1592,7 @@ function vStats(){
     if(bad) h+=`<div class="note">${bad} Einheit${bad>1?'en':''} mit 4/10 oder höher – dort war der Reiz zu groß.</div>`;
   }
   // Reha-Adhärenz
-  const gymL=all.filter(l=>PLAN[l.key].type==='gym');
+  const gymL=all.filter(l=>sessOf(l.key).type==='gym');
   const shFull=gymL.filter(l=>SHOULDER.every((x,i)=>l.sh['s'+i])).length;
   const bandRuns=runs.filter(l=>l.sh&&l.sh.band).length;
   h+=`<div class="kpi" style="margin-top:12px">
@@ -1237,9 +1601,12 @@ function vStats(){
   <div class="note">Beide Zahlen sind der direkteste Hebel auf dein Hauptziel. Rotatorenmanschette reagiert auf Häufigkeit stärker als auf Intensität.</div></div>`;
 
   /* Bestwerte */
-  const gymKeys=Object.keys(PLAN).filter(k=>PLAN[k].type==='gym'&&PLAN[k].ex);
+  // auch Einheiten aus anderen/alten Plaenen, sofern dazu Logs existieren
+  const loggedKeys=[...new Set(all.map(l=>l.key))];
+  const gymKeys=[...new Set(Object.keys(PLAN).concat(loggedKeys))]
+    .filter(k=>sessOf(k).type==='gym' && sessOf(k).ex && sessOf(k).ex.length);
   const prs=[];
-  gymKeys.forEach(k=>PLAN[k].ex.forEach((e,i)=>{
+  gymKeys.forEach(k=>sessOf(k).ex.forEach((e,i)=>{
     const X=e.id||('x'+i);
     let best=0,r='',dt='';
     Object.values(DB.logs).filter(l=>l.key===k&&l.done).forEach(l=>{
@@ -1262,7 +1629,7 @@ function vStats(){
   h+=`<h2>Gewichtsverlauf einer Übung</h2><div class="card">
     <select onchange="showEx(this.value)" style="width:100%">
       <option value="">Übung wählen…</option>`;
-  gymKeys.forEach(k=>PLAN[k].ex.forEach((e,i)=>{ h+=`<option value="${k}|${e.id||('x'+i)}">${e.n}</option>`;}));
+  gymKeys.forEach(k=>sessOf(k).ex.forEach((e,i)=>{ h+=`<option value="${k}|${e.id||('x'+i)}">${sessOf(k).short}: ${e.n}</option>`;}));
   h+=`</select><div id="exOut" style="margin-top:10px"></div></div>`;
 
   /* Wochentabelle */
@@ -1282,18 +1649,64 @@ function vStats(){
   if(!W.some(w=>w.logs.length)) h+=`<div class="muted">Noch keine abgeschlossenen Einheiten.</div>`;
   h+=`</div>`;
 
+  /* Wochentage */
+  const proTag = [0,0,0,0,0,0,0];   // Mo..So
+  all.forEach(l=>{ const d=new Date(l.date+'T12:00:00').getDay(); proTag[(d+6)%7]++; });
+  if(all.length){
+    const maxT = Math.max(...proTag);
+    h+=`<h2>Wann du trainierst</h2><div class="card">
+      <div class="chart">`;
+    proTag.forEach((v,i)=>{ h+=`<div class="b" style="height:${v?Math.max(6,v/maxT*100):3}%" title="${['Mo','Di','Mi','Do','Fr','Sa','So'][i]}: ${v}"></div>`; });
+    h+=`</div><div class="xax">${['Mo','Di','Mi','Do','Fr','Sa','So'].map((t,i)=>`<span>${t}<br><b style="font-weight:700">${proTag[i]}</b></span>`).join('')}</div>`;
+    const best = proTag.indexOf(Math.max(...proTag)), leer = proTag.filter(v=>v===0).length;
+    h+=`<div class="note">Dein stärkster Tag ist ${['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'][best]}.
+      ${leer? leer+' Wochentag'+(leer===1?'':'e')+' bisher ungenutzt.' : 'Du trainierst an allen Wochentagen.'}</div>`;
+    const mitDauer = all.filter(l=>l.dauer);
+    if(mitDauer.length){
+      const avg = Math.round(mitDauer.reduce((a,l)=>a+l.dauer,0)/mitDauer.length);
+      h+=`<div class="kpi" style="margin-top:12px">
+        <div class="stat"><div class="v">${avg} Min</div><div class="l">Ø Dauer</div></div>
+        <div class="stat"><div class="v">${Math.max(...mitDauer.map(l=>l.dauer))} Min</div><div class="l">längste Einheit</div></div></div>`;
+    }
+    h+=`</div>`;
+  }
+
+  /* Vollständige Historie */
+  if(all.length){
+    const sortiert = all.slice().sort((a,b)=>b.date.localeCompare(a.date));
+    const monate = {};
+    sortiert.forEach(l=>{ const m=l.date.slice(0,7); (monate[m]=monate[m]||[]).push(l); });
+    const MN=['Januar','Februar','März','April','Mai','Juni','Juli','August','September','Oktober','November','Dezember'];
+    h+=`<h2>Gesamter Verlauf</h2>
+      <details><summary>${all.length} Einheiten nach Datum</summary>`;
+    Object.keys(monate).sort().reverse().forEach(m=>{
+      const [y,mo]=m.split('-');
+      h+=`<div class="muted" style="font-size:.75rem;text-transform:uppercase;letter-spacing:.06em;margin:12px 0 4px">${MN[+mo-1]} ${y}</div>`;
+      monate[m].forEach(l=>{
+        const pp=sessOf(l.key);
+        const det = pp.type==='run' ? `${l.km||''} km` : `${Object.values(l.sets).filter(x=>x.d).length} Sätze`;
+        h+=`<div class="trow"><span style="width:26px;color:var(--muted);font-size:.75rem">${wkurz(l.date)}</span>
+          <span style="width:46px;font-variant-numeric:tabular-nums">${fmtDate(l.date)}</span>
+          <span class="nm">${pp.name}</span>
+          <span class="muted" style="font-size:.75rem">${det}${l.dauer?' · '+l.dauer+' Min':''}</span></div>`;
+      });
+    });
+    h+=`</details>`;
+  }
+
   /* Letzte Einheiten */
   h+=`<h2>Letzte Einheiten</h2><div class="card">`;
   const sorted=all.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,12);
   if(!sorted.length) h+=`<div class="muted">Noch nichts abgeschlossen.</div>`;
   sorted.forEach(l=>{
-    const p=PLAN[l.key];
+    const p=sessOf(l.key);
     const t=tonnage(l);
     let det = p.type==='run' ? `${l.km||p.km} km${l.min?' · '+l.min+' Min':''}${paceShort(l)}`
       : `${Object.values(l.sets).filter(s=>s.d).length} Sätze${t?' · '+(t/1000).toFixed(1)+' t':''}`;
+    det += (l.dauer? ' · '+l.dauer+' Min' : '');
     h+=`<div class="hist"><div style="width:30px;height:30px;border-radius:8px;font-size:.78rem;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff;background:${p.type==='run'?'var(--run)':'var(--accent)'};flex:none">${p.short}</div>
       <div class="grow"><div style="font-size:.88rem;font-weight:600">${p.name}</div>
-      <div class="muted" style="font-size:.78rem">${fmtDate(l.date)} · ${det}</div></div>
+      <div class="muted" style="font-size:.78rem">${wkurz(l.date)} ${fmtDate(l.date)} · ${det}</div></div>
       ${t?`<button class="btn sec small" style="padding:5px 9px" onclick="showGains(${Math.round(t)},'${fmtDate(l.date)}')">🐹</button>`:''}
       ${p.type==='run'?`<button class="btn sec small" style="padding:5px 9px" onclick="showDist(${parseFloat(l.km)||p.km},${parseFloat(l.min)||0},'${fmtDate(l.date)}')">🐕</button>`:''}
       ${l.pain!=null?`<span class="pill" style="background:${l.pain>=4?'var(--warn)':'var(--line)'};color:${l.pain>=4?'#fff':'var(--muted)'}">${l.pain}/10</span>`:''}
@@ -1378,8 +1791,8 @@ function newKey(){ let i=1; while(PLAN['X'+i]) i++; return 'X'+i; }
 
 function vEdit(){
   let h=`<div class="row"><button class="btn sec small" onclick="go('more')">‹ Zurück</button></div>
-    <h1 style="margin-top:10px">Plan bearbeiten</h1>
-    <div class="muted">Änderungen wirken sofort. Dein Verlauf bleibt erhalten.</div>`;
+    <h1 style="margin-top:10px">${activePlan().name}</h1>
+    <div class="muted">Änderungen wirken sofort und gelten nur für diesen Plan.</div>`;
 
   h+=`<h2>Wochenplan</h2><div class="card">
     <div class="note" style="margin-top:0">Welche Einheit liegt auf welchem Tag?</div>`;
@@ -1406,6 +1819,19 @@ function vEdit(){
   h+=`<div class="row" style="gap:8px;margin-top:12px">
     <button class="btn sec grow" onclick="addSession('gym')">+ Krafteinheit</button>
     <button class="btn sec grow" onclick="addSession('run')">+ Lauf</button></div>`;
+  const frei = Object.keys(SESSIONS).filter(k=>SESSIONS[k].type!=='rest' && !PLAN[k]);
+  if(frei.length){
+    h+=`<details style="margin-top:12px"><summary>Einheit aus einem anderen Plan übernehmen (${frei.length})</summary>`;
+    frei.forEach(k=>{
+      h+=`<div class="row" style="padding:7px 0;border-top:1px solid var(--line)">
+        <div class="grow"><strong style="font-size:.88rem">${SESSIONS[k].name}</strong>
+          <div class="muted" style="font-size:.78rem">${SESSIONS[k].sub||''} · ${(SESSIONS[k].ex||[]).length} Übungen</div></div>
+        <button class="btn sec small" onclick="addFromLib('${k}')">+</button></div>`;
+    });
+    h+=`</details>`;
+  }
+  h+=`<div class="row" style="gap:8px;margin-top:12px">
+    <button class="btn sec grow" onclick="renamePlan()">Plan umbenennen</button></div>`;
   h+=`<div class="note">Alle Einheiten bleiben dauerhaft verfügbar — auch die, die keinem Tag zugeordnet sind. Gelöscht wird nur, was du hier ausdrücklich löschst.</div>`;
 
   h+=`<div class="card" style="margin-top:18px"><button class="btn sec" style="color:var(--warn)" onclick="resetPlan()">Plan auf Standard zurücksetzen</button>
@@ -1523,15 +1949,18 @@ function addSession(type){
 function delSession(){
   const p=PLAN[editKey];
   if(editKey==='R'){ toast('Der Ruhetag wird gebraucht'); return; }
-  if(!confirm('„'+p.name+'" wirklich löschen?')) return;
+  if(!confirm('„'+p.name+'" aus diesem Plan entfernen?')) return;
   WEEK.forEach(w=>{ if(w[1]===editKey) w[1]='R'; });
   delete PLAN[editKey];
-  DB.deleted = (DB.deleted||[]).concat([editKey]);
   planEdited(); go('edit');
 }
 function resetPlan(){
   if(!confirm('Plan auf den Standard zurücksetzen? Dein Verlauf bleibt erhalten.')) return;
-  delete DB.plan; delete DB.week; delete DB.deleted; save(DB); applyPlan(); go('edit'); toast('Plan zurückgesetzt');
+  const id=activePlanId();
+  if(DB.plans) delete DB.plans[id];
+  if(DB.weeks) delete DB.weeks[id];
+  (DEFAULT_PLANS[id]?DEFAULT_PLANS[id].sess:[]).forEach(k=>{ if(DB.sess) delete DB.sess[k]; });
+  save(DB); applyPlan(); go('edit'); toast('Plan zurückgesetzt');
 }
 
 /* ============ TESTMODUS ============ */
@@ -1630,15 +2059,26 @@ function vMore(){
     <div class="grow"><div class="t1">Plan bearbeiten</div>
       <div class="t2">Übungen, Sätze, Trainingstage, eigene Einheiten</div></div>
     <div class="chk" style="color:var(--muted);font-size:.9rem">›</div></div>`;
-  h+=`<h2 style="margin-top:26px">Profil</h2>
-    <div class="card"><div class="note" style="margin-top:0">Mehrere Personen können dieselbe App nutzen – jedes Profil hat einen eigenen Plan und einen eigenen Verlauf. Wichtig, wenn ihr die App auf demselben Gerät oder Browser öffnet.</div>`;
-  profiles().forEach(pr=>{
-    h+=`<div class="row" style="padding:8px 0;border-top:1px solid var(--line)">
-      <div class="grow"><strong style="font-size:.92rem">${pr}</strong>${pr===PROFILE?' <span class="pill g">aktiv</span>':''}</div>
-      ${pr===PROFILE?'':`<button class="btn sec small" onclick="switchProfile('${pr.replace(/'/g,"\\'")}')">Wechseln</button>`}
-      <button class="btn sec small" style="color:var(--warn);padding:6px 9px" onclick="delProfile('${pr.replace(/'/g,"\\'")}')">✕</button></div>`;
+  h+=`<h2 style="margin-top:26px">Trainingsplan</h2>
+    <div class="note" style="margin-top:0">Der aktive Plan bestimmt, welche Einheiten du siehst. Dein Verlauf bleibt bei jedem Wechsel erhalten.</div>`;
+  const alle = allPlans(), aid = activePlanId();
+  Object.keys(alle).forEach(k=>{
+    const pl = alle[k], on = (k===aid);
+    const n = (pl.sess||[]).filter(x=>SESSIONS[x]).length;
+    h+=`<div class="card" style="${on?'border-color:var(--accent);border-width:2px':''}">
+      <div class="row"><div class="grow">
+        <strong style="font-size:.95rem">${pl.name}</strong>${on?' <span class="pill g">aktiv</span>':''}
+        <div class="muted" style="font-size:.8rem">${pl.sub||''} · ${n} Einheit${n===1?'':'en'}</div>
+        ${pl.quelle?`<div class="note">${pl.quelle}</div>`:''}
+        ${pl.warn?`<div class="note" style="color:var(--warn)">⚠️ ${pl.warn}</div>`:''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+        ${on?'':`<button class="btn sec small" onclick="switchPlan('${k}')">Wählen</button>`}
+        <button class="btn sec small" style="color:var(--warn);padding:5px 9px" onclick="delPlan('${k}')">✕</button>
+      </div>
+      </div></div>`;
   });
-  h+=`<div style="margin-top:10px"><button class="btn sec" onclick="addProfile()">+ Profil anlegen</button></div></div>`;
+  h+=`<button class="btn sec" onclick="addPlan()">+ Eigenen Plan anlegen</button>`;
 
   h+=`<h2 style="margin-top:26px">Werkzeuge</h2>`;
   h+=`<div class="tile" onclick="go('test')"><div class="badge" style="background:var(--accent2)">🧪</div>
@@ -1778,6 +2218,7 @@ function setVal(x,s,f,v){
 }
 function toggleSet(x,s){
   const L=getLog(activeDate,activeKey), k=x+'_'+s;
+  if(!L.t0) L.t0 = Date.now();
   if(!L.sets[k]) L.sets[k]={};
   L.sets[k].d=!L.sets[k].d;
   // Auto-fill: leeres Gewicht mit letztem Satz vorbelegen
@@ -1799,6 +2240,15 @@ function toggleShBand(){ const L=getLog(activeDate,activeKey); L.sh.band=!L.sh.b
 function toggleShStretch(){ const L=getLog(activeDate,activeKey); L.sh.stretch=!L.sh.stretch; save(DB); render(); }
 function setField(f,v){ const L=getLog(activeDate,activeKey); L[f]= v===''?null:v; save(DB);
   if(f==='km'||f==='min'){ const o=document.getElementById('paceOut'); if(o) o.textContent=paceTxt(L); } }
+function moveLog(neu){
+  if(!neu || neu===activeDate) return;
+  const alt = activeDate+'|'+activeKey, neuKey = neu+'|'+activeKey;
+  if(DB.logs[neuKey] && !confirm('Für den '+fmtDate(neu)+' gibt es schon einen Eintrag. Überschreiben?')) return;
+  const L = DB.logs[alt];
+  if(L){ L.date = neu; DB.logs[neuKey] = L; delete DB.logs[alt]; }
+  activeDate = neu; save(DB); render();
+  toast('Verschoben auf '+fmtDate(neu));
+}
 function setPain(v){ const L=getLog(activeDate,activeKey); L.pain=parseInt(v); save(DB);
   const e=document.getElementById('pv'); if(e) e.textContent=v; }
 function paceTxt(L){
@@ -1810,11 +2260,18 @@ function paceTxt(L){
 function toggleDaily(){ const d=todayKey(); if(DB.daily[d]) delete DB.daily[d]; else DB.daily[d]=1; save(DB); render(); }
 function finish(){
   const L=getLog(activeDate,activeKey);
-  L.done=!L.done; save(DB);
+  L.done=!L.done;
+  if(L.done && L.t0 && !L.t1){
+    L.t1 = Date.now();
+    L.dauer = Math.max(1, Math.round((L.t1-L.t0)/60000));
+  }
+  save(DB);
   if(L.done){
     stopTimer();
     const t=tonnage(L);
     if(PLAN[activeKey].type==='gym' && t>0){
+      // vergebene Meerschweinchen festschreiben, damit das Konto stabil bleibt
+      L.pigs = gainsBreak(t).pigs; L.pigPlan = activePlanId(); save(DB);
       gainsAfter=()=>go('home');
       showGains(t);
       return;
