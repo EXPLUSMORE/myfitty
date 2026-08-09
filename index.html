@@ -265,6 +265,73 @@ details ul{padding-left:18px;font-size:.87rem}
   <button onclick="applyUpdate()">Laden</button>
   <button class="x" onclick="document.getElementById('upd').className=''">Später</button></div>
 
+<!-- HELP MODAL (Glossar & Abkürzungen) -->
+<div id="helpModal" style="position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(0,0,0,.8);z-index:1000;display:none;overflow-y:auto;padding:20px">
+  <div style="background:var(--card);border-radius:14px;max-width:600px;margin:20px auto;padding:20px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
+      <h2 style="margin:0">ℹ️ Glossar & Abkürzungen</h2>
+      <button onclick="closeHelp()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--ink)">×</button>
+    </div>
+    
+    <div style="display:flex;flex-direction:column;gap:14px;font-size:.9rem;line-height:1.5">
+      <div style="border-left:4px solid var(--accent);padding:12px;background:rgba(0,0,0,.1);border-radius:6px">
+        <strong style="color:var(--accent)">RPE — Rate of Perceived Exertion</strong>
+        <div style="margin-top:6px;color:var(--muted)">Wie anstrengend war dieser Satz? Skala 1–10:
+          <ul style="margin:6px 0 0 14px">
+            <li><strong>1–4:</strong> Leicht, noch mehrere Reps möglich</li>
+            <li><strong>5–6:</strong> Moderat, noch 3–4 Reps</li>
+            <li><strong>7–8:</strong> Anstrengend, noch 1–2 Reps</li>
+            <li><strong>9–10:</strong> Maximum, kein Rep mehr</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="border-left:4px solid var(--accent);padding:12px;background:rgba(0,0,0,.1);border-radius:6px">
+        <strong style="color:var(--accent)">1RM — Einwieder-Maximum</strong>
+        <div style="margin-top:6px;color:var(--muted)">Geschätztes Maximum (Epley-Formel):
+          <div style="background:rgba(0,0,0,.2);padding:8px;border-radius:4px;margin:8px 0;font-family:monospace;font-size:.85rem">1RM = Gewicht × (1 + Reps ÷ 30)</div>
+          <strong style="display:block;margin-top:6px">Beispiele:</strong>
+          <ul style="margin:4px 0 0 14px">
+            <li>60 kg × 12 → <strong>83 kg 1RM</strong></li>
+            <li>80 kg × 5 → <strong>91 kg 1RM</strong></li>
+            <li>100 kg × 1 → <strong>100 kg 1RM</strong></li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="border-left:4px solid var(--warn);padding:12px;background:rgba(0,0,0,.1);border-radius:6px">
+        <strong style="color:var(--warn)">🔴 Schmerz (Pain 0–10)</strong>
+        <div style="margin-top:6px;color:var(--muted)">Unterscheidung: Muskelbelastung vs. echter Schmerz
+          <ul style="margin:6px 0 0 14px">
+            <li><strong>0–2:</strong> Keine Beschwerden</li>
+            <li><strong>3–4:</strong> Leichte Anspannung</li>
+            <li><strong>5–6:</strong> Deutlich, aber trainierbar</li>
+            <li><strong>7–10:</strong> ⚠️ STOPP — Echter Schmerz</li>
+          </ul>
+        </div>
+      </div>
+
+      <div style="border-left:4px solid var(--run);padding:12px;background:rgba(0,0,0,.1);border-radius:6px">
+        <strong style="color:var(--run)">🏆 PR — Personal Record</strong>
+        <div style="margin-top:6px;color:var(--muted)">Dein bisheriger Bestwert (höchster 1RM ever). Die App merkt automatisch neue PRs!</div>
+      </div>
+
+      <div style="border-left:4px solid var(--accent2);padding:12px;background:rgba(0,0,0,.1);border-radius:6px">
+        <strong style="color:var(--accent2)">🔥 Progression</strong>
+        <div style="margin-top:6px;color:var(--muted)">
+          <ul style="margin:6px 0 0 14px">
+            <li><strong>RPE ≤ 6:</strong> 📈 Gewicht erhöhen (+2,5kg)</li>
+            <li><strong>RPE 6–7:</strong> ✓ Halten oder +1,25kg</li>
+            <li><strong>Schmerz > 3:</strong> ⚠️ Bremsen (-2,5kg)</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <button onclick="closeHelp()" style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:12px 16px;font-weight:600;width:100%;margin-top:16px;cursor:pointer;font-size:.95rem">Schließen</button>
+  </div>
+</div>
+
 <script>
 /* ============ MUSKELGRUPPEN-SYMBOL ============ */
 const MUSCLE = {
@@ -2782,86 +2849,6 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
-
-</script>
-
-<!-- HELP MODAL -->
-<div id="helpModal" class="modal" style="position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(0,0,0,.8);z-index:1000;display:none;overflow-y:auto;padding:20px">
-  <div style="background:var(--card);border-radius:14px;max-width:600px;margin:20px auto;padding:20px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <h2 style="margin:0">ℹ️ Glossar & Abkürzungen</h2>
-      <button id="helpClose" style="background:none;border:none;font-size:1.5rem;cursor:pointer">×</button>
-    </div>
-    
-    <div style="display:flex;flex-direction:column;gap:16px;font-size:.9rem">
-      <div style="border-left:3px solid var(--accent);padding:12px;background:rgba(0,0,0,.05);border-radius:6px">
-        <strong style="color:var(--accent)">RPE — Rate of Perceived Exertion</strong>
-        <div style="margin-top:8px;color:var(--muted)">Wie anstrengend war dieser Satz? Skala 1–10:
-          <ul style="margin:6px 0 0 16px">
-            <li><strong>1–4:</strong> Leicht, noch mehrere Reps möglich</li>
-            <li><strong>5–6:</strong> Moderat, noch 3–4 Reps</li>
-            <li><strong>7–8:</strong> Anstrengend, noch 1–2 Reps</li>
-            <li><strong>9–10:</strong> Maximum, kein Rep mehr</li>
-          </ul>
-        </div>
-      </div>
-
-      <div style="border-left:3px solid var(--accent);padding:12px;background:rgba(0,0,0,.05);border-radius:6px">
-        <strong style="color:var(--accent)">1RM — Einwieder-Maximum</strong>
-        <div style="margin-top:8px;color:var(--muted)">Dein geschätztes Maximum (Epley-Formel): <br><code style="background:#000;padding:4px;border-radius:4px;font-size:.85rem">1RM = Gewicht × (1 + Reps / 30)</code>
-          <div style="margin-top:6px"><strong>Beispiele:</strong>
-            <ul style="margin:4px 0 0 16px">
-              <li>60 kg × 12 → <strong>83 kg 1RM</strong></li>
-              <li>80 kg × 5 → <strong>91 kg 1RM</strong></li>
-              <li>100 kg × 1 → <strong>100 kg 1RM</strong></li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div style="border-left:3px solid var(--warn);padding:12px;background:rgba(0,0,0,.05);border-radius:6px">
-        <strong style="color:var(--warn)">Schmerz (Pain 0–10)</strong>
-        <div style="margin-top:8px;color:var(--muted)">Unterscheidung: Muskelbelastung vs. echter Schmerz
-          <ul style="margin:6px 0 0 16px">
-            <li><strong>0–2:</strong> Keine Beschwerden</li>
-            <li><strong>3–4:</strong> Leichte Anspannung</li>
-            <li><strong>5–6:</strong> Deutlich, aber trainierbar</li>
-            <li><strong>7–10:</strong> ⚠️ STOPP — Echter Schmerz</li>
-          </ul>
-        </div>
-      </div>
-
-      <div style="border-left:3px solid var(--run);padding:12px;background:rgba(0,0,0,.05);border-radius:6px">
-        <strong style="color:var(--run)">PR — Personal Record</strong>
-        <div style="margin-top:8px;color:var(--muted)">Dein bisheriger Bestwert (höchster 1RM ever). <br>Die App erkennt neue PRs automatisch!</div>
-      </div>
-
-      <div style="border-left:3px solid var(--accent2);padding:12px;background:rgba(0,0,0,.05);border-radius:6px">
-        <strong style="color:var(--accent2)">Aufwärmen</strong>
-        <div style="margin-top:8px;color:var(--muted)">Berechnet automatisch aus deinem Arbeitsgewicht: 50%, 60%, 75%, 85% mit angepassten Reps</div>
-      </div>
-
-      <div style="border-left:3px solid var(--accent);padding:12px;background:rgba(0,0,0,.05);border-radius:6px">
-        <strong style="color:var(--accent)">Progression</strong>
-        <div style="margin-top:8px;color:var(--muted)">
-          <ul style="margin:6px 0 0 16px">
-            <li><strong>RPE ≤ 6:</strong> 📈 Gewicht erhöhen</li>
-            <li><strong>RPE 6–7:</strong> ✓ Halten oder +1,25kg</li>
-            <li><strong>Schmerz > 3:</strong> ⚠️ Bremsen</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <button onclick="closeHelp()" style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:12px 16px;font-weight:600;width:100%;margin-top:16px;cursor:pointer">Schließen</button>
-  </div>
-</div>
-
-<style>
-#helpModal { display: none; }
-#helpModal.on { display: block; }
-#helpModal code { color: #ccc; }
-</style>
 
 </script>
 </body>
