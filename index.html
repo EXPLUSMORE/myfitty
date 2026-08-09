@@ -325,6 +325,18 @@ const DEFAULT_PLAN = {
     ]},
   L3:{name:'Lauf 3 – langer Lauf', type:'run', short:'10', sub:'10 km ruhig, danach Ruhetag',
     km:10, hint:'Erstes Drittel bewusst langsamer als das Wohlfühltempo. Bei km 5: Schultern checken – hochgezogen? Arme ausschütteln.'},
+  W1:{name:'ISCHE OWN 3', type:'gym', short:'O3', sub:'Ganzkörper',
+    ex:[
+      {id:'i1',n:'Greatest Stretchy', s:1, r:'5 je Seite', rpe:'', note:'Mobilisation zum Einstieg, ohne Gewicht.', v:V('worlds greatest stretch anleitung'), mg:['beine','rumpf']},
+      {id:'i2',n:'Dead Bug', s:3, r:'30', rpe:'7', note:'Mit Gewicht auf Brusthöhe. Lendenwirbelsäule bleibt am Boden.', v:V('dead bug übung anleitung deutsch'), mg:['rumpf']},
+      {id:'i3',n:'Single-Leg Airplane RDL', s:2, r:'8 je Seite', rpe:'7', note:'Standbein leicht gebeugt, Hüfte schließt nicht auf.', v:V('single leg airplane rdl anleitung'), mg:['beine','gesaess','rumpf']},
+      {id:'i4',n:'Kniebeugen seitlich (Cossack)', s:3, r:'10', rpe:'7–8', note:'Ferse des gebeugten Beins bleibt am Boden.', v:V('cossack squat anleitung technik'), mg:['beine','gesaess']},
+      {id:'i5',n:'Hip-Thrusts', s:3, r:'10', rpe:'8', note:'Oben Becken bewusst aufrichten, 1 s halten.', v:V('hip thrust technik anleitung deutsch'), mg:['gesaess','beine']},
+      {id:'i6',n:'Einarmiger Latzug im halben Kniestand', s:2, r:'10 je Seite', rpe:'7', note:'Rumpf stabil, keine Rotation.', v:V('einarmiger latzug halber kniestand technik'), mg:['ruecken','arme','rumpf']},
+      {id:'i7',n:'Brustpresse an der Maschine', s:3, r:'10 / 8 / 6', rpe:'8', note:'Absteigende Wiederholungen bei gleichem Gewicht.', v:V('brustpresse maschine technik'), mg:['brust','arme']},
+      {id:'i8',n:'Beinpresse', s:3, r:'10–11', rpe:'8', note:'Tiefer Bewegungsumfang, Becken bleibt am Polster.', v:V('beinpresse richtige ausführung technik'), mg:['beine','gesaess']},
+      {id:'i9',n:'Wadenheben an der Maschine', s:3, r:'11', rpe:'8', note:'Unten kurz in die Dehnung, oben durchdrücken.', v:V('wadenheben maschine technik'), mg:['waden']},
+    ]},
   R:{name:'Ruhetag', type:'rest', short:'–', sub:'Nur die 10-Minuten-Mobility'},
 };
 let PLAN={}, WEEK=[];
