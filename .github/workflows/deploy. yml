@@ -1,0 +1,43 @@
+name: Deploy myfitty
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Versionsstempel setzen
+        run: |
+          BUILD="$(date -u +%Y-%m-%d)-${GITHUB_SHA::7}"
+          echo "Build: $BUILD"
+          sed -i "s/__BUILD__/$BUILD/g" sw.js index.html
+          grep -q "$BUILD" sw.js || { echo "Stempel fehlt in sw.js"; exit 1; }
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: .
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
