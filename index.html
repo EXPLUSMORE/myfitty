@@ -253,7 +253,7 @@ details ul{padding-left:18px;font-size:.87rem}
   <button id="nav-week" onclick="go('week')"><span class="ic">📅</span>Woche</button>
   <button id="nav-stats" onclick="go('stats')"><span class="ic">📊</span>Dashboard</button>
   <button id="nav-mob" onclick="go('mob')"><span class="ic">🧘</span>Mobility</button>
-  <button id="nav-more" onclick="go('more')"><span class="ic">⚙️</span>Mehr</button>
+  <button id="nav-more" onclick="go('more')"><span class="ic">⚙️</span>Setup</button>
 </nav>
 
 <div class="toast" id="toast"></div>
@@ -999,6 +999,14 @@ function vHome(){
   let h=`<div class="brand">myfitty</div>
     <h1>Heute</h1>
     <div class="muted">${dayNames[di]} · ${activePlan().name} · Woche ${weekNum()}</div>`;
+  // Erstnutzer: einmaliger Wegweiser, verschwindet nach der ersten abgeschlossenen Einheit
+  if(!Object.values(DB.logs).some(l=>l.done)){
+    h+=`<div class="card" style="border-color:var(--accent);border-width:2px">
+      <div class="row" style="gap:12px"><div style="font-size:1.6rem;line-height:1">🧭</div>
+      <div class="grow"><strong style="font-size:.95rem">Zum ersten Mal hier?</strong>
+        <div class="note" style="margin-top:2px">Vier Schritte, eine Minute Lesezeit – danach weißt du alles Nötige.</div></div>
+      <button class="btn small" onclick="go('more')">How-to</button></div></div>`;
+  }
   if(simOn()) h+=`<div class="card" style="border-color:var(--accent2);padding:10px 13px">
     <div class="row"><div class="grow"><strong style="font-size:.88rem">🧪 Testmodus aktiv</strong>
       <div class="note">Simuliertes Datum: ${fmtDate(todayKey())}</div></div>
@@ -1600,37 +1608,35 @@ function vStats(){
     <div class="stat"><div class="v">${runs.length?Math.round(bandRuns/runs.length*100):0}%</div><div class="l">Band nach dem Lauf</div></div></div>
   <div class="note">Beide Zahlen sind der direkteste Hebel auf dein Hauptziel. Rotatorenmanschette reagiert auf Häufigkeit stärker als auf Intensität.</div></div>`;
 
-  /* Bestwerte */
-  // auch Einheiten aus anderen/alten Plaenen, sofern dazu Logs existieren
-  const loggedKeys=[...new Set(all.map(l=>l.key))];
-  const gymKeys=[...new Set(Object.keys(PLAN).concat(loggedKeys))]
-    .filter(k=>sessOf(k).type==='gym' && sessOf(k).ex && sessOf(k).ex.length);
-  const prs=[];
-  gymKeys.forEach(k=>sessOf(k).ex.forEach((e,i)=>{
-    const X=e.id||('x'+i);
-    let best=0,r='',dt='';
-    Object.values(DB.logs).filter(l=>l.key===k&&l.done).forEach(l=>{
-      Object.keys(l.sets).forEach(sk=>{ if(sk.slice(0,sk.lastIndexOf('_'))===X){ const s=l.sets[sk];
-        const w=parseFloat(s.w)||0; if(s.d&&w>best){best=w;r=s.r||'';dt=l.date;} }});
-    });
-    if(best>0) prs.push({n:e.n,w:best,r,dt});
-  }));
+  /* Bestwerte – eine Zeile je Übung, über alle Einheiten und Pläne hinweg */
+  const idx = exIndex();                       // Übungsname -> Fundstellen
+  const prs = Object.values(idx).map(e=>{
+    const pts = exPunkte(e);                   // {d,w,r} je Trainingstag
+    if(!pts.length) return null;
+    const best = pts.slice().sort((a,b)=>b.w-a.w || b.d.localeCompare(a.d))[0];
+    const letzt = pts[pts.length-1];
+    return {n:e.name, id:e.id, w:best.w, r:best.r, dt:best.d, pts, letzt};
+  }).filter(Boolean);
+
   if(prs.length){
-    h+=`<h2>Bestwerte</h2><div class="card">`;
+    h+=`<h2>Bestwerte</h2>
+      <div class="note" style="margin-top:0">Eine Zeile je Übung – der beste Satz aller Zeiten, egal in welcher Einheit oder welchem Plan er stand. Zum Aufklappen antippen, dann siehst du den Verlauf.</div>
+      <div class="card">`;
     prs.sort((a,b)=>b.w-a.w).forEach(p=>{
-      h+=`<div class="trow"><span class="nm">${p.n}</span>
+      const trend = p.letzt.w - p.pts[0].w;
+      const pfeil = p.pts.length<2 ? '' :
+        (trend>0 ? `<span style="color:var(--done)">▲ +${(+trend.toFixed(1))}</span>`
+        : trend<0 ? `<span style="color:var(--warn)">▼ ${(+trend.toFixed(1))}</span>`
+        : `<span class="muted">→</span>`);
+      h+=`<div class="trow" style="cursor:pointer" onclick="togglePR('${p.id}')">
+        <span class="nm">${p.n}<div class="muted" style="font-size:.72rem;font-weight:400">
+          ${p.pts.length} Trainingstag${p.pts.length===1?'':'e'} · zuletzt ${p.letzt.w} kg ${pfeil}</div></span>
         <span class="muted" style="font-size:.75rem">${fmtDate(p.dt)}</span>
-        <span class="vl">${p.w} kg${p.r?' × '+p.r:''}</span></div>`;
+        <span class="vl">${p.w} kg${p.r?' × '+p.r:''}</span></div>
+        <div id="pr-${p.id}" style="display:none;padding:2px 0 12px"></div>`;
     });
     h+=`</div>`;
   }
-
-  /* Übungsverlauf */
-  h+=`<h2>Gewichtsverlauf einer Übung</h2><div class="card">
-    <select onchange="showEx(this.value)" style="width:100%">
-      <option value="">Übung wählen…</option>`;
-  gymKeys.forEach(k=>sessOf(k).ex.forEach((e,i)=>{ h+=`<option value="${k}|${e.id||('x'+i)}">${sessOf(k).short}: ${e.n}</option>`;}));
-  h+=`</select><div id="exOut" style="margin-top:10px"></div></div>`;
 
   /* Wochentabelle */
   h+=`<h2>Wochenbilanz</h2><div class="card">
@@ -1722,23 +1728,66 @@ function paceShort(l){
   return ` · ${m}:${String(s).padStart(2,'0')}/km`;
 }
 
-function showEx(val){
-  const out=document.getElementById('exOut');
-  if(!val){ out.innerHTML=''; return; }
-  const [k,X]=val.split('|');
-  const logs=Object.values(DB.logs).filter(l=>l.key===k&&l.done).sort((a,b)=>a.date.localeCompare(b.date));
-  const pts=logs.map(l=>{
-    let best=0,r=0; Object.keys(l.sets).forEach(sk=>{ if(sk.slice(0,sk.lastIndexOf('_'))===X){ const s=l.sets[sk]; const w=parseFloat(s.w)||0; if(w>best){best=w;r=s.r||'';} }});
-    return {d:l.date,w:best,r};
-  }).filter(p=>p.w>0);
-  if(!pts.length){ out.innerHTML='<div class="muted">Noch keine Daten für diese Übung.</div>'; return; }
+/* ============ ÜBUNGS-INDEX ============
+   Dieselbe Übung steht oft in mehreren Einheiten und Plänen. Für Bestwerte und
+   Verlauf wird sie über den Namen zusammengefasst, sonst stünde sie mehrfach da. */
+function normName(n){
+  return String(n||'').toLowerCase().replace(/\(.*?\)/g,' ')
+    .replace(/[^a-zäöüß0-9]+/g,' ').trim();
+}
+function exIndex(){
+  const alle = Object.values(DB.logs).filter(l=>l.done);
+  const keys = [...new Set(Object.keys(PLAN).concat(alle.map(l=>l.key)))]
+    .filter(k=>sessOf(k).type==='gym' && sessOf(k).ex && sessOf(k).ex.length);
+  const idx={};
+  keys.forEach(k=>sessOf(k).ex.forEach((e,i)=>{
+    const nn=normName(e.n); if(!nn) return;
+    if(!idx[nn]) idx[nn]={name:e.n, id:'e'+Object.keys(idx).length, refs:[]};
+    idx[nn].refs.push({k, X:e.id||('x'+i)});
+  }));
+  return idx;
+}
+/* Bester Satz je Trainingstag, chronologisch. Mehrere Fundstellen am selben
+   Tag werden zum Tagesbestwert verdichtet. */
+function exPunkte(eintrag){
+  const proTag={};
+  eintrag.refs.forEach(ref=>{
+    Object.values(DB.logs).filter(l=>l.done && l.key===ref.k).forEach(l=>{
+      Object.keys(l.sets).forEach(sk=>{
+        if(sk.slice(0,sk.lastIndexOf('_'))!==ref.X) return;
+        const st=l.sets[sk]; if(!st.d) return;
+        const w=parseFloat(st.w)||0; if(w<=0) return;
+        const cur=proTag[l.date];
+        if(!cur || w>cur.w) proTag[l.date]={d:l.date, w, r:st.r||''};
+      });
+    });
+  });
+  return Object.values(proTag).sort((a,b)=>a.d.localeCompare(b.d));
+}
+/* Verlauf unter der angetippten Bestwert-Zeile ein- und ausklappen */
+function togglePR(id){
+  const box=document.getElementById('pr-'+id);
+  if(!box) return;
+  if(box.style.display!=='none'){ box.style.display='none'; box.innerHTML=''; return; }
+  const e=Object.values(exIndex()).find(x=>x.id===id);
+  const pts=e?exPunkte(e):[];
+  box.style.display='block';
+  if(!pts.length){ box.innerHTML='<div class="muted">Noch keine Daten.</div>'; return; }
   const max=Math.max(...pts.map(p=>p.w));
-  const first=pts[0].w, last=pts[pts.length-1].w;
-  const diff=last-first;
-  let h=`<div class="row"><div><div class="big">${last} kg</div><div class="muted">aktuell${pts.length>1?` · ${diff>=0?'+':''}${diff.toFixed(1)} kg seit Start`:''}</div></div></div><div class="hbar">`;
-  pts.slice(-16).forEach(p=>{ h+=`<div style="height:${Math.max(6,p.w/max*100)}%" title="${fmtDate(p.d)}: ${p.w} kg × ${p.r}"></div>`;});
-  h+=`</div><div class="muted" style="font-size:.75rem">${pts.length} Einträge · Bestwert ${max} kg</div>`;
-  out.innerHTML=h;
+  const zeig=pts.slice(-16);
+  const erst=pts[0], letzt=pts[pts.length-1], diff=letzt.w-erst.w;
+  let h=`<div class="hbar">`;
+  zeig.forEach(p=>{ h+=`<div style="height:${Math.max(6,p.w/max*100)}%"
+    title="${fmtDate(p.d)}: ${p.w} kg × ${p.r}"></div>`; });
+  h+=`</div><div class="muted" style="font-size:.75rem;margin-top:4px">
+    ${fmtDate(zeig[0].d)} bis ${fmtDate(letzt.d)} · ${pts.length} Trainingstage`;
+  if(pts.length>1) h+=` · ${diff>=0?'+':''}${(+diff.toFixed(1))} kg seit dem ersten Mal`;
+  h+=`</div>`;
+  if(e.refs.length>1){
+    const wo=[...new Set(e.refs.map(r=>sessOf(r.k).name))];
+    h+=`<div class="muted" style="font-size:.72rem;margin-top:3px">Zusammengefasst aus: ${wo.join(', ')}</div>`;
+  }
+  box.innerHTML=h;
 }
 
 function vMob(){
@@ -1999,7 +2048,7 @@ function vTest(){
     <li>Schulterblock abhaken, Schmerz-Slider bewegen, Notiz schreiben</li>
     <li>„Einheit abschließen" → Meerschweinchen-Karte erscheint</li>
     <li>Auf einen Lauftag springen, km und Minuten eintragen → Pace erscheint, danach die Dackel-Karte</li>
-    <li>Dashboard: Ring, Heatmap, Diagramme, Bestwerte, Übungsverlauf im Auswahlmenü</li>
+    <li>Dashboard: Ring, Heatmap, Diagramme, Bestwerte – eine Zeile antippen zeigt den Verlauf</li>
     <li>Mobility abhaken, dann Datum einen Tag weiterstellen und nochmal → Streak zählt</li>
     <li>Plan bearbeiten: Übung hinzufügen, verschieben, Tag umstellen – dann prüfen, ob die Einheit sich öffnen lässt</li>
     <li>Backup-Code kopieren, „Alles zurücksetzen", Code wieder einspielen → alles zurück</li>
@@ -2053,8 +2102,47 @@ function clearDemo(){
   save(DB); render(); toast('Demodaten entfernt');
 }
 
+/* ============ HOW-TO ============ */
+/* Vier Schritte, die man in dieser Reihenfolge wirklich braucht.
+   Fuer Erstnutzer offen, sobald etwas trainiert wurde eingeklappt. */
+const HOWTO=[
+  {ic:'1', t:'Plan wählen',
+   d:'Weiter unten stehen alle Trainingspläne. Tippe bei deinem auf <strong>Aktivieren</strong> – danach zeigt die App nur noch dessen Einheiten. Wechseln kannst du jederzeit, dein Verlauf bleibt vollständig erhalten.'},
+  {ic:'2', t:'Training starten',
+   d:'Unter <strong>🏠 Heute</strong> steht die Einheit des Tages. Antippen, und du siehst alle Übungen. Willst du etwas anderes machen, wähle unter <strong>📅 Woche</strong> eine beliebige Einheit – auch außer der Reihe.'},
+  {ic:'3', t:'Sätze abhaken',
+   d:'Pro Satz Gewicht und Wiederholungen eintragen, dann den Kreis rechts antippen. Der Pausentimer startet von selbst, und der nächste Satz wird mit denselben Werten vorbelegt. Nur das Abhaken zählt für die Auswertung.'},
+  {ic:'4', t:'Abschließen',
+   d:'Unten auf <strong>Einheit abschließen</strong>. Erst dadurch wandert das Training in Dashboard und Verlauf – und du bekommst deine Meerschweinchen.'},
+];
+function howTo(){
+  const trainiert = Object.values(DB.logs).some(l=>l.done);
+  let h=`<details ${trainiert?'':'open'} style="border-color:var(--accent);border-width:2px">
+    <summary style="font-weight:700">🧭 How-to: die App in 4 Schritten</summary>
+    <div class="note" style="margin-top:2px">Du musst nichts einrichten. Plan wählen, lostrainieren – der Rest passiert automatisch.</div>`;
+  HOWTO.forEach(s=>{
+    h+=`<div class="row" style="gap:11px;align-items:flex-start;margin-top:12px">
+      <div style="width:26px;height:26px;flex:none;border-radius:50%;background:var(--accent);color:#fff;
+        font-size:.82rem;font-weight:700;display:flex;align-items:center;justify-content:center">${s.ic}</div>
+      <div class="grow"><div style="font-weight:600;font-size:.92rem">${s.t}</div>
+        <div class="muted" style="font-size:.84rem;line-height:1.45;margin-top:2px">${s.d}</div></div></div>`;
+  });
+  h+=`<div class="note" style="margin-top:14px"><strong>Die fünf Reiter unten:</strong>
+    🏠 Heute – was heute ansteht · 📅 Woche – alle Einheiten und Wochentage ·
+    📊 Dashboard – Verlauf, Bestwerte, Meerschweinchen-Konto · 🧘 Mobility – täglich 10 Minuten mit Timer ·
+    ⚙️ Setup – Pläne, Übungen bearbeiten, Backup.</div>`;
+  h+=`<div class="note"><strong>Zwei Dinge, die oft übersehen werden:</strong>
+    Übungen, Sätze und Trainingstage lassen sich unter <em>Plan bearbeiten</em> frei ändern – der Plan ist ein Vorschlag, kein Gesetz.
+    Und deine Daten liegen nur auf diesem Gerät: leg über <em>Datensicherung</em> ab und zu ein Backup an.</div>`;
+  h+=`<div class="row" style="gap:8px;margin-top:12px">
+    <button class="btn sec small grow" onclick="go('week')">Einheiten ansehen</button>
+    <button class="btn small grow" onclick="go('home')">Los geht's</button></div>`;
+  return h+`</details>`;
+}
+
 function vMore(){
-  let h=`<h1>Mehr</h1>`;
+  let h=`<h1>Setup</h1>`;
+  h+=howTo();
   h+=`<div class="tile" onclick="go('edit')"><div class="badge">✎</div>
     <div class="grow"><div class="t1">Plan bearbeiten</div>
       <div class="t2">Übungen, Sätze, Trainingstage, eigene Einheiten</div></div>
