@@ -133,6 +133,14 @@ input.ed{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:
   background:var(--bg);color:var(--muted);cursor:pointer;user-select:none}
 .mgchip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
 .hbar{display:flex;align-items:flex-end;gap:3px;height:60px;margin:10px 0}
+.vorschlag{display:flex;align-items:center;gap:10px;margin-top:8px;padding:8px 11px;border-radius:10px;
+  background:var(--line);font-size:.85rem}
+.vorschlag strong{font-size:.88rem}
+.mgrow{display:flex;align-items:center;gap:9px;padding:6px 0}
+.mgbar{flex:1;height:9px;border-radius:5px;background:var(--line);overflow:hidden;position:relative}
+.mgbar i{display:block;height:100%;background:var(--accent);border-radius:5px}
+.mgbar u{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--muted);opacity:.55}
+.prbox{border:2px solid var(--accent);border-radius:12px;padding:11px 13px;margin:10px 0;background:var(--card)}
 .lc{width:100%;height:110px;display:block;margin:10px 0;overflow:visible}
 .lct{font-size:9px;fill:var(--muted)}
 .hbar div{flex:1;background:var(--accent);border-radius:3px 3px 0 0;min-height:2px;opacity:.85}
@@ -264,73 +272,6 @@ details ul{padding-left:18px;font-size:.87rem}
 <div id="upd"><span class="t">Neue Version verfügbar</span>
   <button onclick="applyUpdate()">Laden</button>
   <button class="x" onclick="document.getElementById('upd').className=''">Später</button></div>
-
-<!-- HELP MODAL (Glossar & Abkürzungen) -->
-<div id="helpModal" style="position:fixed;left:0;right:0;top:0;bottom:0;background:rgba(0,0,0,.8);z-index:1000;display:none;overflow-y:auto;padding:20px">
-  <div style="background:var(--card);border-radius:14px;max-width:600px;margin:20px auto;padding:20px">
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:16px">
-      <h2 style="margin:0">ℹ️ Glossar & Abkürzungen</h2>
-      <button onclick="closeHelp()" style="background:none;border:none;font-size:1.5rem;cursor:pointer;color:var(--ink)">×</button>
-    </div>
-    
-    <div style="display:flex;flex-direction:column;gap:14px;font-size:.9rem;line-height:1.5">
-      <div style="border-left:4px solid var(--accent);padding:12px;background:rgba(0,0,0,.1);border-radius:6px">
-        <strong style="color:var(--accent)">RPE — Rate of Perceived Exertion</strong>
-        <div style="margin-top:6px;color:var(--muted)">Wie anstrengend war dieser Satz? Skala 1–10:
-          <ul style="margin:6px 0 0 14px">
-            <li><strong>1–4:</strong> Leicht, noch mehrere Reps möglich</li>
-            <li><strong>5–6:</strong> Moderat, noch 3–4 Reps</li>
-            <li><strong>7–8:</strong> Anstrengend, noch 1–2 Reps</li>
-            <li><strong>9–10:</strong> Maximum, kein Rep mehr</li>
-          </ul>
-        </div>
-      </div>
-
-      <div style="border-left:4px solid var(--accent);padding:12px;background:rgba(0,0,0,.1);border-radius:6px">
-        <strong style="color:var(--accent)">1RM — Einwieder-Maximum</strong>
-        <div style="margin-top:6px;color:var(--muted)">Geschätztes Maximum (Epley-Formel):
-          <div style="background:rgba(0,0,0,.2);padding:8px;border-radius:4px;margin:8px 0;font-family:monospace;font-size:.85rem">1RM = Gewicht × (1 + Reps ÷ 30)</div>
-          <strong style="display:block;margin-top:6px">Beispiele:</strong>
-          <ul style="margin:4px 0 0 14px">
-            <li>60 kg × 12 → <strong>83 kg 1RM</strong></li>
-            <li>80 kg × 5 → <strong>91 kg 1RM</strong></li>
-            <li>100 kg × 1 → <strong>100 kg 1RM</strong></li>
-          </ul>
-        </div>
-      </div>
-
-      <div style="border-left:4px solid var(--warn);padding:12px;background:rgba(0,0,0,.1);border-radius:6px">
-        <strong style="color:var(--warn)">🔴 Schmerz (Pain 0–10)</strong>
-        <div style="margin-top:6px;color:var(--muted)">Unterscheidung: Muskelbelastung vs. echter Schmerz
-          <ul style="margin:6px 0 0 14px">
-            <li><strong>0–2:</strong> Keine Beschwerden</li>
-            <li><strong>3–4:</strong> Leichte Anspannung</li>
-            <li><strong>5–6:</strong> Deutlich, aber trainierbar</li>
-            <li><strong>7–10:</strong> ⚠️ STOPP — Echter Schmerz</li>
-          </ul>
-        </div>
-      </div>
-
-      <div style="border-left:4px solid var(--run);padding:12px;background:rgba(0,0,0,.1);border-radius:6px">
-        <strong style="color:var(--run)">🏆 PR — Personal Record</strong>
-        <div style="margin-top:6px;color:var(--muted)">Dein bisheriger Bestwert (höchster 1RM ever). Die App merkt automatisch neue PRs!</div>
-      </div>
-
-      <div style="border-left:4px solid var(--accent2);padding:12px;background:rgba(0,0,0,.1);border-radius:6px">
-        <strong style="color:var(--accent2)">🔥 Progression</strong>
-        <div style="margin-top:6px;color:var(--muted)">
-          <ul style="margin:6px 0 0 14px">
-            <li><strong>RPE ≤ 6:</strong> 📈 Gewicht erhöhen (+2,5kg)</li>
-            <li><strong>RPE 6–7:</strong> ✓ Halten oder +1,25kg</li>
-            <li><strong>Schmerz > 3:</strong> ⚠️ Bremsen (-2,5kg)</li>
-          </ul>
-        </div>
-      </div>
-    </div>
-
-    <button onclick="closeHelp()" style="background:var(--accent);color:#fff;border:none;border-radius:10px;padding:12px 16px;font-weight:600;width:100%;margin-top:16px;cursor:pointer;font-size:.95rem">Schließen</button>
-  </div>
-</div>
 
 <script>
 /* ============ MUSKELGRUPPEN-SYMBOL ============ */
@@ -1213,6 +1154,14 @@ function vSession(){
       <div class="note"><strong>RPE 10</strong> = keine mehr · <strong>9</strong> = eine · <strong>8</strong> = zwei · <strong>7</strong> = drei · <strong>6</strong> = vier oder mehr in Reserve</div>
       <div class="note">Beine RPE 8, Oberkörper RPE 7 – an der Grenze leidet die Technik und du kompensierst unbewusst mit der Schulter.</div></details>`;
 
+    if(deloadAktiv(activeDate)){
+      const dl=deload();
+      h+=`<div class="card" style="border-color:var(--accent2);border-width:2px">
+        <div><strong style="font-size:.9rem">🌙 Deload-Woche</strong>
+          <div class="note" style="margin-top:2px">Bis ${fmtDate(dl.ende)}: rund ${dl.pct} % des üblichen Gewichts,
+          ein Satz weniger pro Übung, kein Satz bis zur Erschöpfung. Das ist die Woche, in der die Anpassung passiert –
+          bei einer gereizten Schulter der wichtigste Teil des Zyklus.</div></div></div>`;
+    }
     const prev=lastSame(activeKey,activeDate);
     if(prev) h+=`<div class="muted" style="margin:10px 0 2px">Vergleich mit ${fmtDate(prev.date)}</div>`;
 
@@ -1227,6 +1176,8 @@ function vSession(){
           ${mgOf(e).length?`<div class="meta" style="color:var(--accent);font-weight:600">${mgLabel(mgOf(e))}</div>`:''}</div>
           <div class="prog">${dn}/${e.s}</div></div>
         <div class="body">`;
+      if(deloadAktiv(activeDate) && e.s>1)
+        h+=`<div class="hint">Deload: ${e.s-1} statt ${e.s} Sätze reichen – den letzten einfach offen lassen.</div>`;
       for(let s=0;s<e.s;s++){
         const key=X+'_'+s, st=L.sets[key]||{};
         const pv = prev && prev.sets[key] ? prev.sets[key] : null;
@@ -1243,9 +1194,23 @@ function vSession(){
       if(prev){
         const pw=[]; for(let s=0;s<e.s;s++){const pv=prev.sets[X+'_'+s]; if(pv&&pv.w)pw.push(pv.w+'×'+(pv.r||'?'));}
         if(pw.length){ h+=`<div class="hint">Letztes Mal: ${pw.join('  ·  ')}</div>`; hatVorher=true; }
+        const pb=bestSatz(prev,X);
+        if(pb) h+=`<div class="hint">Bester Satz zuletzt: ${pb.w} kg × ${pb.r} · geschätztes Maximum ${pb.m} kg</div>`;
       }
       if(!hatVorher && e.start!=null)
         h+=`<div class="hint">Startgewicht: ${e.start} kg — beim Abhaken automatisch eingetragen</div>`;
+      const vs = vorschlag(e, i, prev);
+      if(vs){
+        const schon = Object.keys(L.sets).some(k=>k.slice(0,k.lastIndexOf('_'))===X && L.sets[k].w!=null);
+        h+=`<div class="vorschlag">
+          <div class="grow"><strong>${vs.w} kg · ${vs.txt}</strong>
+            <div class="muted" style="font-size:.75rem">${vs.grund}</div></div>
+          ${schon?'':`<button class="btn sec small" onclick="uebernehmen('${X}',${vs.w})">Übernehmen</button>`}</div>`;
+        const aw = aufwaermen(vs.w);
+        if(aw.length) h+=`<details style="margin:6px 0 0"><summary style="font-size:.8rem">Aufwärmsätze</summary>
+          <div class="note" style="margin-top:6px">${aw.map(x=>x.w+' kg × '+x.r).join(' → ')} → Arbeitsgewicht ${vs.w} kg
+          <div style="margin-top:4px">Dazwischen 30 bis 60 Sekunden Pause. Aufwärmsätze werden nicht abgehakt, sie zählen nicht ins Volumen.</div></div></details>`;
+      }
       if(e.note) h+=`<div class="note">${e.note}</div>`;
       if(e.v) h+=`<a class="vid" href="${e.v}" target="_blank">▶ Technik-Video</a>`;
       h+=`</div></div>`;
@@ -1432,7 +1397,7 @@ function quip(kg){
 
 function pigStrip(n){ return '🐹'.repeat(Math.min(n,33)); }
 
-function showGains(kg,titleTxt){
+function showGains(kg,titleTxt,prs){
   const b=gainsBreak(kg);
   let h=`<div class="gbox" onclick="event.stopPropagation()">
     <div class="ttl">${titleTxt||'Einheit abgeschlossen'}</div>
@@ -1449,6 +1414,15 @@ function showGains(kg,titleTxt){
     <span class="ct">${b.pigs}×</span>
     <span class="nn">Meerschweinchen<div class="kgs">${b.pigs} kg</div></span></div>
     <div class="pigrow">${pigStrip(b.pigs)}</div>`;
+  if(prs && prs.length){
+    h+=`<div class="prbox"><strong style="font-size:.9rem">🏆 ${prs.length===1?'Neue Bestleistung':prs.length+' neue Bestleistungen'}</strong>`;
+    prs.slice(0,4).forEach(x=>{
+      h+=`<div class="row" style="padding:5px 0;font-size:.85rem"><span class="grow">${x.n}</span>
+        <strong>${x.w} kg × ${x.r}</strong>${x.plus?`<span class="pill g" style="margin-left:6px">+${x.plus}</span>`:''}</div>`;
+    });
+    if(prs.length>4) h+=`<div class="muted" style="font-size:.78rem">und ${prs.length-4} weitere</div>`;
+    h+=`<div class="muted" style="font-size:.75rem;margin-top:4px">Gemessen am geschätzten Maximum, nicht nur am Gewicht.</div></div>`;
+  }
   h+=`<div class="gquip">${quip(b.total)}</div>
     <div style="margin-top:12px"><button class="btn" onclick="closeGains()">Weiter</button></div></div>`;
   const g=document.getElementById('gains');
@@ -1469,6 +1443,139 @@ function sessOf(k){
   return PLAN[k] || (typeof SESSIONS!=='undefined' && SESSIONS[k]) || DEFAULT_SESSIONS[k]
       || {name:k, short:'?', type:'gym', ex:[]};
 }
+/* ============ TRAININGSLOGIK ============ */
+
+/* Geschätztes Einwiederholungsmaximum nach Epley. Macht 60 kg x 12 und
+   80 kg x 5 vergleichbar - ohne das ist "Bestwert" nur das schwerste Gewicht. */
+function e1rm(w, r){
+  w = parseFloat(w)||0; r = parseInt(r)||0;
+  if(w<=0 || r<=0) return 0;
+  if(r===1) return w;
+  if(r>15) r=15;
+  return Math.round(w*(1+r/30)*10)/10;
+}
+function bestSatz(l, X){
+  let best=null;
+  Object.keys(l.sets||{}).forEach(sk=>{
+    if(sk.slice(0,sk.lastIndexOf('_'))!==X) return;
+    const st=l.sets[sk]; if(!st.d) return;
+    const w=parseFloat(st.w)||0, r=parseInt(st.r)||0;
+    const m=e1rm(w,r); if(!m) return;
+    if(!best || m>best.m) best={w, r, m};
+  });
+  return best;
+}
+/* Neue Bestleistungen einer Einheit, verglichen mit allem davor.
+   Uebungsgleichheit ueber den Namen, damit ein Planwechsel keine Fake-PRs erzeugt. */
+function neuePRs(L){
+  const p = sessOf(L.key); if(!p || p.type!=='gym' || !p.ex) return [];
+  const idx = exIndex(), raus=[];
+  p.ex.forEach((e,i)=>{
+    const X=e.id||('x'+i);
+    const jetzt=bestSatz(L,X); if(!jetzt) return;
+    const eintrag = idx[normName(e.n)]; if(!eintrag) return;
+    let vorher=0;
+    eintrag.refs.forEach(ref=>{
+      Object.values(DB.logs).forEach(o=>{
+        if(!o.done || o.key!==ref.k) return;
+        if(o.date > L.date) return;
+        if(o.date===L.date && o.key===L.key) return;
+        const b=bestSatz(o, ref.X); if(b && b.m>vorher) vorher=b.m;
+      });
+    });
+    if(jetzt.m > vorher + 0.01)
+      raus.push({n:e.n, w:jetzt.w, r:jetzt.r, m:jetzt.m, plus: vorher? Math.round((jetzt.m-vorher)*10)/10 : null});
+  });
+  return raus;
+}
+
+/* --- Deload: eine bewusst leichte Woche --- */
+function deload(){ return (DB.meta && DB.meta.deload) || null; }
+function deloadAktiv(d){
+  const dl=deload(); if(!dl) return false;
+  const tag = d || todayKey();
+  return tag >= dl.start && tag <= dl.ende;
+}
+function deloadStart(tage){
+  const t = tage||7;
+  const bis = new Date(todayKey()+'T12:00:00'); bis.setDate(bis.getDate()+t-1);
+  DB.meta.deload = {start: todayKey(), ende: todayKey(bis), pct: 60, satzMinus: 1};
+  save(DB); render(); toast('Deload-Woche gestartet');
+}
+function deloadEnde(){
+  const dl=deload();
+  if(dl){ DB.meta.deloadHistorie = (DB.meta.deloadHistorie||[]).concat([todayKey()]); delete DB.meta.deload; }
+  save(DB); render(); toast('Deload beendet');
+}
+/* Wann ein Deload ansteht: steigender Schmerz oder lange ohne leichte Woche. */
+function deloadCheck(){
+  const done = Object.values(DB.logs).filter(l=>l.done).sort((a,b)=>a.date.localeCompare(b.date));
+  if(done.length < 9) return null;
+  if(deloadAktiv()) return null;
+  const gruende=[];
+  const schmerz = done.filter(l=>l.pain!=null);
+  if(schmerz.length>=6){
+    const alt=schmerz.slice(-6,-3), neu=schmerz.slice(-3);
+    const a=alt.reduce((x,l)=>x+l.pain,0)/alt.length, b=neu.reduce((x,l)=>x+l.pain,0)/neu.length;
+    if(b-a >= 0.7) gruende.push('Der Schulterschmerz steigt wieder (Ø '+a.toFixed(1)+' auf '+b.toFixed(1)+').');
+    else if(b>=4)  gruende.push('Die letzten Einheiten lagen im Schnitt bei '+b.toFixed(1)+'/10.');
+  }
+  const hist=(DB.meta&&DB.meta.deloadHistorie)||[];
+  const letzter = hist.length? hist[hist.length-1] : (DB.start||done[0].date);
+  const wochen = Math.floor((new Date(todayKey()+'T12:00:00') - new Date(letzter+'T12:00:00'))/(7*864e5));
+  if(wochen>=6) gruende.push(wochen+' Wochen ohne leichte Woche – nach sechs bis acht ist eine fällig.');
+  if(!gruende.length) return null;
+  return {gruende, wochen};
+}
+
+/* --- Progressionsvorschlag: erst Wiederholungen fuellen, dann Gewicht --- */
+function zielWdh(r){
+  const zahlen=String(r||'').match(/\d+/g);
+  return zahlen ? Math.max(...zahlen.map(Number)) : 0;
+}
+function runde(w){ return Math.round(w/2.5)*2.5; }
+function schrittFuer(e){
+  const mg = mgOf(e)||[];
+  return (mg.includes('beine')||mg.includes('gesaess')||mg.includes('ruecken')) ? 5 : 2.5;
+}
+function vorschlag(e, i, prev){
+  const X=e.id||('x'+i);
+  const dl = deloadAktiv(activeDate);
+  if(!prev){
+    if(e.start==null) return null;
+    return {w: dl? runde(e.start*0.6) : e.start,
+            txt: dl?'Deload: leichter Einstieg':'Startgewicht', grund:'erste Einheit'};
+  }
+  const b = bestSatz(prev, X);
+  if(!b) return null;
+  const ziel = zielWdh(e.r);
+  if(dl) return {w: runde(b.w*(deload().pct/100)), txt:'Deload-Woche', grund:'bewusst leicht, Technik und Erholung'};
+  if(prev.pain!=null && prev.pain>=4)
+    return {w: runde(b.w*0.9), txt:'10 % runter', grund:'letzte Einheit '+prev.pain+'/10 Schmerz'};
+  if(prev.pain!=null && prev.pain===3)
+    return {w: b.w, txt:'Gewicht halten', grund:'Schmerz bei 3/10 – erst stabilisieren'};
+  let alleVoll = ziel>0;
+  for(let sIdx=0; sIdx<e.s; sIdx++){
+    const st=prev.sets[X+'_'+sIdx];
+    if(!st || !st.d || (parseInt(st.r)||0) < ziel){ alleVoll=false; break; }
+  }
+  if(alleVoll){
+    const schritt=schrittFuer(e);
+    return {w: runde(b.w+schritt), txt:'+'+schritt+' kg', grund:'letztes Mal alle Sätze mit '+ziel+' Wiederholungen'};
+  }
+  return {w: b.w, txt:'Gewicht halten', grund: ziel? 'erst '+ziel+' Wiederholungen in allen Sätzen':'sauber wiederholen'};
+}
+function uebernehmen(X, w){
+  const L=getLog(activeDate,activeKey), p=PLAN[activeKey];
+  const e=(p.ex||[]).find((y,i)=>(y.id||('x'+i))===X); if(!e) return;
+  for(let s=0;s<e.s;s++){ const k=X+'_'+s; if(!L.sets[k]) L.sets[k]={}; if(L.sets[k].w==null) L.sets[k].w=w; }
+  save(DB); render(); toast(w+' kg eingetragen');
+}
+function aufwaermen(w){
+  w=parseFloat(w)||0; if(w<25) return [];
+  return [[0.4,8],[0.6,5],[0.8,3]].map(([f,r])=>({w:runde(w*f), r}));
+}
+
 /* Meerschweinchen einer Einheit. Beim Abschliessen festgeschrieben,
    fuer aeltere Eintraege deterministisch nachgerechnet. */
 function pigsOf(l){
@@ -1731,35 +1838,123 @@ function vStats(){
     <div class="stat"><div class="v">${runs.length?Math.round(bandRuns/runs.length*100):0}%</div><div class="l">Band nach dem Lauf</div></div></div>
   <div class="note">Beide Zahlen sind der direkteste Hebel auf dein Hauptziel. Rotatorenmanschette reagiert auf Häufigkeit stärker als auf Intensität.</div></div>`;
 
-  /* Bestwerte – eine Zeile je Übung, über alle Einheiten und Pläne hinweg */
-  const idx = exIndex();                       // Übungsname -> Fundstellen
+  /* Bestwerte – eine Zeile je Übung, bewertet am geschätzten Maximum */
+  const idx = exIndex();
   const prs = Object.values(idx).map(e=>{
-    const pts = exPunkte(e);                   // {d,w,r} je Trainingstag
+    const pts = exPunkte(e);
     if(!pts.length) return null;
-    const best = pts.slice().sort((a,b)=>b.w-a.w || b.d.localeCompare(a.d))[0];
-    const letzt = pts[pts.length-1];
-    return {n:e.name, id:e.id, w:best.w, r:best.r, dt:best.d, pts, letzt};
+    const best = pts.slice().sort((a,b)=>b.m-a.m || b.d.localeCompare(a.d))[0];
+    return {n:e.name, id:e.id, w:best.w, r:best.r, m:best.m, dt:best.d, pts, letzt:pts[pts.length-1]};
   }).filter(Boolean);
 
   if(prs.length){
     h+=`<h2>Bestwerte</h2>
-      <div class="note" style="margin-top:0">Eine Zeile je Übung – der beste Satz aller Zeiten, egal in welcher Einheit oder welchem Plan er stand. Zum Aufklappen antippen, dann siehst du den Verlauf.</div>
+      <div class="note" style="margin-top:0">Eine Zeile je Übung, über alle Einheiten und Pläne hinweg. Bewertet wird das <strong>geschätzte Maximum</strong> – damit schlägt 90 kg × 10 auch 100 kg × 1. Zum Aufklappen antippen.</div>
       <div class="card">`;
-    prs.sort((a,b)=>b.w-a.w).forEach(p=>{
-      const trend = p.letzt.w - p.pts[0].w;
-      const pfeil = p.pts.length<2 ? '' :
+    prs.sort((a,b)=>b.m-a.m).forEach(q=>{
+      const trend = q.letzt.m - q.pts[0].m;
+      const pfeil = q.pts.length<2 ? '' :
         (trend>0 ? `<span style="color:var(--done)">▲ +${(+trend.toFixed(1))}</span>`
         : trend<0 ? `<span style="color:var(--warn)">▼ ${(+trend.toFixed(1))}</span>`
         : `<span class="muted">→</span>`);
-      h+=`<div class="trow" style="cursor:pointer" onclick="togglePR('${p.id}')">
-        <span class="nm">${p.n}<div class="muted" style="font-size:.72rem;font-weight:400">
-          ${p.pts.length} Trainingstag${p.pts.length===1?'':'e'} · zuletzt ${p.letzt.w} kg ${pfeil}</div></span>
-        <span class="muted" style="font-size:.75rem">${fmtDate(p.dt)}</span>
-        <span class="vl">${p.w} kg${p.r?' × '+p.r:''}</span></div>
-        <div id="pr-${p.id}" style="display:none;padding:2px 0 12px"></div>`;
+      h+=`<div class="trow" style="cursor:pointer" onclick="togglePR('${q.id}')">
+        <span class="nm">${q.n}<div class="muted" style="font-size:.72rem;font-weight:400">
+          ${q.w} kg × ${q.r} am ${fmtDate(q.dt)} · ${q.pts.length} Trainingstag${q.pts.length===1?'':'e'} ${pfeil}</div></span>
+        <span class="vl">${q.m} kg<div class="muted" style="font-size:.66rem;font-weight:400">gesch. 1RM</div></span></div>
+        <div id="pr-${q.id}" style="display:none;padding:2px 0 12px"></div>`;
     });
     h+=`</div>`;
   }
+
+  /* Muskelgruppen-Balance – Sätze pro Woche, die gängigste Steuergröße */
+  const mg28 = {}, mgWoche = {};
+  MG_ORDER.forEach(k=>{ mg28[k]=0; mgWoche[k]=0; });
+  const seit28 = (()=>{ const d=new Date(todayKey()+'T12:00:00'); d.setDate(d.getDate()-27); return todayKey(d); })();
+  all.forEach(l=>{
+    const pl=sessOf(l.key); if(pl.type!=='gym' || !pl.ex) return;
+    pl.ex.forEach((e,i)=>{
+      const X=e.id||('x'+i);
+      const n=Object.keys(l.sets).filter(sk=>sk.slice(0,sk.lastIndexOf('_'))===X && l.sets[sk].d).length;
+      if(!n) return;
+      (mgOf(e)||[]).forEach(k=>{
+        if(mg28[k]==null) return;
+        if(l.date>=seit28) mg28[k]+=n;
+        if(cur.keys.includes(l.date)) mgWoche[k]+=n;
+      });
+    });
+  });
+  const proWoche={}; MG_ORDER.forEach(k=>proWoche[k]=mg28[k]/4);
+  const aktivMG = MG_ORDER.filter(k=>mg28[k]>0);
+  if(aktivMG.length){
+    const maxW = Math.max(20, ...aktivMG.map(k=>proWoche[k]));
+    h+=`<h2>Muskelgruppen-Balance</h2><div class="card">
+      <div class="note" style="margin-top:0">Sätze pro Woche, gemittelt über die letzten vier Wochen. Der graue Strich markiert 10 Sätze – ab da wächst Muskulatur zuverlässig, bis etwa 20 bringt mehr noch etwas, darüber kostet es vor allem Erholung.</div>`;
+    MG_ORDER.forEach(k=>{
+      if(!mg28[k] && !mgWoche[k]) return;
+      const v=proWoche[k], pct=Math.min(100, v/maxW*100), mark=10/maxW*100;
+      const farbe = v<6?'var(--warn)':(v>22?'var(--run)':'var(--accent)');
+      h+=`<div class="mgrow"><span style="width:74px;font-size:.8rem">${MUSCLE[k]}</span>
+        <span class="mgbar"><i style="width:${pct.toFixed(0)}%;background:${farbe}"></i><u style="left:${mark.toFixed(0)}%"></u></span>
+        <span style="width:62px;text-align:right;font-size:.78rem;font-weight:600">${v.toFixed(1)}<span class="muted" style="font-weight:400">/Wo</span></span></div>`;
+    });
+    const schwach = aktivMG.filter(k=>proWoche[k]<6).map(k=>MUSCLE[k]);
+    const stark   = aktivMG.filter(k=>proWoche[k]>22).map(k=>MUSCLE[k]);
+    let mtxt='';
+    if(schwach.length) mtxt += `<strong>Wenig:</strong> ${schwach.join(', ')} – unter sechs Sätzen pro Woche passiert kaum etwas. `;
+    if(stark.length)   mtxt += `<strong>Sehr viel:</strong> ${stark.join(', ')} – über 22 Sätze pro Woche brauchen entsprechend Schlaf und Essen. `;
+    if(!mtxt) mtxt = 'Die Verteilung ist ausgewogen. Genau so soll das aussehen.';
+    h+=`<div class="verdict">${mtxt}</div>
+      <div class="note">Diese Woche bisher: ${MG_ORDER.filter(k=>mgWoche[k]).map(k=>MUSCLE[k]+' '+mgWoche[k]).join(' · ')||'noch nichts'}</div></div>`;
+  }
+
+  /* Wochenrückblick */
+  const vorW = W[W.length-2];
+  if(vorW && (cur.logs.length || vorW.logs.length)){
+    const pf=(a,b,inv)=>{ const d=a-b; if(Math.abs(d)<0.05) return '<span class="muted">→</span>';
+      const gut = inv ? d<0 : d>0;
+      return `<span style="color:${gut?'var(--done)':'var(--warn)'}">${d>0?'▲ +':'▼ '}${(+Math.abs(d).toFixed(1))}</span>`; };
+    const sc=cur.logs.filter(l=>l.pain!=null), sv=vorW.logs.filter(l=>l.pain!=null);
+    const scur = sc.length? sc.reduce((a,l)=>a+l.pain,0)/sc.length : null;
+    const svor = sv.length? sv.reduce((a,l)=>a+l.pain,0)/sv.length : null;
+    h+=`<h2>Wochenrückblick</h2><div class="card">
+      <div class="note" style="margin-top:0">Diese Woche gegen die Woche ab ${vorW.label}</div>
+      <div class="trow"><span class="nm">Einheiten</span><span class="vl">${cur.logs.length} ${pf(cur.logs.length, vorW.logs.length)}</span></div>
+      <div class="trow"><span class="nm">Volumen</span><span class="vl">${(cur.ton/1000).toFixed(1)} t ${pf(cur.ton/1000, vorW.ton/1000)}</span></div>
+      <div class="trow"><span class="nm">Laufkilometer</span><span class="vl">${cur.km.toFixed(1)} ${pf(cur.km, vorW.km)}</span></div>
+      <div class="trow"><span class="nm">Mobility-Tage</span><span class="vl">${cur.mob}/7 ${pf(cur.mob, vorW.mob)}</span></div>`;
+    if(scur!=null && svor!=null)
+      h+=`<div class="trow"><span class="nm">Ø Schulterschmerz</span><span class="vl">${scur.toFixed(1)} ${pf(scur, svor, true)}</span></div>`;
+    const dV=(cur.ton-vorW.ton)/(vorW.ton||1);
+    let wtxt;
+    if(!cur.logs.length) wtxt='<strong>Diese Woche steht noch nichts.</strong> Eine kurze Einheit ist besser als der perfekte Plan, den du nicht machst.';
+    else if(scur!=null && svor!=null && scur-svor>=0.8) wtxt='<strong>Der Schmerz steigt.</strong> Nimm Oberkörpervolumen raus, bevor die Woche zu Ende geht – oder starte gleich eine Deload-Woche.';
+    else if(dV>0.35) wtxt='<strong>Deutlicher Sprung im Volumen.</strong> Über 30 % mehr als in der Vorwoche ist der klassische Auslöser für Überlastung. Nächste Woche halten statt steigern.';
+    else if(dV>0.05) wtxt='<strong>Sauber gesteigert.</strong> Dieses Tempo hält man über Monate durch.';
+    else if(dV<-0.3) wtxt='<strong>Deutlich weniger als in der Vorwoche.</strong> Wenn das Absicht war: gut. Wenn nicht, reicht schon eine kurze Einheit, um dranzubleiben.';
+    else wtxt='<strong>Stabile Woche.</strong> Konstanz schlägt einzelne Rekordwochen.';
+    h+=`<div class="verdict">${wtxt}</div></div>`;
+  }
+
+  /* Deload */
+  const dlAkt = deload(), dlTipp = deloadCheck();
+  h+=`<h2>Deload</h2><div class="card" style="${dlAkt?'border-color:var(--accent2);border-width:2px':(dlTipp?'border-color:var(--warn)':'')}">`;
+  if(dlAkt){
+    h+=`<div class="row"><div class="grow"><strong style="font-size:.92rem">🌙 Deload läuft</strong>
+      <div class="note" style="margin-top:2px">${fmtDate(dlAkt.start)} bis ${fmtDate(dlAkt.ende)} · rund ${dlAkt.pct} % Gewicht, ein Satz weniger.
+      Die Vorschläge in jeder Einheit sind bereits heruntergerechnet.</div></div>
+      <button class="btn sec small" onclick="deloadEnde()">Beenden</button></div>`;
+  } else {
+    if(dlTipp){
+      h+=`<div><strong style="font-size:.92rem;color:var(--warn)">Eine leichte Woche wäre jetzt sinnvoll</strong>
+        <ul style="font-size:.85rem;padding-left:18px;margin:6px 0">${dlTipp.gruende.map(g=>'<li>'+g+'</li>').join('')}</ul></div>`;
+    } else {
+      h+=`<div class="note" style="margin-top:0">Aktuell kein Anlass. Die App meldet sich, wenn der Schmerz wieder steigt oder sechs Wochen ohne leichte Woche vergangen sind.</div>`;
+    }
+    h+=`<div class="row" style="gap:8px;margin-top:10px">
+      <button class="btn ${dlTipp?'':'sec'} small grow" onclick="deloadStart(7)">Deload-Woche starten</button>
+      <button class="btn sec small grow" onclick="deloadStart(4)">Nur 4 Tage</button></div>`;
+  }
+  h+=`<div class="note">Im Deload bleibt der Plan gleich, nur leichter: etwa 60 % der Gewichte, ein Satz weniger, nichts bis zur Erschöpfung. Kraft geht dabei nicht verloren – in genau dieser Woche findet die Anpassung statt, und ein gereizter Schleimbeutel bekommt die Pause, die er zum Abschwellen braucht. Laufen und Mobility laufen normal weiter.</div></div>`;
 
   /* Wochentabelle */
   h+=`<h2>Wochenbilanz</h2><div class="card">
@@ -1880,35 +2075,44 @@ function exPunkte(eintrag){
         if(sk.slice(0,sk.lastIndexOf('_'))!==ref.X) return;
         const st=l.sets[sk]; if(!st.d) return;
         const w=parseFloat(st.w)||0; if(w<=0) return;
+        const m=e1rm(w, st.r);
         const cur=proTag[l.date];
-        if(!cur || w>cur.w) proTag[l.date]={d:l.date, w, r:st.r||''};
+        if(!cur || m>cur.m) proTag[l.date]={d:l.date, w, r:st.r||'', m};
       });
     });
   });
   return Object.values(proTag).sort((a,b)=>a.d.localeCompare(b.d));
 }
-/* Verlauf unter der angetippten Bestwert-Zeile ein- und ausklappen */
-function togglePR(id){
+/* Verlauf unter der angetippten Bestwert-Zeile. modus 'm' = geschaetztes Maximum, 'w' = Gewicht */
+function togglePR(id, modus){
   const box=document.getElementById('pr-'+id);
   if(!box) return;
-  if(box.style.display!=='none'){ box.style.display='none'; box.innerHTML=''; return; }
+  if(!modus && box.style.display!=='none'){ box.style.display='none'; box.innerHTML=''; return; }
+  const m = modus || 'm';
   const e=Object.values(exIndex()).find(x=>x.id===id);
   const pts=e?exPunkte(e):[];
   box.style.display='block';
   if(!pts.length){ box.innerHTML='<div class="muted">Noch keine Daten.</div>'; return; }
   const zeig=pts.slice(-20);
-  const erst=pts[0], letzt=pts[pts.length-1], diff=letzt.w-erst.w;
-  let h=lineChart(zeig.map(p=>({d:p.d, v:p.w, r:p.r})), {einheit:' kg'});
+  const wert = q => m==='m' ? q.m : q.w;
+  const letzt=pts[pts.length-1], diff=wert(letzt)-wert(pts[0]);
+  let h=`<div class="row" style="gap:6px;margin-bottom:2px">
+    <button class="btn ${m==='m'?'':'sec'} small" onclick="togglePR('${id}','m')">gesch. Maximum</button>
+    <button class="btn ${m==='w'?'':'sec'} small" onclick="togglePR('${id}','w')">Gewicht</button></div>`;
+  h+=lineChart(zeig.map(q=>({d:q.d, v:wert(q), r:q.r})), {einheit:' kg'});
   h+=`<div class="muted" style="font-size:.75rem;margin-top:4px">
     ${fmtDate(zeig[0].d)} bis ${fmtDate(letzt.d)} · ${pts.length} Trainingstage`;
   if(pts.length>1) h+=` · ${diff>=0?'+':''}${(+diff.toFixed(1))} kg seit dem ersten Mal`;
-  h+=`</div>`;
+  h+=`</div><div class="muted" style="font-size:.72rem;margin-top:3px">${m==='m'
+      ? 'Geschätztes Maximum nach Epley: Gewicht × (1 + Wiederholungen ÷ 30). Steigt auch dann, wenn du beim gleichen Gewicht mehr Wiederholungen schaffst.'
+      : 'Reines Arbeitsgewicht des besten Satzes, ohne Rücksicht auf die Wiederholungen.'}</div>`;
   if(e.refs.length>1){
     const wo=[...new Set(e.refs.map(r=>sessOf(r.k).name))];
     h+=`<div class="muted" style="font-size:.72rem;margin-top:3px">Zusammengefasst aus: ${wo.join(', ')}</div>`;
   }
   box.innerHTML=h;
 }
+
 
 function vMob(){
   const date=todayKey(), on=DB.daily[date];
@@ -2169,6 +2373,8 @@ function vTest(){
     <li>„Einheit abschließen" → Meerschweinchen-Karte erscheint</li>
     <li>Auf einen Lauftag springen, km und Minuten eintragen → Pace erscheint, danach die Dackel-Karte</li>
     <li>Dashboard: Ring, Heatmap, Diagramme, Bestwerte – eine Zeile antippen zeigt den Verlauf</li>
+    <li>Übung mit Vorgeschichte öffnen → Vorschlag erscheint, „Übernehmen" füllt alle Sätze</li>
+    <li>Deload im Dashboard starten → Banner in der Einheit, Vorschläge fallen auf rund 60 %</li>
     <li>Mobility abhaken, dann Datum einen Tag weiterstellen und nochmal → Streak zählt</li>
     <li>Plan bearbeiten: Übung hinzufügen, verschieben, Tag umstellen – dann prüfen, ob die Einheit sich öffnen lässt</li>
     <li>Backup-Code kopieren, „Alles zurücksetzen", Code wieder einspielen → alles zurück</li>
@@ -2247,7 +2453,11 @@ function howTo(){
       <div class="grow"><div style="font-weight:600;font-size:.92rem">${s.t}</div>
         <div class="muted" style="font-size:.84rem;line-height:1.45;margin-top:2px">${s.d}</div></div></div>`;
   });
-  h+=`<div class="note" style="margin-top:14px"><strong>Die fünf Reiter unten:</strong>
+  h+=`<div class="note" style="margin-top:14px"><strong>Die App denkt mit:</strong>
+    Über jeder Übung steht ein Gewichtsvorschlag für heute – abgeleitet aus deiner letzten Einheit und deinem Schmerzwert.
+    Ein Tipp auf <em>Übernehmen</em> trägt ihn in alle Sätze ein. Neue Bestleistungen meldet die App beim Abschließen,
+    und wenn eine leichte Woche fällig ist, schlägt sie im Dashboard einen <em>Deload</em> vor.</div>`;
+  h+=`<div class="note"><strong>Die fünf Reiter unten:</strong>
     🏠 Heute – was heute ansteht · 📅 Woche – alle Einheiten und Wochentage ·
     📊 Dashboard – Verlauf, Bestwerte, Meerschweinchen-Konto · 🧘 Mobility – täglich 10 Minuten mit Timer ·
     ⚙️ Setup – Pläne, Übungen bearbeiten, Backup.</div>`;
@@ -2289,10 +2499,6 @@ function vMore(){
   h+=`<button class="btn sec" onclick="addPlan()">+ Eigenen Plan anlegen</button>`;
 
   h+=`<h2 style="margin-top:26px">Werkzeuge</h2>`;
-  h+=`<div class="tile" onclick="showHelp()"><div class="badge" style="background:var(--run)">📚</div>
-    <div class="grow"><div class="t1">Glossar & Abkürzungen</div>
-      <div class="t2">RPE, 1RM, Progression, Schmerzwerte</div></div>
-    <div class="chk" style="color:var(--muted);font-size:.9rem">›</div></div>`;
   h+=`<div class="tile" onclick="go('test')"><div class="badge" style="background:var(--accent2)">🧪</div>
     <div class="grow"><div class="t1">Testmodus</div>
       <div class="t2">Anderen Wochentag simulieren, Demodaten erzeugen</div></div>
@@ -2483,9 +2689,11 @@ function finish(){
     const t=tonnage(L);
     if(PLAN[activeKey].type==='gym' && t>0){
       // vergebene Meerschweinchen festschreiben, damit das Konto stabil bleibt
-      L.pigs = gainsBreak(t).pigs; L.pigPlan = activePlanId(); save(DB);
+      L.pigs = gainsBreak(t).pigs; L.pigPlan = activePlanId();
+      const prs = neuePRs(L);
+      L.prs = prs.map(x=>x.n); save(DB);
       gainsAfter=()=>go('home');
-      showGains(t);
+      showGains(t, null, prs);
       return;
     }
     if(PLAN[activeKey].type==='run'){
@@ -2716,140 +2924,6 @@ if('serviceWorker' in navigator && location.protocol.startsWith('http')){
 }
 
 window.addEventListener('beforeunload',()=>{ if(fsHandle){ clearTimeout(fsTimer); writeFs(false); } });
-
-/* ============ 1RM CALCULATIONS & PROGRESSION ============ */
-function epley(weight, reps) {
-  if (reps === 1) return weight;
-  return weight * (1 + reps / 30);
-}
-
-function calcOneRM(weight, reps) {
-  if (!weight || !reps) return null;
-  return Math.round(epley(weight, reps) * 2) / 2;
-}
-
-function getExerciseHistory(exerciseName, limit = 100) {
-  const history = [];
-  Object.values(DB.logs || {}).forEach(day => {
-    Object.values(day || {}).forEach(set => {
-      if (set.ex === exerciseName) {
-        history.push(set);
-      }
-    });
-  });
-  return history.sort((a, b) => (b.ts || 0) - (a.ts || 0)).slice(0, limit);
-}
-
-function getExerciseBest(exerciseName) {
-  const history = getExerciseHistory(exerciseName);
-  if (history.length === 0) return null;
-  
-  let bestSet = history[0];
-  let bestOneRM = calcOneRM(bestSet.kg, bestSet.r);
-  
-  history.forEach(set => {
-    const oneRM = calcOneRM(set.kg, set.r);
-    if (oneRM && (!bestOneRM || oneRM > bestOneRM)) {
-      bestOneRM = oneRM;
-      bestSet = set;
-    }
-  });
-  
-  return { ...bestSet, oneRM: bestOneRM };
-}
-
-function checkNewPR(exerciseName, weight, reps) {
-  const history = getExerciseHistory(exerciseName);
-  const currentOneRM = calcOneRM(weight, reps);
-  
-  if (history.length === 0) return null;
-  
-  let prevBestOneRM = 0;
-  history.forEach(set => {
-    const oneRM = calcOneRM(set.kg, set.r);
-    if (oneRM > prevBestOneRM) prevBestOneRM = oneRM;
-  });
-  
-  if (currentOneRM > prevBestOneRM) {
-    const gain = (currentOneRM - prevBestOneRM).toFixed(1);
-    return { isPR: true, gain, currentOneRM };
-  }
-  return { isPR: false };
-}
-
-function getProgressionSuggestion(exerciseName) {
-  const history = getExerciseHistory(exerciseName, 5);
-  if (history.length === 0) return null;
-  
-  const last = history[0];
-  const avgPain = history.slice(0, 3).reduce((sum, s) => sum + (s.pain || 0), 0) / 3;
-  const lastRPE = last.rpe || 6;
-  
-  let suggestion = '';
-  let nextWeight = last.kg;
-  
-  if (avgPain > 3) {
-    suggestion = '⚠️ Schmerz zu hoch - bremsen';
-    nextWeight = Math.max(last.kg - 2.5, 0);
-  } else if (lastRPE <= 6) {
-    suggestion = '📈 Gewicht erhöhen';
-    nextWeight = last.kg + 2.5;
-  } else if (lastRPE >= 8) {
-    suggestion = '⏸️ Halten oder leicht erhöhen';
-    nextWeight = last.kg + 1.25;
-  } else {
-    suggestion = '✓ Gutes Tempo halten';
-    nextWeight = last.kg + 1.25;
-  }
-  
-  return {
-    suggestion,
-    nextWeight,
-    lastSet: `${last.kg}kg × ${last.r}`,
-    lastRPE,
-    avgPain: avgPain.toFixed(1)
-  };
-}
-
-function calcWarmupSets(workWeight) {
-  const sets = [];
-  const percentages = [0.5, 0.6, 0.75, 0.85];
-  percentages.forEach(pct => {
-    const weight = Math.round(workWeight * pct / 2.5) * 2.5;
-    const reps = weight < workWeight * 0.7 ? 5 : 3;
-    sets.push({ weight, reps });
-  });
-  return sets;
-}
-
-/* ============ HELP MODAL ============ */
-function showHelp() {
-  const modal = document.getElementById('helpModal');
-  if (modal) modal.className = 'on';
-}
-
-function closeHelp() {
-  const modal = document.getElementById('helpModal');
-  if (modal) modal.className = '';
-}
-
-document.addEventListener('DOMContentLoaded', () => {
-  const helpBtn = document.getElementById('helpBtn');
-  if (helpBtn) {
-    helpBtn.addEventListener('click', showHelp);
-  }
-  const helpClose = document.getElementById('helpClose');
-  if (helpClose) {
-    helpClose.addEventListener('click', closeHelp);
-  }
-  const helpModal = document.getElementById('helpModal');
-  if (helpModal) {
-    helpModal.addEventListener('click', (e) => {
-      if (e.target === helpModal) closeHelp();
-    });
-  }
-});
-
 </script>
 </body>
 </html>
