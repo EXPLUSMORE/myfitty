@@ -28,7 +28,7 @@ Alle Daten bleiben auf dem Gerät.
 
    | Typ | Name | Wert |
    |---|---|---|
-   | CNAME | `myfitty` | `<dein-github-name>.github.io` |
+   | CNAME | `myfitty` | `explusmore.github.io` |
 
 5. Nach ein paar Minuten in den Pages-Einstellungen **Enforce HTTPS** aktivieren.
    Das Zertifikat kommt automatisch von GitHub.
