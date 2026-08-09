@@ -1,0 +1,1790 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#2f6f4e">
+<meta name="robots" content="noindex, nofollow">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>Trainingslog</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="icon" href="icon-192.png">
+<style>
+:root{
+  --bg:#faf9f7;--card:#fff;--ink:#1c1b19;--muted:#6b6862;--line:#e5e2dc;
+  --accent:#2f6f4e;--accent2:#3a5f8a;--run:#8a5a2f;--warn:#a33a2a;--done:#2f6f4e;
+  --shadow:0 1px 3px rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme:dark){
+  :root{--bg:#141311;--card:#1f1e1b;--ink:#f2f0ec;--muted:#a39f97;--line:#33312d;
+    --accent:#6fbf90;--accent2:#8ab0dd;--run:#d0a071;--warn:#e08a78;--done:#6fbf90;
+    --shadow:0 1px 3px rgba(0,0,0,.3);}
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);
+  font:16px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  padding-bottom:calc(78px + env(safe-area-inset-bottom));}
+.wrap{max-width:640px;margin:0 auto;padding:16px 14px 20px}
+h1{font-size:1.35rem;margin:0 0 2px}
+h2{font-size:1.05rem;margin:22px 0 8px}
+.muted{color:var(--muted);font-size:.87rem}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;
+  padding:14px;margin:12px 0;box-shadow:var(--shadow)}
+button{font:inherit;cursor:pointer;border:none;background:none;color:inherit}
+.btn{background:var(--accent);color:#fff;border-radius:10px;padding:12px 16px;
+  font-weight:600;font-size:.95rem;width:100%;text-align:center;display:block}
+.btn.sec{background:transparent;border:1.5px solid var(--line);color:var(--ink)}
+.btn.warn{background:var(--warn)}
+.btn.small{padding:8px 12px;font-size:.85rem;width:auto;display:inline-block}
+.row{display:flex;gap:8px;align-items:center}
+.row.wrap{flex-wrap:wrap}
+.grow{flex:1}
+/* nav */
+nav{position:fixed;bottom:0;left:0;right:0;background:var(--card);
+  border-top:1px solid var(--line);display:flex;z-index:50;
+  padding-bottom:env(safe-area-inset-bottom)}
+nav button{flex:1;padding:11px 4px 12px;font-size:.68rem;color:var(--muted);
+  display:flex;flex-direction:column;align-items:center;gap:3px}
+nav button.on{color:var(--accent)}
+nav .ic{font-size:1.25rem;line-height:1}
+/* session tiles */
+.tile{display:flex;align-items:center;gap:12px;padding:13px 14px;border-radius:12px;
+  border:1px solid var(--line);background:var(--card);margin:8px 0;box-shadow:var(--shadow)}
+.tile .badge{width:38px;height:38px;border-radius:10px;display:flex;align-items:center;
+  justify-content:center;font-weight:700;font-size:.9rem;color:#fff;background:var(--accent);flex:none}
+.tile.run .badge{background:var(--run)}
+.tile.rest .badge{background:var(--muted)}
+.tile.today{border-color:var(--accent);border-width:2px}
+.tile .t1{font-weight:600;font-size:.95rem}
+.tile .t2{font-size:.8rem;color:var(--muted)}
+.tile .chk{margin-left:auto;font-size:1.1rem;color:var(--done)}
+/* exercise */
+.ex{border:1px solid var(--line);border-radius:12px;margin:10px 0;background:var(--card);
+  overflow:hidden;box-shadow:var(--shadow)}
+.ex.complete{border-color:var(--done)}
+.ex .hd{padding:12px 13px;display:flex;gap:10px;align-items:flex-start}
+.ex .nm{font-weight:600;font-size:.95rem;flex:1}
+.ex .meta{font-size:.78rem;color:var(--muted);margin-top:2px}
+.ex .prog{font-size:.75rem;color:var(--muted);white-space:nowrap;padding-top:2px}
+.ex .body{padding:0 13px 12px}
+.setrow{display:flex;align-items:center;gap:7px;padding:6px 0;border-top:1px solid var(--line)}
+.setno{width:20px;font-size:.8rem;color:var(--muted);flex:none}
+.setrow input{width:100%;padding:9px 8px;border:1px solid var(--line);border-radius:8px;
+  background:var(--bg);color:var(--ink);font-size:.92rem;text-align:center;
+  -moz-appearance:textfield}
+.setrow input::-webkit-outer-spin-button,.setrow input::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+.setrow .fld{flex:1;position:relative}
+.setrow .unit{position:absolute;right:7px;top:50%;transform:translateY(-50%);
+  font-size:.68rem;color:var(--muted);pointer-events:none}
+.tick{width:42px;height:38px;flex:none;border-radius:9px;border:1.5px solid var(--line);
+  display:flex;align-items:center;justify-content:center;font-size:1rem;color:var(--muted)}
+.tick.on{background:var(--done);border-color:var(--done);color:#fff}
+.hint{font-size:.72rem;color:var(--muted);padding:2px 0 6px}
+.note{font-size:.78rem;color:var(--muted);margin-top:4px;line-height:1.4}
+a.vid{font-size:.75rem;color:var(--accent2);text-decoration:none;border:1px solid var(--line);
+  border-radius:6px;padding:2px 7px;display:inline-block;margin-top:5px}
+/* timer */
+.timerbar{position:fixed;left:0;right:0;bottom:calc(60px + env(safe-area-inset-bottom));
+  background:var(--accent);color:#fff;padding:10px 14px;display:none;
+  align-items:center;gap:12px;z-index:49;box-shadow:0 -2px 8px rgba(0,0,0,.12)}
+.timerbar.on{display:flex}
+.timerbar .tm{font-size:1.25rem;font-weight:700;font-variant-numeric:tabular-nums}
+.timerbar button{background:rgba(255,255,255,.2);border-radius:8px;padding:6px 11px;
+  font-size:.8rem;font-weight:600;color:#fff}
+/* misc */
+.pill{display:inline-block;font-size:.7rem;padding:3px 9px;border-radius:99px;
+  background:var(--line);color:var(--muted);font-weight:600}
+.pill.g{background:var(--accent);color:#fff}
+.pill.r{background:var(--run);color:#fff}
+.slider{width:100%;margin:8px 0 2px}
+input[type=range]{accent-color:var(--warn)}
+.big{font-size:1.9rem;font-weight:700;line-height:1.1}
+.stat{flex:1;min-width:88px;text-align:center;padding:10px 6px;border:1px solid var(--line);
+  border-radius:10px;background:var(--card)}
+.stat .v{font-size:1.3rem;font-weight:700}
+.stat .l{font-size:.7rem;color:var(--muted);margin-top:1px}
+textarea{width:100%;padding:10px;border:1px solid var(--line);border-radius:9px;
+  background:var(--bg);color:var(--ink);font:inherit;font-size:.9rem;resize:vertical;min-height:60px}
+select{padding:9px;border:1px solid var(--line);border-radius:9px;background:var(--bg);
+  color:var(--ink);font:inherit;font-size:.9rem}
+input.ed{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;
+  background:var(--bg);color:var(--ink);font:inherit;font-size:.9rem}
+/* Muskelgruppen-Symbol */
+.bodyicon{width:100%;height:100%;display:block}
+.bodyicon *{fill:var(--line)}
+.bodyicon .hi{fill:var(--accent)}
+.icobox{width:46px;height:46px;flex:none;border-radius:10px;background:var(--bg);
+  border:1px solid var(--line);padding:4px}
+.icobox.sm{width:34px;height:34px;padding:3px}
+.icobox.lg{width:64px;height:64px;padding:6px}
+.mgchips{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.mgchip{font-size:.78rem;padding:6px 11px;border-radius:99px;border:1px solid var(--line);
+  background:var(--bg);color:var(--muted);cursor:pointer;user-select:none}
+.mgchip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
+.hbar{display:flex;align-items:flex-end;gap:3px;height:60px;margin:10px 0}
+.hbar div{flex:1;background:var(--accent);border-radius:3px 3px 0 0;min-height:2px;opacity:.85}
+.hist{padding:10px 0;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center}
+.hist:last-child{border-bottom:none}
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:130px;background:var(--ink);
+  color:var(--bg);padding:10px 18px;border-radius:99px;font-size:.85rem;z-index:100;
+  opacity:0;transition:opacity .25s;pointer-events:none}
+.toast.on{opacity:.95}
+#upd{position:fixed;left:12px;right:12px;bottom:calc(74px + env(safe-area-inset-bottom));
+  background:var(--accent);color:#fff;border-radius:14px;padding:12px 14px;z-index:60;
+  display:none;align-items:center;gap:12px;box-shadow:0 6px 22px rgba(0,0,0,.22)}
+#upd.on{display:flex;animation:pop .3s cubic-bezier(.2,1.2,.4,1)}
+#upd .t{flex:1;font-size:.87rem;line-height:1.35}
+#upd button{background:#fff;color:var(--accent);border-radius:9px;padding:8px 13px;
+  font-size:.85rem;font-weight:700}
+#upd .x{background:transparent;color:#fff;font-weight:400;opacity:.8;padding:8px 4px}
+/* dashboard */
+.ring{width:96px;height:96px;flex:none;position:relative}
+.ring svg{transform:rotate(-90deg)}
+.ring .ctr{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.ring .ctr .n{font-size:1.5rem;font-weight:700;line-height:1}
+.ring .ctr .u{font-size:.62rem;color:var(--muted);margin-top:1px}
+.chart{display:flex;align-items:flex-end;gap:4px;height:76px;margin:12px 0 4px}
+.chart .b{flex:1;background:var(--accent);border-radius:3px 3px 0 0;min-height:3px;position:relative;opacity:.9}
+.chart .b.run{background:var(--run)}
+.chart .b.pain{background:var(--accent)}
+.chart .b.hi{background:var(--warn)}
+.xax{display:flex;gap:4px;font-size:.62rem;color:var(--muted)}
+.xax span{flex:1;text-align:center;overflow:hidden;white-space:nowrap}
+.hm{display:grid;grid-template-columns:22px repeat(7,1fr);gap:3px;font-size:.6rem}
+.hm .c{aspect-ratio:1;border-radius:4px;background:var(--line)}
+.hm .c.d{background:var(--accent)}
+.hm .c.r{background:var(--run)}
+.hm .c.m{background:var(--line);box-shadow:inset 0 0 0 1.5px var(--accent2)}
+.hm .c.f{opacity:.35}
+.hm .lbl{color:var(--muted);display:flex;align-items:center;font-size:.6rem}
+.hm .hd{text-align:center;color:var(--muted);padding-bottom:2px}
+.kpi{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.kpi .stat{min-width:0}
+.trow{display:flex;align-items:center;gap:8px;padding:7px 0;border-bottom:1px solid var(--line);font-size:.86rem}
+.trow:last-child{border-bottom:none}
+.trow .nm{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.trow .vl{font-weight:700;font-variant-numeric:tabular-nums}
+.verdict{font-size:.85rem;line-height:1.45;padding:11px 12px;border-radius:10px;
+  background:var(--bg);border:1px solid var(--line);margin-top:10px}
+.legend{display:flex;gap:12px;flex-wrap:wrap;font-size:.7rem;color:var(--muted);margin-top:8px}
+.legend i{width:10px;height:10px;border-radius:3px;display:inline-block;margin-right:4px;vertical-align:-1px}
+/* gains gadget */
+#gains{position:fixed;inset:0;background:rgba(0,0,0,.62);z-index:200;display:none;
+  align-items:center;justify-content:center;padding:18px;backdrop-filter:blur(3px)}
+#gains.on{display:flex;animation:fade .25s ease}
+@keyframes fade{from{opacity:0}to{opacity:1}}
+.gbox{background:var(--card);border-radius:20px;padding:22px 18px 16px;max-width:400px;width:100%;
+  text-align:center;box-shadow:0 12px 40px rgba(0,0,0,.35);animation:pop .35s cubic-bezier(.2,1.2,.4,1);
+  max-height:88vh;overflow-y:auto}
+@keyframes pop{from{transform:scale(.85) translateY(14px);opacity:0}to{transform:none;opacity:1}}
+.gbox .ttl{font-size:.76rem;text-transform:uppercase;letter-spacing:.09em;color:var(--muted);font-weight:700}
+.gbox .kg{font-size:2.5rem;font-weight:800;line-height:1.05;margin:4px 0 1px;
+  background:linear-gradient(95deg,var(--accent),var(--accent2));-webkit-background-clip:text;
+  background-clip:text;-webkit-text-fill-color:transparent}
+.gbox .eq{font-size:.8rem;color:var(--muted);margin-bottom:12px}
+.gitem{display:flex;align-items:center;gap:11px;padding:9px 11px;border-radius:12px;
+  background:var(--bg);margin:7px 0;text-align:left;
+  animation:slide .4s backwards cubic-bezier(.2,1,.3,1)}
+@keyframes slide{from{opacity:0;transform:translateX(-14px)}to{opacity:1;transform:none}}
+.gitem .em{font-size:1.55rem;line-height:1;flex:none;width:30px;text-align:center}
+.gitem .ct{font-size:1.15rem;font-weight:800;min-width:34px;font-variant-numeric:tabular-nums}
+.gitem .nn{font-size:.9rem;flex:1}
+.gitem .kgs{font-size:.68rem;color:var(--muted)}
+.gitem.pig{background:linear-gradient(100deg,rgba(200,140,60,.14),transparent);
+  box-shadow:inset 0 0 0 1.5px rgba(200,140,60,.35)}
+.gquip{font-size:.87rem;line-height:1.45;margin:13px 2px 4px;color:var(--ink)}
+.pigrow{font-size:.95rem;letter-spacing:1px;line-height:1.5;margin-top:3px;word-break:break-word}
+details{border:1px solid var(--line);border-radius:11px;padding:11px 13px;margin:9px 0;background:var(--card)}
+summary{font-weight:600;font-size:.92rem;cursor:pointer}
+details ul{padding-left:18px;font-size:.87rem}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+
+<div class="timerbar" id="timerbar">
+  <span class="tm" id="tmDisp">1:30</span>
+  <span style="font-size:.8rem;opacity:.9">Satzpause</span>
+  <div style="margin-left:auto;display:flex;gap:7px">
+    <button onclick="addTime(30)">+30s</button>
+    <button onclick="stopTimer()">Stop</button>
+  </div>
+</div>
+
+<nav>
+  <button id="nav-home" onclick="go('home')"><span class="ic">🏠</span>Heute</button>
+  <button id="nav-week" onclick="go('week')"><span class="ic">📅</span>Woche</button>
+  <button id="nav-stats" onclick="go('stats')"><span class="ic">📊</span>Dashboard</button>
+  <button id="nav-mob" onclick="go('mob')"><span class="ic">🧘</span>Mobility</button>
+  <button id="nav-more" onclick="go('more')"><span class="ic">⚙️</span>Mehr</button>
+</nav>
+
+<div class="toast" id="toast"></div>
+<div id="gains" onclick="closeGains()"></div>
+<div id="upd"><span class="t">Neue Version verfügbar</span>
+  <button onclick="applyUpdate()">Laden</button>
+  <button class="x" onclick="document.getElementById('upd').className=''">Später</button></div>
+
+<script>
+/* ============ MUSKELGRUPPEN-SYMBOL ============ */
+const MUSCLE = {
+  schulter:'Schulter', brust:'Brust', ruecken:'Rücken', arme:'Arme',
+  rumpf:'Rumpf', gesaess:'Gesäß', beine:'Beine', waden:'Waden'
+};
+const MG_ORDER = ['schulter','brust','ruecken','arme','rumpf','gesaess','beine','waden'];
+
+/* Körper-Silhouette; markierte Zonen werden eingefärbt */
+function bodyIcon(zones){
+  const z = new Set(zones||[]);
+  const c = k => z.has(k) ? 'hi' : '';
+  return `<svg viewBox="0 0 100 100" class="bodyicon" aria-hidden="true">
+    <circle cx="50" cy="13" r="7.5"/>
+    <rect x="46.5" y="19" width="7" height="5"/>
+    <polygon class="${c('ruecken')}" points="39,26 29,46 40,42"/>
+    <polygon class="${c('ruecken')}" points="61,26 71,46 60,42"/>
+    <ellipse class="${c('schulter')}" cx="34.5" cy="29" rx="7.5" ry="6.5"/>
+    <ellipse class="${c('schulter')}" cx="65.5" cy="29" rx="7.5" ry="6.5"/>
+    <rect class="${c('brust')}" x="39" y="24" width="22" height="14" rx="5"/>
+    <rect class="${c('arme')}" x="27.5" y="33" width="7" height="17" rx="3.5"/>
+    <rect class="${c('arme')}" x="65.5" y="33" width="7" height="17" rx="3.5"/>
+    <rect class="${c('arme')}" x="26.5" y="51" width="6.5" height="15" rx="3"/>
+    <rect class="${c('arme')}" x="67" y="51" width="6.5" height="15" rx="3"/>
+    <rect class="${c('rumpf')}" x="41.5" y="39" width="17" height="17" rx="4"/>
+    <rect class="${c('gesaess')}" x="39.5" y="56.5" width="21" height="9" rx="4"/>
+    <rect class="${c('beine')}" x="40.5" y="65" width="8.5" height="16" rx="4"/>
+    <rect class="${c('beine')}" x="51" y="65" width="8.5" height="16" rx="4"/>
+    <rect class="${c('waden')}" x="41.5" y="82" width="7.5" height="13" rx="3.5"/>
+    <rect class="${c('waden')}" x="51" y="82" width="7.5" height="13" rx="3.5"/>
+  </svg>`;
+}
+
+/* Standard-Muskelgruppen je Übung */
+const MG_DEF = {
+  a1:['beine','gesaess'], a2:['beine','gesaess','ruecken'], a3:['ruecken','arme'],
+  a4:['ruecken','arme'], a5:['beine'], a6:['waden'], a7:['rumpf'],
+  b1:['brust','arme'], b2:['beine','gesaess'], b3:['ruecken','arme'], b4:['beine'],
+  b5:['arme'], b6:['arme'], b7:['rumpf'],
+  c1:['beine','gesaess'], c2:['ruecken','arme'], c3:['brust','arme'],
+  c4:['gesaess','beine'], c5:['rumpf','beine'], c6:['ruecken','gesaess'], c7:['rumpf'],
+};
+const SH_MG = [['schulter'],['schulter','ruecken'],['schulter','brust'],['schulter','ruecken'],['ruecken','schulter']];
+
+function mgOf(e){ return (e && e.mg) ? e.mg : (MG_DEF[e&&e.id] || []); }
+function mgLabel(list){ return (list||[]).map(k=>MUSCLE[k]).filter(Boolean).join(', '); }
+
+/* ============ PLAN ============ */
+const V = q => 'https://www.youtube.com/results?search_query=' + encodeURIComponent(q);
+
+const DEFAULT_PLAN = {
+  A:{name:'Einheit A – Beine & Zug', type:'gym', short:'A', sub:'Härtester Beintag',
+    ex:[
+      {id:'a1',n:'Beinpresse, tiefer ROM', s:4, r:'8–12', rpe:'8', note:'Tief, solange das Becken am Polster bleibt.', v:V('beinpresse richtige ausführung technik')},
+      {id:'a2',n:'Rumänisches Kreuzheben, KH', s:3, r:'8–10', rpe:'7–8', note:'Nur so tief, wie der untere Rücken gerade bleibt.', v:V('rumänisches kreuzheben kurzhantel technik')},
+      {id:'a3',n:'Latzug, neutraler Griff', s:3, r:'10–12', rpe:'7', v:V('latzug neutraler griff technik')},
+      {id:'a4',n:'Brustgestütztes Rudern', s:3, r:'10–12', rpe:'7', v:V('brustgestütztes rudern maschine technik')},
+      {id:'a5',n:'Beinbeuger liegend', s:2, r:'12', rpe:'7', note:'Nur 2 Sätze – Laufen belastet die Hamstrings ohnehin.', v:V('beinbeuger liegend ausführung')},
+      {id:'a6',n:'Wadenheben, 2 s tiefe Ferse', s:4, r:'12–15', rpe:'8', note:'Deine wichtigste Prophylaxe bei 24 km/Woche.', v:V('wadenheben technik voller bewegungsumfang')},
+      {id:'a7',n:'Dead Bug', s:3, r:'8 je Seite', rpe:'7', v:V('dead bug übung anleitung deutsch')},
+    ]},
+  L1:{name:'Lauf 1 – Regeneration', type:'run', short:'6', sub:'6 km locker, Zone 2',
+    km:6, hint:'Wenn du dich am Ende nicht besser fühlst als am Anfang, war es zu schnell. Bei schweren Beinen: 4 km oder zügig gehen.'},
+  B:{name:'Einheit B – Druck & Rumpf', type:'gym', short:'B', sub:'Mittlere Intensität',
+    ex:[
+      {id:'b1',n:'Brustpresse, neutraler Griff', s:4, r:'10–12', rpe:'7', note:'Ellbogen nicht hinter die Rumpfebene.', v:V('brustpresse maschine technik neutraler griff')},
+      {id:'b2',n:'Goblet Squat, tief, 2 s halten', s:4, r:'8–10', rpe:'7', note:'Wichtigste Mobility-Übung mit Gewicht.', v:V('goblet squat technik tief anleitung')},
+      {id:'b3',n:'Kabelrudern eng', s:4, r:'10–12', rpe:'7', note:'Ellbogen am Körper.', v:V('kabelrudern eng sitzend technik')},
+      {id:'b4',n:'Beinstrecker', s:3, r:'12–15', rpe:'8', v:V('beinstrecker maschine ausführung')},
+      {id:'b5',n:'Trizeps Pushdown', s:3, r:'12–15', rpe:'7', v:V('trizeps pushdown seil technik')},
+      {id:'b6',n:'Hammercurl', s:3, r:'10–12', rpe:'7', v:V('hammercurls technik anleitung')},
+      {id:'b7',n:'Pallof Press', s:3, r:'10 je Seite', rpe:'7', v:V('pallof press übung anleitung')},
+    ]},
+  L2:{name:'Lauf 2 – Dauerlauf', type:'run', short:'8', sub:'8 km, ab Woche 6 mit Tempo',
+    km:8, hint:'Woche 1–5 komplett locker. Ab Woche 6: 3 km zügiges Dauerlauftempo – nur wenn die Schulter 2 Wochen ruhig war.'},
+  C:{name:'Einheit C – Ganzkörper & Hüfte', type:'gym', short:'C', sub:'Kürzer, morgen langer Lauf',
+    ex:[
+      {id:'c1',n:'Bulgarian Split Squat', s:3, r:'8–10 je Bein', rpe:'7', note:'Lange Schrittstellung – Hüftbeuger-Dehnung unter Last.', v:V('bulgarian split squat technik anleitung')},
+      {id:'c2',n:'Latzug eng, Untergriff', s:3, r:'10–12', rpe:'7', note:'Erst schmerzfrei testen.', v:V('latzug untergriff technik')},
+      {id:'c3',n:'Brustpresse leicht schräg', s:3, r:'12', rpe:'6–7', note:'Kurzer ROM.', v:V('schrägbankdrücken maschine technik')},
+      {id:'c4',n:'Hip Thrust', s:3, r:'10–12', rpe:'7–8', v:V('hip thrust technik anleitung deutsch')},
+      {id:'c5',n:'Copenhagen Plank', s:3, r:'20–30 s je Seite', rpe:'7', note:'Adduktoren – typische Läufer-Schwachstelle.', v:V('copenhagen plank übung anleitung')},
+      {id:'c6',n:'Hyperextension, langsam', s:2, r:'12', rpe:'7', v:V('hyperextension rückenstrecker technik')},
+      {id:'c7',n:'Side Plank mit Beinheben', s:3, r:'25–35 s je Seite', rpe:'7', v:V('side plank seitstütz übung anleitung')},
+    ]},
+  L3:{name:'Lauf 3 – langer Lauf', type:'run', short:'10', sub:'10 km ruhig, danach Ruhetag',
+    km:10, hint:'Erstes Drittel bewusst langsamer als das Wohlfühltempo. Bei km 5: Schultern checken – hochgezogen? Arme ausschütteln.'},
+  R:{name:'Ruhetag', type:'rest', short:'–', sub:'Nur die 10-Minuten-Mobility'},
+};
+let PLAN={}, WEEK=[];
+const clone=o=>JSON.parse(JSON.stringify(o));
+const APP_BUILD = (s=>s.indexOf('__')===0?'lokal':s)('__BUILD__');
+
+const SHOULDER = [
+  {n:'Außenrotation Kabel/Band', s:2, r:'15 je Seite', note:'Handtuch in der Achsel, sehr leicht, 2 s zurück.', v:V('außenrotation schulter theraband übung')},
+  {n:'Face Pull, Brusthöhe', s:2, r:'15', note:'Ellbogen nicht über Schulterhöhe.', v:V('face pull technik anleitung')},
+  {n:'Serratus-Punches', s:2, r:'12', note:'Kleine Bewegung, unter 90°.', v:V('serratus anterior übung protraktion')},
+  {n:'Prone Y, 0–1 kg', s:2, r:'12', note:'Nur soweit schmerzfrei.', v:V('prone y raise schrägbank übung')},
+  {n:'Scapula Pull-ups', s:2, r:'10', note:'Arme gestreckt, nur Schulterblatt.', v:V('scapular pull ups übung anleitung')},
+];
+
+const WARMUP = {
+  A:[['World\'s Greatest Stretch','5× je Seite',V('worlds greatest stretch anleitung')],
+     ['Knie-zur-Wand-Ausfallschritt','10× je Seite',V('knee to wall ankle mobilization übung')],
+     ['Beinschwingen vor/zurück + seitlich','12× je Richtung',V('leg swings warm up hüfte')],
+     ['Goblet Squat Hold, wippen','2 × 30 s',V('goblet squat hold mobility drill')]],
+  B:[['Katze-Kuh, langsam','10 Zyklen',V('katze kuh übung wirbelsäule')],
+     ['Open Book BWS-Rotation','8× je Seite',V('open book brustwirbelsäule rotation übung')],
+     ['Thread the Needle','8× je Seite',V('thread the needle stretch anleitung')],
+     ['Schaumrolle BWS','60 s',V('foam roller brustwirbelsäule extension')],
+     ['Schulterpendel','30 s je Arm',V('pendelübung schulter codman')]],
+  C:[['90/90-Hüftwechsel','10× je Seite',V('90 90 hip switch mobility übung')],
+     ['Cossack Squat ohne Gewicht','8× je Seite',V('cossack squat anleitung technik')],
+     ['Hüftbeuger-Ausfallschritt','45 s je Seite',V('couch stretch hüftbeuger dehnen anleitung')],
+     ['Toy Soldiers im Gehen','15 Schritte',V('toy soldier walk dynamic hamstring stretch')]],
+  RUN:[['Knie-zur-Wand','10× je Seite',V('knee to wall ankle mobilization übung')],
+     ['Beinschwingen','12× je Richtung',V('leg swings warm up hüfte')],
+     ['Hüftkreisen','10×',V('dynamisches aufwärmen vor dem laufen')],
+     ['Ausfallschritte im Gehen','20 Schritte',V('walking lunges warm up')]],
+};
+
+const COOLDOWN = [
+  ['Türrahmen-Brustdehnung, Unterarm 60–70°','2 × 30 s je Seite','Nicht auf Schulterhöhe!',V('brustdehnung türrahmen richtig ausführen')],
+  ['Cross-Body sanft','2 × 20 s je Seite','Bei Ziehen vorne lockern',V('cross body shoulder stretch anleitung')],
+  ['Latissimus an der Stange','2 × 30 s','Hüfte zurück, Brust senken',V('latissimus dehnen übung stange')],
+  ['Couch Stretch','2 × 45 s je Seite','Gesäß anspannen',V('couch stretch anleitung hüftbeuger')],
+  ['Wadendehnung, gestreckt + gebeugt','30 s je Variante','Pflicht bei 24 km/Woche',V('wadendehnung wand anleitung')],
+  ['Frosch / Adduktoren','60 s','Langsam vor und zurück',V('frog stretch adduktoren dehnen anleitung')],
+  ['Taubensitz','45 s je Seite','Bei Knieschmerz stattdessen 90/90',V('taubensitz pigeon pose dehnung anleitung')],
+];
+
+const DAILY = [
+  ['Tiefe Hocke, Fersen am Boden','2 × 60 s',V('deep squat hold täglich mobility')],
+  ['90/90-Hüftwechsel','90 s',V('90 90 hip switch mobility übung')],
+  ['Couch Stretch','45 s je Seite',V('couch stretch anleitung hüftbeuger')],
+  ['Jefferson Curl (0–2 kg)','3 × 5',V('jefferson curl anleitung technik')],
+  ['Open Book BWS-Rotation','8× je Seite',V('open book brustwirbelsäule rotation übung')],
+  ['Cat-Cow + Kindshaltung','90 s',V('katze kuh kindshaltung übung')],
+];
+
+const DEFAULT_WEEK = [['Mo','A'],['Di','L1'],['Mi','B'],['Do','L2'],['Fr','C'],['Sa','L3'],['So','R']];
+
+/* ============ STORAGE ============ */
+let mem = {};
+let canStore = true;
+try{ localStorage.setItem('__t','1'); localStorage.removeItem('__t'); }catch(e){ canStore=false; }
+
+/* Profile: mehrere Personen können dieselbe App nutzen, ohne sich zu überschreiben */
+function lsGet(k,d){ try{ return localStorage.getItem(k)??d; }catch(e){ return d; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,v); }catch(e){} }
+let PROFILE = lsGet('tprof','Ich');
+function profiles(){
+  try{ const a=JSON.parse(lsGet('tprofs','null')); if(Array.isArray(a)&&a.length) return a; }catch(e){}
+  return [PROFILE];
+}
+function storeKey(){ return 'tlog::'+PROFILE; }
+function switchProfile(name){
+  if(!name) return;
+  const list=profiles(); if(!list.includes(name)){ list.push(name); lsSet('tprofs',JSON.stringify(list)); }
+  lsSet('tprof',name);
+  location.reload();
+}
+function addProfile(){
+  const n=prompt('Name des neuen Profils (z. B. der Vorname):');
+  if(!n||!n.trim()) return;
+  const nm=n.trim().slice(0,20);
+  if(profiles().includes(nm)){ toast('Profil gibt es schon'); return; }
+  switchProfile(nm);
+}
+function delProfile(name){
+  if(profiles().length<2){ toast('Das letzte Profil bleibt'); return; }
+  if(!confirm('Profil „'+name+'" mit allen Einträgen löschen?')) return;
+  try{ localStorage.removeItem('tlog::'+name); }catch(e){}
+  const list=profiles().filter(p=>p!==name);
+  lsSet('tprofs',JSON.stringify(list));
+  if(PROFILE===name){ lsSet('tprof',list[0]); location.reload(); } else render();
+}
+
+function load(){
+  if(!canStore) return mem;
+  try{
+    let raw=localStorage.getItem(storeKey());
+    // Einmalige Übernahme der Daten aus der Zeit vor den Profilen
+    if(!raw){ const old=localStorage.getItem('tlog');
+      if(old){ localStorage.setItem(storeKey(),old); localStorage.removeItem('tlog'); raw=old; } }
+    return JSON.parse(raw||'{}');
+  }catch(e){ return {}; }
+}
+function save(d){
+  mem = d;
+  if(canStore){
+    try{ localStorage.setItem(storeKey(), JSON.stringify(d)); }
+    catch(e){ canStore=false; toast('Speichern nicht möglich – nutze Backup-Code'); }
+  }
+  if(typeof scheduleFs==='function') scheduleFs();
+}
+let DB = Object.assign({logs:{}, daily:{}, start:null, meta:{}}, load());
+if(!DB.meta) DB.meta={};
+
+/* Eigener Plan überschreibt den Standard */
+function applyPlan(){
+  PLAN = DB.plan ? DB.plan : clone(DEFAULT_PLAN);
+  WEEK = DB.week ? DB.week : clone(DEFAULT_WEEK);
+  // Sicherheitsnetz: Wochentage dürfen nur auf existierende Einheiten zeigen
+  WEEK.forEach(row=>{ if(!PLAN[row[1]]) row[1]='R'; });
+  if(!PLAN.R) PLAN.R={name:'Ruhetag',type:'rest',short:'–',sub:'Nur die 10-Minuten-Mobility'};
+}
+function planEdited(){ DB.plan=PLAN; DB.week=WEEK; save(DB); }
+applyPlan();
+
+/* Einmalige Migration: Satz-Schlüssel von Index auf Übungs-ID */
+if(!DB.v){
+  const order={}; Object.keys(DEFAULT_PLAN).forEach(k=>{
+    if(DEFAULT_PLAN[k].ex) order[k]=DEFAULT_PLAN[k].ex.map(e=>e.id); });
+  Object.values(DB.logs||{}).forEach(l=>{
+    if(!l.sets||!order[l.key]) return;
+    const ns={};
+    Object.keys(l.sets).forEach(k=>{
+      const [i,s]=k.split('_');
+      const id = /^\d+$/.test(i) ? (order[l.key][+i]||i) : i;
+      ns[id+'_'+s]=l.sets[k];
+    });
+    l.sets=ns;
+  });
+  DB.v=2;
+  save(DB);
+}
+if(!DB.start){ DB.start = todayKey(); save(DB); }
+
+/* ===== Datensicherung ===== */
+var fsHandle=null, fsTimer=null;
+
+// 1) Browser bitten, die Daten dauerhaft zu behalten (schützt vor automatischem Aufräumen)
+(async()=>{ try{
+  if(navigator.storage&&navigator.storage.persist){
+    const already = navigator.storage.persisted ? await navigator.storage.persisted() : false;
+    if(!already) await navigator.storage.persist();
+  }
+}catch(e){} })();
+
+// 2) IndexedDB für den Dateizeiger
+function idb(mode,fn){ return new Promise((res,rej)=>{
+  let r; try{ r=indexedDB.open('tlogfs',1); }catch(e){ return rej(e); }
+  r.onupgradeneeded=()=>{ try{ r.result.createObjectStore('kv'); }catch(e){} };
+  r.onsuccess=()=>{ try{ const db=r.result, t=db.transaction('kv',mode), s=t.objectStore('kv');
+    const q=fn(s); t.oncomplete=()=>res(q?q.result:null); t.onerror=()=>rej(t.error);
+  }catch(e){ rej(e); } };
+  r.onerror=()=>rej(r.error);
+});}
+
+const fsSupported = typeof window.showSaveFilePicker==='function';
+
+async function restoreHandle(){
+  if(!fsSupported) return null;
+  try{
+    const h=await idb('readonly',s=>s.get('handle::'+PROFILE));
+    if(!h) return null;
+    let p=await h.queryPermission({mode:'readwrite'});
+    if(p!=='granted') return h; // Berechtigung erst bei Nutzeraktion anfragen
+    fsHandle=h; return h;
+  }catch(e){ return null; }
+}
+async function linkFile(){
+  if(!fsSupported){ toast('Dein Browser kann das nicht – nutze Backup-Code'); return; }
+  try{
+    const h=await window.showSaveFilePicker({suggestedName:'trainingslog.json',
+      types:[{description:'Trainingslog',accept:{'application/json':['.json']}}]});
+    await idb('readwrite',s=>s.put(h,'handle::'+PROFILE));
+    fsHandle=h; await writeFs(true); render();
+    toast('Verknüpft – wird ab jetzt automatisch gesichert');
+  }catch(e){ if(e.name!=='AbortError') toast('Verknüpfen fehlgeschlagen'); }
+}
+async function unlinkFile(){
+  fsHandle=null; try{ await idb('readwrite',s=>s.delete('handle::'+PROFILE)); }catch(e){}
+  render(); toast('Verknüpfung gelöst');
+}
+async function writeFs(force){
+  if(!fsHandle) return false;
+  try{
+    let p=await fsHandle.queryPermission({mode:'readwrite'});
+    if(p!=='granted'){
+      if(!force) return false;
+      p=await fsHandle.requestPermission({mode:'readwrite'});
+      if(p!=='granted') return false;
+    }
+    const w=await fsHandle.createWritable();
+    await w.write(JSON.stringify(DB,null,2)); await w.close();
+    DB.meta.lastBackup=todayKey();
+    if(canStore){ try{ localStorage.setItem(storeKey(),JSON.stringify(DB)); }catch(e){} }
+    const el=document.getElementById('fsState'); if(el) el.textContent='zuletzt gesichert: gerade eben';
+    return true;
+  }catch(e){ return false; }
+}
+function scheduleFs(){ if(!fsHandle) return; clearTimeout(fsTimer); fsTimer=setTimeout(()=>writeFs(false),1500); }
+
+async function loadFromFile(){
+  if(!fsSupported){ document.getElementById('imp').click(); return; }
+  try{
+    const [h]=await window.showOpenFilePicker({types:[{description:'Trainingslog',accept:{'application/json':['.json']}}]});
+    const f=await h.getFile(); const d=JSON.parse(await f.text());
+    if(!d.logs) throw 0;
+    DB=Object.assign({logs:{},daily:{},start:todayKey(),meta:{}},d); if(!DB.meta)DB.meta={};
+    await idb('readwrite',s=>s.put(h,'handle::'+PROFILE)); fsHandle=h;
+    save(DB); go('home'); toast('Geladen und verknüpft ✓');
+  }catch(e){ if(e && e.name!=='AbortError') toast('Datei nicht lesbar'); }
+}
+
+/* Backup-Code (überall nutzbar) */
+function toCode(){ return btoa(unescape(encodeURIComponent(JSON.stringify(DB)))); }
+function fromCode(c){
+  try{ const d=JSON.parse(decodeURIComponent(escape(atob(c.trim()))));
+    if(!d.logs) throw 0;
+    DB=Object.assign({logs:{},daily:{},start:todayKey(),meta:{}},d); if(!DB.meta)DB.meta={};
+    save(DB); go('home'); toast('Wiederhergestellt ✓');
+  }catch(e){ toast('Code ungültig'); }
+}
+function copyCode(){
+  const c=toCode();
+  const done=()=>{ DB.meta.lastBackup=todayKey(); save(DB); toast('Code kopiert – in Notizen einfügen'); };
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(c).then(done,()=>fallbackCopy(c,done));
+  } else fallbackCopy(c,done);
+}
+function fallbackCopy(c,cb){
+  const t=document.createElement('textarea'); t.value=c; t.style.position='fixed'; t.style.opacity='0';
+  document.body.appendChild(t); t.select();
+  try{ document.execCommand('copy'); cb(); }catch(e){ toast('Kopieren nicht möglich'); }
+  document.body.removeChild(t);
+}
+async function shareBackup(){
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const file=new File([blob],'trainingslog-'+todayKey()+'.json',{type:'application/json'});
+  if(navigator.canShare && navigator.canShare({files:[file]})){
+    try{ await navigator.share({files:[file],title:'Trainingslog-Backup'});
+      DB.meta.lastBackup=todayKey(); save(DB); return; }catch(e){ if(e.name==='AbortError') return; }
+  }
+  exportData();
+}
+function daysSinceBackup(){
+  if(!DB.meta.lastBackup) return 999;
+  return Math.floor((new Date(todayKey()+'T00:00:00') - new Date(DB.meta.lastBackup+'T00:00:00'))/864e5);
+}
+function backupOverdue(){
+  const n=Object.values(DB.logs).filter(l=>l.done).length;
+  if(n===0) return false;
+  if(fsHandle) return false;
+  return daysSinceBackup()>=7;
+}
+
+/* now() respektiert den Testmodus (simuliertes Datum) */
+function now(){
+  const sim = DB && DB.meta && DB.meta.sim;
+  return sim ? new Date(sim+'T12:00:00') : new Date();
+}
+function simOn(){ return !!(DB && DB.meta && DB.meta.sim); }
+function todayKey(d){ const x=d||now(); return x.getFullYear()+'-'+String(x.getMonth()+1).padStart(2,'0')+'-'+String(x.getDate()).padStart(2,'0'); }
+function dayIdx(d){ const x=(d||now()).getDay(); return x===0?6:x-1; }
+function weekNum(){
+  const s=new Date(DB.start+'T00:00:00'), n=now();
+  return Math.max(1,Math.floor((n-s)/(7*864e5))+1);
+}
+function fmtDate(k){ const [y,m,d]=k.split('-'); return d+'.'+m+'.'; }
+
+/* ============ STATE ============ */
+let view='home', activeKey=null, activeDate=null;
+
+function getLog(date,key){
+  const id=date+'|'+key;
+  if(!DB.logs[id]) DB.logs[id]={key,date,sets:{},sh:{},pain:null,painNext:null,note:'',km:null,min:null,done:false};
+  return DB.logs[id];
+}
+function hasLog(date,key){ return !!DB.logs[date+'|'+key]; }
+function isDone(date,key){ const l=DB.logs[date+'|'+key]; return l&&l.done; }
+
+function lastSame(key,beforeDate){
+  const ids=Object.keys(DB.logs).filter(id=>DB.logs[id].key===key && DB.logs[id].date<beforeDate && DB.logs[id].done);
+  ids.sort((a,b)=>DB.logs[b].date.localeCompare(DB.logs[a].date));
+  return ids.length?DB.logs[ids[0]]:null;
+}
+
+/* ============ RENDER ============ */
+function go(v){ view=v; activeKey=null; render(); window.scrollTo(0,0); }
+function openSession(key,date){ activeKey=key; activeDate=date||todayKey(); view='session'; render(); window.scrollTo(0,0); }
+
+function render(){
+  const app=document.getElementById('app');
+  ['home','week','stats','mob','more'].forEach(v=>{
+    const on = (view===v) || (v==='more' && (view==='edit'||view==='editSession'||view==='test'));
+    const b=document.getElementById('nav-'+v); if(b) b.className = (on?'on':'');
+  });
+  if(view==='home') app.innerHTML=vHome();
+  else if(view==='week') app.innerHTML=vWeek();
+  else if(view==='stats') app.innerHTML=vStats();
+  else if(view==='mob') app.innerHTML=vMob();
+  else if(view==='more') app.innerHTML=vMore();
+  else if(view==='edit') app.innerHTML=vEdit();
+  else if(view==='test') app.innerHTML=vTest();
+  else if(view==='editSession') app.innerHTML=vEditSession();
+  else if(view==='session') app.innerHTML=vSession();
+}
+
+function tile(dayLabel,key,date,today){
+  const p=PLAN[key];
+  const cls='tile '+(p.type==='run'?'run ':'')+(p.type==='rest'?'rest ':'')+(today?'today':'');
+  const done=isDone(date,key);
+  const click = p.type==='rest' ? '' : `onclick="openSession('${key}','${date}')"`;
+  return `<div class="${cls}" ${click}>
+    <div class="badge">${p.short}</div>
+    <div class="grow">
+      <div class="t1">${dayLabel?dayLabel+' · ':''}${p.name}</div>
+      <div class="t2">${p.sub}</div>
+    </div>
+    ${done?'<div class="chk">✓</div>':(p.type!=='rest'?'<div class="chk" style="color:var(--muted);font-size:.9rem">›</div>':'')}
+  </div>`;
+}
+
+function vHome(){
+  const di=dayIdx(), [lbl,key]=WEEK[di], date=todayKey();
+  const p=PLAN[key];
+  const dayNames=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+  const dToday = DB.daily[date];
+  let h=`<h1>Heute</h1><div class="muted">${dayNames[di]} · Woche ${weekNum()} des Plans</div>`;
+  if(simOn()) h+=`<div class="card" style="border-color:var(--accent2);padding:10px 13px">
+    <div class="row"><div class="grow"><strong style="font-size:.88rem">🧪 Testmodus aktiv</strong>
+      <div class="note">Simuliertes Datum: ${fmtDate(todayKey())}</div></div>
+      <button class="btn small sec" onclick="setSim('')">Beenden</button></div></div>`;
+  if(backupOverdue()){
+    const d=daysSinceBackup();
+    h+=`<div class="card" style="border-color:var(--warn)"><div class="row"><div class="grow">
+      <strong style="font-size:.92rem">Datensicherung fällig</strong>
+      <div class="note">${d>=999?'Deine Einträge liegen nur im Browserspeicher.':'Letzte Sicherung vor '+d+' Tagen.'} Ein Klick auf „Website-Daten löschen" würde alles entfernen.</div></div>
+      <button class="btn small" onclick="go('more')">Sichern</button></div></div>`;
+  }
+  h+=`<div style="margin-top:14px">${tile('',key,date,true)}</div>`;
+  if(p.type==='rest'){
+    h+=`<div class="card"><strong>Ruhetag.</strong><div class="note" style="margin-top:4px">
+      Heute nur die 10-Minuten-Mobility. Regeneration ist kein Nichtstun – dein Körper repariert Gewebe nur, wenn er die Kapazität dafür hat. Das gilt auch für die Schulter.</div></div>`;
+  }
+  h+=`<div class="card ${dToday?'':''}" style="${dToday?'border-color:var(--done)':''}">
+    <div class="row"><div class="grow"><strong>10-Minuten-Mobility</strong>
+    <div class="note">Täglich – der eigentliche Hebel gegen Steifigkeit.</div></div>
+    <button class="btn small ${dToday?'sec':''}" onclick="toggleDaily()">${dToday?'✓ Erledigt':'Abhaken'}</button></div></div>`;
+
+  // Wochenfortschritt
+  const monday=now(); monday.setDate(monday.getDate()-di);
+  let doneC=0,total=0;
+  WEEK.forEach(([l,k],i)=>{ if(PLAN[k].type==='rest')return; total++;
+    const d=new Date(monday); d.setDate(monday.getDate()+i);
+    if(isDone(todayKey(d),k)) doneC++; });
+  h+=`<h2>Diese Woche</h2><div class="row" style="gap:4px;margin-bottom:6px">`;
+  WEEK.forEach(([l,k],i)=>{
+    const d=new Date(monday); d.setDate(monday.getDate()+i);
+    const dk=todayKey(d), dn=isDone(dk,k), rest=PLAN[k].type==='rest';
+    h+=`<div style="flex:1;text-align:center">
+      <div style="height:6px;border-radius:3px;background:${dn?'var(--done)':'var(--line)'};margin-bottom:4px"></div>
+      <div style="font-size:.7rem;color:${i===di?'var(--ink)':'var(--muted)'};font-weight:${i===di?600:400}">${l}</div></div>`;
+  });
+  h+=`</div><div class="muted">${doneC} von ${total} Einheiten erledigt</div>`;
+  return h;
+}
+
+function vWeek(){
+  const di=dayIdx();
+  const monday=now(); monday.setDate(monday.getDate()-di);
+  let h=`<h1>Woche ${weekNum()}</h1><div class="muted">3× Kraft · 3× Laufen · 1 Ruhetag</div><div style="margin-top:12px">`;
+  WEEK.forEach(([l,k],i)=>{
+    const d=new Date(monday); d.setDate(monday.getDate()+i);
+    h+=tile(l,k,todayKey(d),i===di);
+  });
+  h+=`</div>`;
+  h+=`<details><summary>Warum diese Reihenfolge?</summary><ul>
+    <li>Der lockerste Lauf liegt direkt nach dem härtesten Beintag – 6 km ruhig sind aktive Erholung.</li>
+    <li>Der lange Lauf liegt am Samstag, weil danach ein voller Ruhetag folgt.</li>
+    <li>Kraft und Laufen wechseln sich ab, damit keine zwei harten Beinbelastungen aufeinanderprallen.</li>
+    <li>Bei Zeitmangel gilt: Schulterblock &gt; Mobility &gt; Krafthauptteil &gt; Lauf.</li></ul></details>`;
+  h+=`<details><summary>Warnsignale für zu viel</summary><ul>
+    <li>Ruhepuls morgens dauerhaft 5+ Schläge über normal</li>
+    <li>Schlechter Schlaf über mehrere Nächte</li>
+    <li>Dauerhaft schwere Beine, auch nach dem Ruhetag</li>
+    <li>Kraftwerte sinken zwei Wochen in Folge</li>
+    <li>Schulterschmerz nimmt wieder zu</li></ul>
+    <div class="note">Bei zwei oder mehr Punkten: eine Woche Lauf 1 streichen und einen Krafttag auf halbes Volumen.</div></details>`;
+  return h;
+}
+
+function vSession(){
+  const p=PLAN[activeKey], L=getLog(activeDate,activeKey);
+  const isToday = activeDate===todayKey();
+  let h=`<div class="row" style="margin-bottom:2px">
+    <button class="btn sec small" onclick="go('week')">‹ Zurück</button>
+    <span class="pill ${p.type==='run'?'r':'g'}" style="margin-left:auto">${p.type==='run'?'Laufen':'Kraft'}</span></div>
+    <h1 style="margin-top:10px">${p.name}</h1>
+    <div class="muted">${fmtDate(activeDate)}${isToday?' · heute':''} · ${p.sub}</div>`;
+
+  if(p.type==='run'){
+    h+=`<div class="card"><div class="row" style="gap:12px"><div class="icobox lg">${bodyIcon(['beine','waden','gesaess'])}</div>
+      <div class="note grow" style="margin-top:0">${p.hint}</div></div></div>`;
+    h+=`<h2>Aufwärmen (5 Min)</h2><div class="card">`;
+    WARMUP.RUN.forEach(([n,d,v])=>{ h+=`<div class="row" style="padding:5px 0"><div class="grow"><strong style="font-size:.9rem">${n}</strong> <span class="muted">${d}</span></div><a class="vid" href="${v}" target="_blank">▶</a></div>`;});
+    h+=`</div>`;
+    h+=`<h2>Lauf eintragen</h2><div class="card">
+      <div class="row">
+        <div class="fld grow"><label class="muted" style="font-size:.75rem">Distanz</label>
+          <input type="number" inputmode="decimal" step="0.1" value="${L.km??''}" placeholder="${p.km}"
+            style="width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);text-align:center;font-size:1rem"
+            oninput="setField('km',this.value)"></div>
+        <div class="fld grow"><label class="muted" style="font-size:.75rem">Zeit (Min)</label>
+          <input type="number" inputmode="numeric" value="${L.min??''}" placeholder="—"
+            style="width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;background:var(--bg);color:var(--ink);text-align:center;font-size:1rem"
+            oninput="setField('min',this.value)"></div>
+      </div>
+      <div class="muted" style="margin-top:8px;text-align:center" id="paceOut">${paceTxt(L)}</div>
+    </div>`;
+    h+=`<div class="card" style="border-color:var(--accent)">
+      <strong style="font-size:.92rem">Schulter-Check bei km 5</strong>
+      <div class="note">Sind die Schultern hochgezogen? Fäuste verkrampft? Kurz Arme ausschütteln und neu einschwingen. Auf 10 km machst du rund 4.000 Armschwünge pro Seite.</div></div>`;
+    h+=`<h2>Nach dem Lauf</h2><div class="card">
+      <div class="row" style="padding:5px 0"><div class="grow"><strong style="font-size:.9rem">Theraband-Außenrotation</strong> <span class="muted">2 × 15 je Seite</span>
+      <div class="note">Verdoppelt deine Reha-Frequenz. Wirksamster Einzelpunkt für deine Schulter.</div></div>
+      <button class="tick ${L.sh.band?'on':''}" onclick="toggleShBand()">✓</button></div>
+      <div class="row" style="padding:5px 0;border-top:1px solid var(--line)"><div class="grow"><strong style="font-size:.9rem">Waden + Couch Stretch</strong> <span class="muted">je 30–45 s</span></div>
+      <button class="tick ${L.sh.stretch?'on':''}" onclick="toggleShStretch()">✓</button></div>
+    </div>`;
+  } else {
+    // Warm-up
+    h+=`<details><summary>Mobility-Warm-up (8 Min)</summary>`;
+    (WARMUP[activeKey]||[]).forEach(([n,d,v])=>{ h+=`<div class="row" style="padding:5px 0"><div class="grow"><strong style="font-size:.88rem">${n}</strong> <span class="muted">${d}</span></div><a class="vid" href="${v}" target="_blank">▶</a></div>`;});
+    h+=`<div class="note">Dynamisch bewegen, nicht statisch halten. Davor 5 Min lockeres Cardio.</div></details>`;
+
+    h+=`<details><summary>RPE – kurz erklärt</summary>
+      <div class="note" style="margin-top:6px">Gefühlte Anstrengung von 1–10. Praktisch gedacht: <strong>wie viele Wiederholungen hättest du noch geschafft?</strong></div>
+      <div class="note"><strong>RPE 10</strong> = keine mehr · <strong>9</strong> = eine · <strong>8</strong> = zwei · <strong>7</strong> = drei · <strong>6</strong> = vier oder mehr in Reserve</div>
+      <div class="note">Beine RPE 8, Oberkörper RPE 7 – an der Grenze leidet die Technik und du kompensierst unbewusst mit der Schulter.</div></details>`;
+
+    const prev=lastSame(activeKey,activeDate);
+    if(prev) h+=`<div class="muted" style="margin:10px 0 2px">Vergleich mit ${fmtDate(prev.date)}</div>`;
+
+    p.ex.forEach((e,i)=>{
+      const X=e.id||('x'+i);
+      let dn=0; for(let s=0;s<e.s;s++) if(L.sets[X+'_'+s]&&L.sets[X+'_'+s].d) dn++;
+      h+=`<div class="ex ${dn===e.s?'complete':''}">
+        <div class="hd">
+          <div class="icobox">${bodyIcon(mgOf(e))}</div>
+          <div class="nm">${e.n}
+          <div class="meta">${e.s} × ${e.r}${e.rpe?' · RPE '+e.rpe:''}</div>
+          ${mgOf(e).length?`<div class="meta" style="color:var(--accent);font-weight:600">${mgLabel(mgOf(e))}</div>`:''}</div>
+          <div class="prog">${dn}/${e.s}</div></div>
+        <div class="body">`;
+      for(let s=0;s<e.s;s++){
+        const key=X+'_'+s, st=L.sets[key]||{};
+        const pv = prev && prev.sets[key] ? prev.sets[key] : null;
+        const ph = pv&&pv.w ? pv.w : 'kg';
+        const pr = pv&&pv.r ? pv.r : 'Wdh';
+        h+=`<div class="setrow">
+          <span class="setno">${s+1}</span>
+          <div class="fld"><input type="number" inputmode="decimal" step="0.5" value="${st.w??''}" placeholder="${ph}" oninput="setVal('${X}',${s},'w',this.value)"><span class="unit">kg</span></div>
+          <div class="fld"><input type="number" inputmode="numeric" value="${st.r??''}" placeholder="${pr}" oninput="setVal('${X}',${s},'r',this.value)"><span class="unit">×</span></div>
+          <button class="tick ${st.d?'on':''}" onclick="toggleSet('${X}',${s})">✓</button>
+        </div>`;
+      }
+      if(prev){
+        const pw=[]; for(let s=0;s<e.s;s++){const pv=prev.sets[X+'_'+s]; if(pv&&pv.w)pw.push(pv.w+'×'+(pv.r||'?'));}
+        if(pw.length) h+=`<div class="hint">Letztes Mal: ${pw.join('  ·  ')}</div>`;
+      }
+      if(e.note) h+=`<div class="note">${e.note}</div>`;
+      if(e.v) h+=`<a class="vid" href="${e.v}" target="_blank">▶ Technik-Video</a>`;
+      h+=`</div></div>`;
+    });
+
+    // Schulterblock
+    let shd=0; SHOULDER.forEach((x,i)=>{ if(L.sh['s'+i]) shd++; });
+    h+=`<h2>Schulter-Reha-Block <span class="pill" style="font-weight:600">${shd}/${SHOULDER.length}</span></h2>
+      <div class="card" style="${shd===SHOULDER.length?'border-color:var(--done)':'border-color:var(--accent)'}">
+      <div class="note" style="margin-top:0;margin-bottom:8px">Zirkel, 2 Durchgänge. Leicht, sauber, komplett schmerzfrei. <strong>Wird nie gestrichen.</strong></div>`;
+    SHOULDER.forEach((x,i)=>{
+      h+=`<div class="row" style="padding:8px 0;border-top:1px solid var(--line)">
+        <div class="icobox sm">${bodyIcon(SH_MG[i]||['schulter'])}</div>
+        <div class="grow"><strong style="font-size:.88rem">${x.n}</strong> <span class="muted">${x.s} × ${x.r}</span>
+        <div class="note">${x.note} <a class="vid" href="${x.v}" target="_blank" style="margin-top:2px">▶</a></div></div>
+        <button class="tick ${L.sh['s'+i]?'on':''}" onclick="toggleSh(${i})">✓</button></div>`;
+    });
+    h+=`</div>`;
+
+    h+=`<details><summary>Cool-down: Dehnen (7 Min)</summary>`;
+    COOLDOWN.forEach(([n,d,note,v])=>{ h+=`<div style="padding:6px 0;border-top:1px solid var(--line)"><div class="row"><div class="grow"><strong style="font-size:.88rem">${n}</strong> <span class="muted">${d}</span></div><a class="vid" href="${v}" target="_blank">▶</a></div><div class="note">${note}</div></div>`;});
+    h+=`<div class="note" style="margin-top:8px">Jetzt statisch halten – warm, 30–45 s, ruhig atmen. Schulter sanft: ein gereizter Schleimbeutel reagiert auf kräftiges Dehnen mit mehr Entzündung.</div></details>`;
+  }
+
+  // Schmerz + Notiz
+  h+=`<h2>Schulter-Schmerzlog</h2><div class="card">
+    <div class="row"><span class="muted" style="font-size:.85rem">Während der Einheit</span>
+      <span class="grow"></span><strong id="pv">${L.pain??'–'}</strong><span class="muted">/10</span></div>
+    <input class="slider" type="range" min="0" max="10" value="${L.pain??0}" oninput="setPain(this.value)">
+    <div class="row" style="justify-content:space-between;font-size:.7rem;color:var(--muted)"><span>kein Schmerz</span><span>4+ = Übung anpassen</span><span>stark</span></div>
+    <div style="margin-top:12px"><textarea placeholder="Notiz: was hat gereizt, wie fühlte es sich an?" oninput="setField('note',this.value)">${L.note||''}</textarea></div>
+  </div>`;
+
+  h+=`<div style="margin:16px 0 8px">
+    <button class="btn ${L.done?'sec':''}" onclick="finish()">${L.done?'✓ Abgeschlossen – erneut öffnen':'Einheit abschließen'}</button></div>`;
+  if(!L.done && PLAN[activeKey].type==='gym')
+    h+=`<div class="row" style="gap:8px;margin-bottom:10px">
+      <button class="btn sec small grow" onclick="startTimer(60)">Pause 60 s</button>
+      <button class="btn sec small grow" onclick="startTimer(90)">90 s</button>
+      <button class="btn sec small grow" onclick="startTimer(120)">120 s</button></div>`;
+  return h;
+}
+
+/* ============ GAINS-GADGET ============ */
+const GITEMS=[
+  {e:'🐋',s:'Blauwal',p:'Blauwale',kg:150000},
+  {e:'🦕',s:'Brachiosaurus',p:'Brachiosaurier',kg:35000},
+  {e:'🚌',s:'Linienbus',p:'Linienbusse',kg:12000},
+  {e:'🐘',s:'Elefant',p:'Elefanten',kg:6000},
+  {e:'🦏',s:'Nashorn',p:'Nashörner',kg:2300},
+  {e:'🚗',s:'Kleinwagen',p:'Kleinwagen',kg:1100},
+  {e:'🐄',s:'Kuh',p:'Kühe',kg:750},
+  {e:'🎹',s:'Klavier',p:'Klaviere',kg:400},
+  {e:'🏍️',s:'Motorrad',p:'Motorräder',kg:200},
+  {e:'🧊',s:'Kühlschrank',p:'Kühlschränke',kg:80},
+  {e:'🧺',s:'Waschmaschine',p:'Waschmaschinen',kg:70},
+  {e:'🚲',s:'Fahrrad',p:'Fahrräder',kg:12},
+  {e:'🎳',s:'Bowlingkugel',p:'Bowlingkugeln',kg:7},
+];
+const PIG={e:'🐹',s:'Meerschweinchen',p:'Meerschweinchen',kg:1};
+
+/* Gemeinsame Zerlegung. Liefert immer eine exakte Summe und
+   eine Kleineinheit (Meerschweinchen bzw. Dackel) zwischen 3 und 33. */
+function packLadder(T, ladder){
+  if(T<=33) return {items:[], small:Math.max(3,T), total:T};
+
+  // Leiter über die Größenordnungen wählen, damit die Stückzahlen klein bleiben
+  const start=ladder.findIndex(i=>i.w<=T);
+  const pal=[];
+  for(let i=start;i<ladder.length && pal.length<4;i+=2) pal.push(ladder[i]);
+  const fine=ladder[ladder.length-1];
+  if(!pal.some(i=>i.w===fine.w)) pal.push(fine);
+  pal.sort((a,b)=>b.w-a.w);
+
+  // Grundbudget der Kleineinheit: immer ≥3, variabel damit die Zahl nicht immer gleich ist
+  let small = 3 + (T % 19);                 // 3–21
+  let rest  = T - small;
+  // Den größten Posten nicht wegbudgetieren (sonst wird aus 1 Marathon plötzlich 15 Brücken)
+  if(pal.length && T-pal[0].w >= 3 && rest < pal[0].w){ small = T - pal[0].w; rest = pal[0].w; }
+
+  const items=[];
+  for(const it of pal){
+    const c=Math.floor(rest/it.w);
+    if(c<1) continue;
+    items.push({e:it.e,s:it.s,p:it.p,w:it.w,c});
+    rest -= c*it.w;
+  }
+  small += rest;                            // exakt; Rest < kleinste Stufe
+  items.sort((a,b)=>b.w-a.w);
+  return {items,small,total:T};
+}
+
+// Meerschweinchen immer 3–33
+function gainsBreak(kg){
+  const r=packLadder(Math.round(kg), GITEMS.map(i=>({...i,w:i.kg})));
+  return {items:r.items.map(i=>({...i,kg:i.w})), pigs:r.small, total:r.total};
+}
+
+/* --- Laufstrecken-Gadget --- */
+const DITEMS=[
+  {e:'🏃',s:'Marathon',p:'Marathons',m:42195},
+  {e:'🏎️',s:'Nürburgring-Nordschleife',p:'Nordschleifen',m:20832},
+  {e:'🌉',s:'Golden Gate Bridge',p:'Golden Gate Bridges',m:2737},
+  {e:'🛫',s:'Flughafen-Startbahn',p:'Startbahnen',m:1500},
+  {e:'🗼',s:'umgelegter Eiffelturm',p:'umgelegte Eiffeltürme',m:330},
+  {e:'⚽',s:'Fußballfeld',p:'Fußballfelder',m:105},
+  {e:'🐋',s:'Blauwal',p:'Blauwale',m:30},
+  {e:'🚌',s:'Linienbus',p:'Linienbusse',m:12},
+];
+const DACHS={e:'🐕',s:'Dackel',p:'Dackel',m:1};
+
+// Dackel immer 3–33
+function distBreak(km){
+  const r=packLadder(Math.round(km*1000), DITEMS.map(i=>({...i,w:i.m})));
+  return {items:r.items.map(i=>({...i,m:i.w})), dogs:r.small, total:r.total};
+}
+
+function dquip(km,min){
+  const pace = min ? min/km : 0;
+  if(km>=42) return 'Das war ein Marathon. Der Schulterblock danach ist heute optional. Nein, war ein Scherz.';
+  if(km>=20) return 'Respekt. Bei der Länge lohnt sich der Blick auf die Armhaltung doppelt.';
+  if(km>=12) return 'Lange Einheit. Morgen die Beine locker halten, nicht komplett stillsitzen.';
+  if(km>=9)  return 'Solide Grundlage. Genau die Läufe bauen die Ausdauer, die du behalten willst.';
+  if(km>=7)  return 'Gute Runde. Zone 2 ist unspektakulär und genau deshalb wirksam.';
+  if(km>=5)  return 'Kurz und locker – wenn du dich besser fühlst als vorher, war das Tempo richtig.';
+  if(km>=2)  return 'Kleine Runde, zählt trotzdem. Regeneration ist kein Nichtstun.';
+  return 'Jeder Meter zählt. Die Dackel auch.';
+}
+
+function showDist(km,min,titleTxt){
+  const b=distBreak(km);
+  const marathonPct=(b.total/42195*100);
+  const steps=Math.round(b.total/0.95);
+  let h=`<div class="gbox" onclick="event.stopPropagation()">
+    <div class="ttl">${titleTxt||'Lauf abgeschlossen'}</div>
+    <div class="kg">${km.toFixed(1).replace('.',',')} km</div>
+    <div class="eq">${b.total.toLocaleString('de-DE')} Meter${min?` in ${min} Min`:''} — das entspricht</div>`;
+  let d=0;
+  b.items.forEach(it=>{
+    h+=`<div class="gitem" style="animation-delay:${d}ms"><span class="em">${it.e}</span>
+      <span class="ct">${it.c}×</span>
+      <span class="nn">${it.c===1?it.s:it.p}<div class="kgs">${(it.c*it.m).toLocaleString('de-DE')} m</div></span></div>`;
+    d+=90;
+  });
+  h+=`<div class="gitem pig" style="animation-delay:${d}ms"><span class="em">${DACHS.e}</span>
+    <span class="ct">${b.dogs}×</span>
+    <span class="nn">Dackel, längs aneinandergelegt<div class="kgs">${b.dogs} m · großzügig gemessen</div></span></div>
+    <div class="pigrow">${'🐕'.repeat(Math.min(b.dogs,33))}</div>`;
+  h+=`<div class="row" style="gap:8px;margin-top:12px">
+    <div class="stat"><div class="v">${marathonPct.toFixed(0)}%</div><div class="l">eines Marathons</div></div>
+    <div class="stat"><div class="v">${steps.toLocaleString('de-DE')}</div><div class="l">Schritte etwa</div></div></div>`;
+  h+=`<div class="gquip">${dquip(km,min)}</div>
+    <div style="margin-top:12px"><button class="btn" onclick="closeGains()">Weiter</button></div></div>`;
+  const g=document.getElementById('gains');
+  g.innerHTML=h; g.className='on';
+  if(navigator.vibrate) navigator.vibrate([18,40,18]);
+}
+
+function quip(kg){
+  const t=kg/1000;
+  if(t>=20) return 'Das ist keine Trainingseinheit mehr, das ist ein Umzugsunternehmen.';
+  if(t>=12) return 'Deine Schulter hat davon nichts mitbekommen. Genau so war der Plan.';
+  if(t>=8)  return 'Ordentlich. Denk dran: die Kurve soll stetig steigen, nicht springen.';
+  if(t>=5)  return 'Solide Einheit. Der Reha-Block war hoffentlich auch dabei.';
+  if(t>=2.5)return 'Gute Arbeit. Beine tragen dich gerade durch die Schulterphase.';
+  if(t>=1)  return 'Kurz und knackig. Zählt trotzdem.';
+  return 'Jedes Kilo zählt. Auch die Meerschweinchen.';
+}
+
+function pigStrip(n){ return '🐹'.repeat(Math.min(n,33)); }
+
+function showGains(kg,titleTxt){
+  const b=gainsBreak(kg);
+  let h=`<div class="gbox" onclick="event.stopPropagation()">
+    <div class="ttl">${titleTxt||'Einheit abgeschlossen'}</div>
+    <div class="kg">${(b.total/1000).toFixed(2).replace('.',',')} t</div>
+    <div class="eq">${b.total.toLocaleString('de-DE')} kg bewegt — das entspricht</div>`;
+  let d=0;
+  b.items.forEach(it=>{
+    h+=`<div class="gitem" style="animation-delay:${d}ms"><span class="em">${it.e}</span>
+      <span class="ct">${it.c}×</span>
+      <span class="nn">${it.c===1?it.s:it.p}<div class="kgs">${(it.c*it.kg).toLocaleString('de-DE')} kg</div></span></div>`;
+    d+=90;
+  });
+  h+=`<div class="gitem pig" style="animation-delay:${d}ms"><span class="em">${PIG.e}</span>
+    <span class="ct">${b.pigs}×</span>
+    <span class="nn">Meerschweinchen<div class="kgs">${b.pigs} kg</div></span></div>
+    <div class="pigrow">${pigStrip(b.pigs)}</div>`;
+  h+=`<div class="gquip">${quip(b.total)}</div>
+    <div style="margin-top:12px"><button class="btn" onclick="closeGains()">Weiter</button></div></div>`;
+  const g=document.getElementById('gains');
+  g.innerHTML=h; g.className='on';
+  if(navigator.vibrate) navigator.vibrate([18,40,18]);
+}
+let gainsAfter=null;
+function closeGains(){
+  document.getElementById('gains').className='';
+  if(gainsAfter){ const f=gainsAfter; gainsAfter=null; f(); }
+}
+
+/* --- Dashboard-Helfer --- */
+function mondayOf(d){ const x=new Date(d.getTime?d.getTime():d); const i=x.getDay()===0?6:x.getDay()-1; x.setDate(x.getDate()-i); x.setHours(0,0,0,0); return x; }
+function tonnage(l){
+  if(PLAN[l.key].type!=='gym') return 0;
+  let t=0; Object.values(l.sets).forEach(s=>{ if(s.d&&s.w&&s.r) t+=s.w*s.r; });
+  return t;
+}
+function weeks(n){ // letzte n Wochen, älteste zuerst
+  const out=[], m0=mondayOf(now());
+  for(let i=n-1;i>=0;i--){
+    const m=new Date(m0); m.setDate(m0.getDate()-i*7);
+    const keys=[]; for(let d=0;d<7;d++){ const x=new Date(m); x.setDate(m.getDate()+d); keys.push(todayKey(x)); }
+    const logs=Object.values(DB.logs).filter(l=>l.done&&keys.includes(l.date));
+    out.push({
+      monday:m, keys, logs,
+      label:String(m.getDate()).padStart(2,'0')+'.'+String(m.getMonth()+1).padStart(2,'0'),
+      gym:logs.filter(l=>PLAN[l.key].type==='gym').length,
+      runs:logs.filter(l=>PLAN[l.key].type==='run').length,
+      km:logs.filter(l=>PLAN[l.key].type==='run').reduce((a,l)=>a+(parseFloat(l.km)||PLAN[l.key].km||0),0),
+      ton:logs.reduce((a,l)=>a+tonnage(l),0),
+      mob:keys.filter(k=>DB.daily[k]).length,
+      pains:logs.filter(l=>l.pain!=null).map(l=>l.pain),
+    });
+  }
+  return out;
+}
+function bars(vals,opt){
+  const o=opt||{}, max=Math.max(1,...vals.map(v=>v.v));
+  let h=`<div class="chart">`;
+  vals.forEach(v=>{ const cls=o.cls?o.cls(v):'';
+    h+=`<div class="b ${cls}" style="height:${v.v>0?Math.max(4,v.v/max*100):3}%" title="${v.t||''}"></div>`; });
+  h+=`</div><div class="xax">`;
+  vals.forEach(v=>{ h+=`<span>${v.l}</span>`; });
+  h+=`</div>`;
+  return h;
+}
+
+function vStats(){
+  const all=Object.values(DB.logs).filter(l=>l.done);
+  const gym=all.filter(l=>PLAN[l.key].type==='gym').length;
+  const runs=all.filter(l=>PLAN[l.key].type==='run');
+  const kmTot=runs.reduce((a,l)=>a+(parseFloat(l.km)||PLAN[l.key].km||0),0);
+  const tonTot=all.reduce((a,l)=>a+tonnage(l),0);
+  const setsTot=all.reduce((a,l)=>a+Object.values(l.sets).filter(s=>s.d).length,0);
+  const W=weeks(8), cur=W[W.length-1];
+
+  // Adhärenz aktuelle Woche (nur bis heute geplante Einheiten)
+  const di=dayIdx();
+  let planned=0; WEEK.forEach(([l,k],i)=>{ if(PLAN[k].type!=='rest'&&i<=di) planned++; });
+  const doneNow=cur.logs.length;
+  const pct=planned?Math.round(doneNow/planned*100):0;
+  const R=44, C=2*Math.PI*R, off=C*(1-Math.min(1,pct/100));
+
+  let h=`<h1>Dashboard</h1><div class="muted">Seit ${fmtDate(DB.start)} · Planwoche ${weekNum()}</div>`;
+
+  /* Hero */
+  h+=`<div class="card"><div class="row" style="gap:16px">
+    <div class="ring"><svg width="96" height="96">
+      <circle cx="48" cy="48" r="${R}" fill="none" stroke="var(--line)" stroke-width="8"/>
+      <circle cx="48" cy="48" r="${R}" fill="none" stroke="var(--accent)" stroke-width="8"
+        stroke-linecap="round" stroke-dasharray="${C.toFixed(1)}" stroke-dashoffset="${off.toFixed(1)}"/>
+    </svg><div class="ctr"><div class="n">${pct}%</div><div class="u">diese Woche</div></div></div>
+    <div class="grow">
+      <div style="font-weight:600">${doneNow} von ${planned} bisher geplanten Einheiten</div>
+      <div class="note" style="margin-top:4px">${cur.gym}× Kraft · ${cur.runs}× Laufen · ${cur.km.toFixed(0)} km · ${cur.mob}/7 Mobility</div>
+      <div class="note">${cur.ton?'Volumen: '+(cur.ton/1000).toFixed(1)+' t bewegt':'Noch kein Volumen erfasst'}</div>
+    </div></div></div>`;
+
+  /* KPIs gesamt */
+  h+=`<h2>Gesamt</h2><div class="kpi">
+    <div class="stat"><div class="v">${gym}</div><div class="l">Krafteinheiten</div></div>
+    <div class="stat"><div class="v">${runs.length}</div><div class="l">Läufe</div></div>
+    <div class="stat"><div class="v">${kmTot.toFixed(0)}</div><div class="l">Kilometer</div></div>
+    <div class="stat"><div class="v">${setsTot}</div><div class="l">Sätze</div></div>
+    <div class="stat"><div class="v">${(tonTot/1000).toFixed(1)} t</div><div class="l">Gesamtvolumen</div></div>
+    <div class="stat"><div class="v">${Object.keys(DB.daily).length}</div><div class="l">Mobility-Tage</div></div>
+  </div>`;
+
+  /* Konsistenz-Heatmap */
+  h+=`<h2>Konsistenz</h2><div class="card">
+    <div class="hm"><div></div>`;
+  ['M','D','M','D','F','S','S'].forEach(d=>h+=`<div class="hd">${d}</div>`);
+  const tk=todayKey();
+  W.forEach(w=>{
+    h+=`<div class="lbl">${w.label}</div>`;
+    w.keys.forEach((k,i)=>{
+      const l=DB.logs[k+'|'+WEEK[i][1]];
+      const done=l&&l.done, run=PLAN[WEEK[i][1]].type==='run';
+      const mob=DB.daily[k];
+      const fut=k>tk;
+      let cls='c'; if(done) cls+=run?' r':' d'; else if(mob) cls+=' m';
+      if(fut) cls+=' f';
+      h+=`<div class="${cls}" title="${fmtDate(k)}"></div>`;
+    });
+  });
+  h+=`</div><div class="legend">
+    <span><i style="background:var(--accent)"></i>Kraft</span>
+    <span><i style="background:var(--run)"></i>Laufen</span>
+    <span><i style="box-shadow:inset 0 0 0 1.5px var(--accent2);background:var(--line)"></i>nur Mobility</span>
+    <span><i style="background:var(--line)"></i>nichts</span></div></div>`;
+
+  /* Laufkilometer */
+  if(kmTot>0){
+    h+=`<h2>Laufkilometer pro Woche</h2><div class="card">
+      <div class="row"><div><div class="big">${cur.km.toFixed(1)}</div><div class="muted">diese Woche · Ziel 24 km</div></div></div>`;
+    h+=bars(W.map(w=>({v:w.km,l:w.label.slice(0,5),t:w.label+': '+w.km.toFixed(1)+' km'})),{cls:()=>'run'});
+    h+=`<div class="row" style="gap:8px;margin-top:6px">
+      ${cur.km?`<button class="btn sec small grow" onclick="showDist(${cur.km},0,'Diese Woche')">🐕 Woche in Dackeln</button>`:''}
+      <button class="btn sec small grow" onclick="showDist(${kmTot},0,'Seit Beginn')">🐕 Gesamt in Dackeln</button></div>`;
+    const avg=W.filter(w=>w.km>0);
+    if(avg.length) h+=`<div class="note">Ø ${(avg.reduce((a,w)=>a+w.km,0)/avg.length).toFixed(1)} km pro aktiver Woche. Umfangssprünge über 10 % pro Woche sind der häufigste Auslöser von Laufverletzungen – lieber langsamer steigern.</div>`;
+    h+=`</div>`;
+  }
+
+  /* Volumen */
+  if(tonTot>0){
+    h+=`<h2>Trainingsvolumen</h2><div class="card">
+      <div class="row"><div><div class="big">${(cur.ton/1000).toFixed(1)} t</div><div class="muted">diese Woche bewegt</div></div></div>`;
+    h+=bars(W.map(w=>({v:w.ton,l:w.label.slice(0,5),t:w.label+': '+(w.ton/1000).toFixed(1)+' t'})));
+    h+=`<div class="row" style="gap:8px;margin-top:6px">
+      ${cur.ton?`<button class="btn sec small grow" onclick="showGains(${Math.round(cur.ton)},'Diese Woche')">🐹 Woche in Tieren</button>`:''}
+      <button class="btn sec small grow" onclick="showGains(${Math.round(tonTot)},'Seit Beginn')">🐹 Gesamt in Tieren</button></div>`;
+    h+=`<div class="note">Gewicht × Wiederholungen aller abgehakten Sätze. Steigt diese Kurve langsam und stetig, machst du es richtig. Springt sie stark, wird die Regeneration zum Engpass – bei sechs Belastungstagen ist das die Größe, die kippt.</div></div>`;
+  }
+
+  /* Schulter */
+  const painLogs=all.filter(l=>l.pain!=null).sort((a,b)=>a.date.localeCompare(b.date));
+  h+=`<h2>Schulter – dein Hauptziel</h2><div class="card" style="border-color:var(--accent)">`;
+  if(painLogs.length<2){
+    h+=`<div class="muted">Trage nach jeder Einheit den Schulterschmerz ein. Ab zwei Einträgen entsteht hier die Kurve, die zeigt, ob der Plan wirkt.</div>`;
+  } else {
+    const last=painLogs.slice(-14);
+    const n=Math.min(4,Math.floor(painLogs.length/2));
+    const first4=painLogs.slice(0,n), last4=painLogs.slice(-n);
+    const a1=first4.reduce((a,l)=>a+l.pain,0)/n, a2=last4.reduce((a,l)=>a+l.pain,0)/n;
+    const d=a2-a1;
+    h+=`<div class="row" style="gap:18px">
+      <div><div class="big">${a2.toFixed(1)}</div><div class="muted">Ø letzte ${n}</div></div>
+      <div><div class="big" style="color:${d<-.4?'var(--accent)':d>.4?'var(--warn)':'var(--muted)'}">${d>0?'+':''}${d.toFixed(1)}</div><div class="muted">vs. Start (${a1.toFixed(1)})</div></div></div>`;
+    h+=bars(last.map(l=>({v:Math.max(l.pain,0),l:fmtDate(l.date).slice(0,5),t:fmtDate(l.date)+': '+l.pain+'/10'})),
+      {cls:v=>v.v>=4?'hi':'pain'});
+    let txt;
+    if(d<=-1) txt='<strong>Die Kurve fällt deutlich.</strong> Der Plan wirkt – Belastungssteuerung und Reha-Block greifen. Weitermachen, Bewegungsumfang erst erweitern, wenn zwei Wochen unter 2/10 liegen.';
+    else if(d<-.3) txt='<strong>Leicht rückläufig.</strong> Die Richtung stimmt, aber langsam. Prüfe im Notizfeld, welche Übung immer wieder auftaucht.';
+    else if(d<.4) txt='<strong>Unverändert.</strong> Nach 4–6 Wochen ohne Besserung ist eine ärztliche Untersuchung dran – Ultraschall oder MRT. Weiter am Trainingsplan zu schrauben bringt dann nichts mehr.';
+    else txt='<strong>Die Werte steigen.</strong> Reduziere das Oberkörpervolumen, streiche einen Lauf und geh zum Arzt. Bei sechs Belastungstagen kann auch schlichte Überlastung die Ursache sein.';
+    h+=`<div class="verdict">${txt}</div>`;
+    const bad=painLogs.filter(l=>l.pain>=4).length;
+    if(bad) h+=`<div class="note">${bad} Einheit${bad>1?'en':''} mit 4/10 oder höher – dort war der Reiz zu groß.</div>`;
+  }
+  // Reha-Adhärenz
+  const gymL=all.filter(l=>PLAN[l.key].type==='gym');
+  const shFull=gymL.filter(l=>SHOULDER.every((x,i)=>l.sh['s'+i])).length;
+  const bandRuns=runs.filter(l=>l.sh&&l.sh.band).length;
+  h+=`<div class="kpi" style="margin-top:12px">
+    <div class="stat"><div class="v">${gymL.length?Math.round(shFull/gymL.length*100):0}%</div><div class="l">Reha-Block komplett</div></div>
+    <div class="stat"><div class="v">${runs.length?Math.round(bandRuns/runs.length*100):0}%</div><div class="l">Band nach dem Lauf</div></div></div>
+  <div class="note">Beide Zahlen sind der direkteste Hebel auf dein Hauptziel. Rotatorenmanschette reagiert auf Häufigkeit stärker als auf Intensität.</div></div>`;
+
+  /* Bestwerte */
+  const gymKeys=Object.keys(PLAN).filter(k=>PLAN[k].type==='gym'&&PLAN[k].ex);
+  const prs=[];
+  gymKeys.forEach(k=>PLAN[k].ex.forEach((e,i)=>{
+    const X=e.id||('x'+i);
+    let best=0,r='',dt='';
+    Object.values(DB.logs).filter(l=>l.key===k&&l.done).forEach(l=>{
+      Object.keys(l.sets).forEach(sk=>{ if(sk.slice(0,sk.lastIndexOf('_'))===X){ const s=l.sets[sk];
+        const w=parseFloat(s.w)||0; if(s.d&&w>best){best=w;r=s.r||'';dt=l.date;} }});
+    });
+    if(best>0) prs.push({n:e.n,w:best,r,dt});
+  }));
+  if(prs.length){
+    h+=`<h2>Bestwerte</h2><div class="card">`;
+    prs.sort((a,b)=>b.w-a.w).forEach(p=>{
+      h+=`<div class="trow"><span class="nm">${p.n}</span>
+        <span class="muted" style="font-size:.75rem">${fmtDate(p.dt)}</span>
+        <span class="vl">${p.w} kg${p.r?' × '+p.r:''}</span></div>`;
+    });
+    h+=`</div>`;
+  }
+
+  /* Übungsverlauf */
+  h+=`<h2>Gewichtsverlauf einer Übung</h2><div class="card">
+    <select onchange="showEx(this.value)" style="width:100%">
+      <option value="">Übung wählen…</option>`;
+  gymKeys.forEach(k=>PLAN[k].ex.forEach((e,i)=>{ h+=`<option value="${k}|${e.id||('x'+i)}">${e.n}</option>`;}));
+  h+=`</select><div id="exOut" style="margin-top:10px"></div></div>`;
+
+  /* Wochentabelle */
+  h+=`<h2>Wochenbilanz</h2><div class="card">
+    <div class="trow" style="font-size:.72rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em">
+      <span class="nm">Woche ab</span><span style="width:34px;text-align:center">💪</span>
+      <span style="width:34px;text-align:center">🏃</span><span style="width:52px;text-align:right">km</span>
+      <span style="width:46px;text-align:right">Vol.</span></div>`;
+  W.slice().reverse().forEach(w=>{
+    if(!w.logs.length && !w.mob) return;
+    h+=`<div class="trow"><span class="nm">${w.label}</span>
+      <span style="width:34px;text-align:center;${w.gym>=3?'color:var(--accent);font-weight:600':''}">${w.gym}</span>
+      <span style="width:34px;text-align:center;${w.runs>=3?'color:var(--run);font-weight:600':''}">${w.runs}</span>
+      <span style="width:52px;text-align:right">${w.km?w.km.toFixed(1):'–'}</span>
+      <span style="width:46px;text-align:right">${w.ton?(w.ton/1000).toFixed(1)+'t':'–'}</span></div>`;
+  });
+  if(!W.some(w=>w.logs.length)) h+=`<div class="muted">Noch keine abgeschlossenen Einheiten.</div>`;
+  h+=`</div>`;
+
+  /* Letzte Einheiten */
+  h+=`<h2>Letzte Einheiten</h2><div class="card">`;
+  const sorted=all.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,12);
+  if(!sorted.length) h+=`<div class="muted">Noch nichts abgeschlossen.</div>`;
+  sorted.forEach(l=>{
+    const p=PLAN[l.key];
+    const t=tonnage(l);
+    let det = p.type==='run' ? `${l.km||p.km} km${l.min?' · '+l.min+' Min':''}${paceShort(l)}`
+      : `${Object.values(l.sets).filter(s=>s.d).length} Sätze${t?' · '+(t/1000).toFixed(1)+' t':''}`;
+    h+=`<div class="hist"><div style="width:30px;height:30px;border-radius:8px;font-size:.78rem;font-weight:700;display:flex;align-items:center;justify-content:center;color:#fff;background:${p.type==='run'?'var(--run)':'var(--accent)'};flex:none">${p.short}</div>
+      <div class="grow"><div style="font-size:.88rem;font-weight:600">${p.name}</div>
+      <div class="muted" style="font-size:.78rem">${fmtDate(l.date)} · ${det}</div></div>
+      ${t?`<button class="btn sec small" style="padding:5px 9px" onclick="showGains(${Math.round(t)},'${fmtDate(l.date)}')">🐹</button>`:''}
+      ${p.type==='run'?`<button class="btn sec small" style="padding:5px 9px" onclick="showDist(${parseFloat(l.km)||p.km},${parseFloat(l.min)||0},'${fmtDate(l.date)}')">🐕</button>`:''}
+      ${l.pain!=null?`<span class="pill" style="background:${l.pain>=4?'var(--warn)':'var(--line)'};color:${l.pain>=4?'#fff':'var(--muted)'}">${l.pain}/10</span>`:''}
+      </div>`;
+  });
+  h+=`</div>`;
+  return h;
+}
+function paceShort(l){
+  const km=parseFloat(l.km), min=parseFloat(l.min);
+  if(!km||!min) return '';
+  const p=min/km, m=Math.floor(p), s=Math.round((p-m)*60);
+  return ` · ${m}:${String(s).padStart(2,'0')}/km`;
+}
+
+function showEx(val){
+  const out=document.getElementById('exOut');
+  if(!val){ out.innerHTML=''; return; }
+  const [k,X]=val.split('|');
+  const logs=Object.values(DB.logs).filter(l=>l.key===k&&l.done).sort((a,b)=>a.date.localeCompare(b.date));
+  const pts=logs.map(l=>{
+    let best=0,r=0; Object.keys(l.sets).forEach(sk=>{ if(sk.slice(0,sk.lastIndexOf('_'))===X){ const s=l.sets[sk]; const w=parseFloat(s.w)||0; if(w>best){best=w;r=s.r||'';} }});
+    return {d:l.date,w:best,r};
+  }).filter(p=>p.w>0);
+  if(!pts.length){ out.innerHTML='<div class="muted">Noch keine Daten für diese Übung.</div>'; return; }
+  const max=Math.max(...pts.map(p=>p.w));
+  const first=pts[0].w, last=pts[pts.length-1].w;
+  const diff=last-first;
+  let h=`<div class="row"><div><div class="big">${last} kg</div><div class="muted">aktuell${pts.length>1?` · ${diff>=0?'+':''}${diff.toFixed(1)} kg seit Start`:''}</div></div></div><div class="hbar">`;
+  pts.slice(-16).forEach(p=>{ h+=`<div style="height:${Math.max(6,p.w/max*100)}%" title="${fmtDate(p.d)}: ${p.w} kg × ${p.r}"></div>`;});
+  h+=`</div><div class="muted" style="font-size:.75rem">${pts.length} Einträge · Bestwert ${max} kg</div>`;
+  out.innerHTML=h;
+}
+
+function vMob(){
+  const date=todayKey(), on=DB.daily[date];
+  let h=`<h1>Mobility</h1><div class="muted">Häufigkeit schlägt Intensität</div>`;
+  h+=`<div class="card" style="${on?'border-color:var(--done)':''}">
+    <div class="row"><div class="grow"><strong>Heute erledigt?</strong>
+    <div class="note">Jeden Tag, auch an Trainingstagen (dann abends).</div></div>
+    <button class="btn small ${on?'sec':''}" onclick="toggleDaily()">${on?'✓ Ja':'Abhaken'}</button></div></div>`;
+  h+=`<h2>Die 10-Minuten-Routine</h2>`;
+  DAILY.forEach(([n,d,v])=>{
+    h+=`<div class="card" style="padding:11px 13px"><div class="row"><div class="grow">
+      <strong style="font-size:.92rem">${n}</strong><div class="muted" style="font-size:.8rem">${d}</div></div>
+      <a class="vid" href="${v}" target="_blank">▶ Video</a></div></div>`;
+  });
+  h+=`<div class="card"><div class="note" style="margin-top:0">In jeder Endposition ruhig atmen und bewusst entspannen, statt hineinzudrücken. Beweglichkeit ist zu großen Teilen Nervensystem, nicht Muskellänge – dein Körper gibt Bewegungsumfang frei, wenn er die Position als sicher einstuft.</div></div>`;
+
+  // Streak
+  let streak=0; const d=now();
+  while(DB.daily[todayKey(d)]){ streak++; d.setDate(d.getDate()-1); }
+  h+=`<div class="card" style="text-align:center"><div class="big">${streak}</div><div class="muted">Tage in Folge</div></div>`;
+
+  h+=`<details><summary>Beweglichkeits-Selbsttest</summary>
+    <div class="note">Heute machen, dann in Woche 6 und 12 wiederholen. Fotografier dich seitlich – das ist ehrlicher als dein Gefühl.</div><ul>
+    <li>Tiefe Hocke, Fersen am Boden – Ziel 30 s</li>
+    <li>Knie-zur-Wand-Test – Ziel 10–12 cm</li>
+    <li>Sitzender Vorbeugetest – Ziel Zehen erreichen</li>
+    <li>90/90-Sitz beidseitig – Ziel aufrecht sitzen</li>
+    <li>Rückenlage, Arme über Kopf zum Boden, LWS flach</li></ul></details>`;
+  return h;
+}
+
+/* ============ PLAN-EDITOR ============ */
+let editKey=null;
+function newId(){ let i=1; const used=new Set();
+  Object.values(PLAN).forEach(p=>(p.ex||[]).forEach(e=>used.add(e.id)));
+  while(used.has('u'+i)) i++; return 'u'+i; }
+function newKey(){ let i=1; while(PLAN['X'+i]) i++; return 'X'+i; }
+
+function vEdit(){
+  let h=`<div class="row"><button class="btn sec small" onclick="go('more')">‹ Zurück</button></div>
+    <h1 style="margin-top:10px">Plan bearbeiten</h1>
+    <div class="muted">Änderungen wirken sofort. Dein Verlauf bleibt erhalten.</div>`;
+
+  h+=`<h2>Wochenplan</h2><div class="card">
+    <div class="note" style="margin-top:0">Welche Einheit liegt auf welchem Tag?</div>`;
+  const opts=Object.keys(PLAN).map(k=>`<option value="${k}">${PLAN[k].name}</option>`).join('');
+  WEEK.forEach(([lbl,k],i)=>{
+    h+=`<div class="row" style="padding:6px 0;border-top:1px solid var(--line)">
+      <span style="width:34px;font-weight:600;font-size:.88rem">${lbl}</span>
+      <select style="flex:1;min-width:0" onchange="setDay(${i},this.value)">
+        ${opts.replace(`value="${k}"`,`value="${k}" selected`)}
+      </select></div>`;
+  });
+  h+=`</div>`;
+
+  h+=`<h2>Einheiten</h2>`;
+  Object.keys(PLAN).forEach(k=>{
+    const p=PLAN[k];
+    const used=WEEK.filter(w=>w[1]===k).map(w=>w[0]).join(', ');
+    h+=`<div class="tile ${p.type==='run'?'run ':''}${p.type==='rest'?'rest ':''}" onclick="editSession('${k}')">
+      <div class="badge">${p.short}</div>
+      <div class="grow"><div class="t1">${p.name}</div>
+        <div class="t2">${p.type==='gym'?(p.ex?p.ex.length:0)+' Übungen':p.type==='run'?p.km+' km':'Ruhetag'}${used?' · '+used:' · nicht eingeplant'}</div></div>
+      <div class="chk" style="color:var(--muted);font-size:.9rem">›</div></div>`;
+  });
+  h+=`<div class="row" style="gap:8px;margin-top:12px">
+    <button class="btn sec grow" onclick="addSession('gym')">+ Krafteinheit</button>
+    <button class="btn sec grow" onclick="addSession('run')">+ Lauf</button></div>`;
+
+  h+=`<div class="card" style="margin-top:18px"><button class="btn sec" style="color:var(--warn)" onclick="resetPlan()">Plan auf Standard zurücksetzen</button>
+    <div class="note">Setzt nur den Plan zurück, nicht deinen Verlauf.</div></div>`;
+  return h;
+}
+
+function vEditSession(){
+  const p=PLAN[editKey];
+  if(!p) return vEdit();
+  let h=`<div class="row"><button class="btn sec small" onclick="go('edit')">‹ Zurück</button></div>
+    <h1 style="margin-top:10px">${p.name}</h1>`;
+
+  h+=`<div class="card">
+    <label class="muted" style="font-size:.75rem">Name</label>
+    <input class="ed" value="${esc(p.name)}" oninput="setS('name',this.value)">
+    <div class="row" style="gap:8px;margin-top:9px">
+      <div class="grow"><label class="muted" style="font-size:.75rem">Kürzel</label>
+        <input class="ed" value="${esc(p.short)}" maxlength="3" oninput="setS('short',this.value)"></div>
+      <div class="grow" style="flex:2"><label class="muted" style="font-size:.75rem">Untertitel</label>
+        <input class="ed" value="${esc(p.sub||'')}" oninput="setS('sub',this.value)"></div>
+    </div>`;
+  if(p.type==='run'){
+    h+=`<div style="margin-top:9px"><label class="muted" style="font-size:.75rem">Distanz (km)</label>
+      <input class="ed" type="number" step="0.5" value="${p.km||''}" oninput="setS('km',parseFloat(this.value)||0)"></div>
+      <div style="margin-top:9px"><label class="muted" style="font-size:.75rem">Hinweis</label>
+      <textarea oninput="setS('hint',this.value)">${esc(p.hint||'')}</textarea></div>`;
+  }
+  h+=`</div>`;
+
+  if(p.type==='gym'){
+    h+=`<h2>Übungen</h2>`;
+    (p.ex||[]).forEach((e,i)=>{
+      h+=`<div class="ex"><div class="hd">
+        <div class="icobox">${bodyIcon(mgOf(e))}</div>
+        <div class="nm"><input class="ed" value="${esc(e.n)}" oninput="setEx(${i},'n',this.value)"></div></div>
+        <div class="body">
+        <div class="row" style="gap:7px;padding-top:8px">
+          <div class="grow"><label class="muted" style="font-size:.7rem">Sätze</label>
+            <input class="ed" type="number" min="1" max="10" value="${e.s}" oninput="setEx(${i},'s',Math.max(1,Math.min(10,parseInt(this.value)||1)))"></div>
+          <div class="grow" style="flex:1.6"><label class="muted" style="font-size:.7rem">Wiederholungen</label>
+            <input class="ed" value="${esc(e.r)}" oninput="setEx(${i},'r',this.value)"></div>
+          <div class="grow"><label class="muted" style="font-size:.7rem">RPE</label>
+            <input class="ed" value="${esc(e.rpe||'')}" oninput="setEx(${i},'rpe',this.value)"></div>
+        </div>
+        <div style="margin-top:8px"><label class="muted" style="font-size:.7rem">Hinweis (optional)</label>
+          <input class="ed" value="${esc(e.note||'')}" oninput="setEx(${i},'note',this.value)"></div>
+        <div style="margin-top:8px"><label class="muted" style="font-size:.7rem">Video-Suchbegriff</label>
+          <input class="ed" value="${esc(vidTerm(e.v))}" oninput="setVid(${i},this.value)" placeholder="z. B. beinpresse technik"></div>
+        <div style="margin-top:10px"><label class="muted" style="font-size:.7rem">Muskelgruppen</label>
+          <div class="mgchips">${MG_ORDER.map(k=>
+            `<span class="mgchip ${mgOf(e).includes(k)?'on':''}" onclick="toggleMg(${i},'${k}')">${MUSCLE[k]}</span>`
+          ).join('')}</div></div>
+        <div class="row" style="gap:7px;margin-top:10px">
+          <button class="btn sec small" onclick="moveEx(${i},-1)" ${i===0?'disabled style="opacity:.35"':''}>↑</button>
+          <button class="btn sec small" onclick="moveEx(${i},1)" ${i===p.ex.length-1?'disabled style="opacity:.35"':''}>↓</button>
+          <span class="grow"></span>
+          <button class="btn sec small" style="color:var(--warn)" onclick="delEx(${i})">Löschen</button>
+        </div></div></div>`;
+    });
+    h+=`<button class="btn sec" style="margin-top:10px" onclick="addEx()">+ Übung hinzufügen</button>`;
+  }
+
+  h+=`<div class="card" style="margin-top:18px">
+    <button class="btn sec" style="color:var(--warn)" onclick="delSession()">Einheit löschen</button>
+    <div class="note">Der bisherige Verlauf dieser Einheit bleibt im Dashboard erhalten.</div></div>`;
+  return h;
+}
+
+
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+function vidTerm(url){ if(!url) return '';
+  try{ return decodeURIComponent(url.split('search_query=')[1]||'').replace(/\+/g,' '); }catch(e){ return ''; } }
+
+function editSession(k){ editKey=k; view='editSession'; render(); window.scrollTo(0,0); }
+function setDay(i,k){ WEEK[i][1]=k; planEdited(); render(); }
+function setS(f,v){ PLAN[editKey][f]=v; planEdited(); }
+function setEx(i,f,v){ PLAN[editKey].ex[i][f]=v; planEdited();
+  if(f==='s'||f==='ic') render(); }
+function toggleMg(i,k){
+  const e=PLAN[editKey].ex[i];
+  const cur=mgOf(e).slice();
+  const p=cur.indexOf(k);
+  if(p>=0) cur.splice(p,1); else cur.push(k);
+  e.mg=cur; planEdited(); render();
+}
+function setVid(i,term){ PLAN[editKey].ex[i].v = term.trim()? V(term.trim()) : ''; planEdited(); }
+function moveEx(i,d){ const a=PLAN[editKey].ex, j=i+d;
+  if(j<0||j>=a.length) return; [a[i],a[j]]=[a[j],a[i]]; planEdited(); render(); }
+function delEx(i){ const e=PLAN[editKey].ex[i];
+  if(!confirm('„'+e.n+'" wirklich entfernen?')) return;
+  PLAN[editKey].ex.splice(i,1); planEdited(); render(); }
+function addEx(){ PLAN[editKey].ex.push({id:newId(),n:'Neue Übung',s:3,r:'10',rpe:'7',note:'',v:''});
+  planEdited(); render(); setTimeout(()=>window.scrollTo(0,document.body.scrollHeight),60); }
+function addSession(type){
+  const k=newKey();
+  PLAN[k]= type==='gym'
+    ? {name:'Neue Krafteinheit',type:'gym',short:'N',sub:'',ex:[{id:newId(),n:'Neue Übung',s:3,r:'10',rpe:'7',note:'',v:''}]}
+    : {name:'Neuer Lauf',type:'run',short:'km',sub:'',km:5,hint:''};
+  planEdited(); editSession(k);
+}
+function delSession(){
+  const p=PLAN[editKey];
+  if(editKey==='R'){ toast('Der Ruhetag wird gebraucht'); return; }
+  if(!confirm('„'+p.name+'" wirklich löschen?')) return;
+  WEEK.forEach(w=>{ if(w[1]===editKey) w[1]='R'; });
+  delete PLAN[editKey]; planEdited(); go('edit');
+}
+function resetPlan(){
+  if(!confirm('Plan auf den Standard zurücksetzen? Dein Verlauf bleibt erhalten.')) return;
+  delete DB.plan; delete DB.week; save(DB); applyPlan(); go('edit'); toast('Plan zurückgesetzt');
+}
+
+/* ============ TESTMODUS ============ */
+function vTest(){
+  const real=new Date(), rk=real.getFullYear()+'-'+String(real.getMonth()+1).padStart(2,'0')+'-'+String(real.getDate()).padStart(2,'0');
+  const cur=DB.meta.sim||rk;
+  const dn=['Montag','Dienstag','Mittwoch','Donnerstag','Freitag','Samstag','Sonntag'];
+  let h=`<div class="row"><button class="btn sec small" onclick="go('more')">‹ Zurück</button></div>
+    <h1 style="margin-top:10px">Testmodus</h1>
+    <div class="muted">Zum Ausprobieren, ohne auf den richtigen Wochentag zu warten.</div>`;
+
+  h+=`<div class="card" style="${simOn()?'border-color:var(--accent2)':''}">
+    <div class="row"><div class="grow"><strong>Simuliertes Datum</strong>
+      <div class="note">${simOn()
+        ? 'Aktiv: die App tut so, als wäre <strong>'+dn[dayIdx()]+', '+fmtDate(cur)+'</strong>.'
+        : 'Aus – die App nutzt das echte Datum.'}</div></div>
+      <span class="pill ${simOn()?'g':''}">${simOn()?'an':'aus'}</span></div>
+    <div style="margin-top:10px"><input class="ed" type="date" value="${cur}" onchange="setSim(this.value)"></div>
+    <div class="row" style="gap:6px;margin-top:9px;flex-wrap:wrap">`;
+  ['Mo','Di','Mi','Do','Fr','Sa','So'].forEach((d,i)=>{
+    const on = simOn() && dayIdx()===i;
+    h+=`<button class="btn ${on?'':'sec'} small grow" style="min-width:44px" onclick="simDay(${i})">${d}</button>`;
+  });
+  h+=`</div>
+    <div style="margin-top:9px"><button class="btn sec" onclick="setSim('')">Zurück auf heute</button></div></div>`;
+
+  h+=`<div class="card"><strong style="font-size:.95rem">Demodaten</strong>
+    <div class="note">Füllt drei Wochen mit erfundenen Einheiten, damit du Dashboard, Diagramme und Gadgets mit Inhalt siehst. Deine echten Einträge bleiben unangetastet – Demodaten sind markiert und lassen sich einzeln wieder entfernen.</div>
+    <div style="margin-top:10px"><button class="btn sec" onclick="makeDemo()">3 Wochen Demodaten erzeugen</button></div>
+    <div style="margin-top:8px"><button class="btn sec" style="color:var(--warn)" onclick="clearDemo()">Nur Demodaten löschen</button></div>
+    <div class="note" style="margin-top:8px">Aktuell ${Object.values(DB.logs).filter(l=>l.demo).length} Demo-Einträge.</div></div>`;
+
+  h+=`<details open><summary>Testliste – was du durchklicken solltest</summary><ul>
+    <li>Krafteinheit öffnen, Gewicht und Wiederholungen eintragen, Satz abhaken → Pausentimer läuft an</li>
+    <li>Zweiten Satz abhaken → Werte werden vom Vorsatz übernommen</li>
+    <li>Schulterblock abhaken, Schmerz-Slider bewegen, Notiz schreiben</li>
+    <li>„Einheit abschließen" → Meerschweinchen-Karte erscheint</li>
+    <li>Auf einen Lauftag springen, km und Minuten eintragen → Pace erscheint, danach die Dackel-Karte</li>
+    <li>Dashboard: Ring, Heatmap, Diagramme, Bestwerte, Übungsverlauf im Auswahlmenü</li>
+    <li>Mobility abhaken, dann Datum einen Tag weiterstellen und nochmal → Streak zählt</li>
+    <li>Plan bearbeiten: Übung hinzufügen, verschieben, Tag umstellen – dann prüfen, ob die Einheit sich öffnen lässt</li>
+    <li>Backup-Code kopieren, „Alles zurücksetzen", Code wieder einspielen → alles zurück</li>
+    <li>App schließen und neu öffnen → Daten noch da</li></ul></details>`;
+
+  h+=`<div class="card"><div class="note" style="margin-top:0">Nicht vergessen: <strong>Testmodus wieder ausschalten</strong> und Demodaten löschen, bevor du echt loslegst. Sonst verschiebt sich deine Wochenstatistik.</div></div>`;
+  return h;
+}
+function setSim(v){
+  if(v) DB.meta.sim=v; else delete DB.meta.sim;
+  save(DB); render();
+  toast(v?'Testdatum gesetzt':'Testmodus aus');
+}
+function simDay(i){
+  const base=now(); const cur=dayIdx();
+  const d=new Date(base); d.setDate(base.getDate()+(i-cur));
+  setSim(todayKey(d));
+}
+function makeDemo(){
+  const base=now();
+  let n=0;
+  for(let back=20;back>=1;back--){
+    const day=new Date(base); day.setDate(base.getDate()-back);
+    const i=day.getDay()===0?6:day.getDay()-1;
+    const k=WEEK[i][1], p=PLAN[k], dk=todayKey(day);
+    if(DB.logs[dk+'|'+k]) continue;
+    DB.daily[dk]=1;
+    if(p.type==='rest') continue;
+    const L=getLog(dk,k);
+    L.done=true; L.demo=true;
+    L.pain=Math.max(0,Math.round(4 - (20-back)/7));
+    if(p.type==='run'){
+      L.km=p.km; L.min=Math.round(p.km*5.6);
+      L.sh={band:back%3!==0};
+    } else {
+      (p.ex||[]).forEach((e,ei)=>{
+        const bw=[60,50,45,40,35,30,0][ei%7] + Math.round((20-back)/7)*2.5;
+        for(let s=0;s<e.s;s++) L.sets[(e.id||('x'+ei))+'_'+s]={w:bw||null,r:10,d:true};
+      });
+      SHOULDER.forEach((x,si)=>L.sh['s'+si]=true);
+    }
+    n++;
+  }
+  save(DB); render(); toast(n+' Demo-Einheiten erzeugt');
+}
+function clearDemo(){
+  const ids=Object.keys(DB.logs).filter(id=>DB.logs[id].demo);
+  if(!ids.length){ toast('Keine Demodaten vorhanden'); return; }
+  if(!confirm(ids.length+' Demo-Einträge löschen? Echte Einträge bleiben.')) return;
+  ids.forEach(id=>delete DB.logs[id]);
+  save(DB); render(); toast('Demodaten entfernt');
+}
+
+function vMore(){
+  let h=`<h1>Mehr</h1>`;
+  h+=`<div class="tile" onclick="go('edit')"><div class="badge">✎</div>
+    <div class="grow"><div class="t1">Plan bearbeiten</div>
+      <div class="t2">Übungen, Sätze, Trainingstage, eigene Einheiten</div></div>
+    <div class="chk" style="color:var(--muted);font-size:.9rem">›</div></div>`;
+  h+=`<h2 style="margin-top:26px">Profil</h2>
+    <div class="card"><div class="note" style="margin-top:0">Mehrere Personen können dieselbe App nutzen – jedes Profil hat einen eigenen Plan und einen eigenen Verlauf. Wichtig, wenn ihr die App auf demselben Gerät oder Browser öffnet.</div>`;
+  profiles().forEach(pr=>{
+    h+=`<div class="row" style="padding:8px 0;border-top:1px solid var(--line)">
+      <div class="grow"><strong style="font-size:.92rem">${pr}</strong>${pr===PROFILE?' <span class="pill g">aktiv</span>':''}</div>
+      ${pr===PROFILE?'':`<button class="btn sec small" onclick="switchProfile('${pr.replace(/'/g,"\\'")}')">Wechseln</button>`}
+      <button class="btn sec small" style="color:var(--warn);padding:6px 9px" onclick="delProfile('${pr.replace(/'/g,"\\'")}')">✕</button></div>`;
+  });
+  h+=`<div style="margin-top:10px"><button class="btn sec" onclick="addProfile()">+ Profil anlegen</button></div></div>`;
+
+  h+=`<h2 style="margin-top:26px">Werkzeuge</h2>`;
+  h+=`<div class="tile" onclick="go('test')"><div class="badge" style="background:var(--accent2)">🧪</div>
+    <div class="grow"><div class="t1">Testmodus</div>
+      <div class="t2">Anderen Wochentag simulieren, Demodaten erzeugen</div></div>
+    <div class="chk" style="color:var(--muted);font-size:.9rem">›</div></div>`;
+  h+=`<details open><summary>Schulter: Tabu für 6–8 Wochen</summary><ul>
+    <li>Schulterdrücken über Kopf (alle Varianten)</li>
+    <li>Seitheben über Schulterhöhe</li>
+    <li>Frontheben</li>
+    <li>Aufrechtes Rudern</li>
+    <li>Dips</li>
+    <li>Bankdrücken flach, Langhantel bis zur Brust</li>
+    <li>Latzug/Klimmzug im Nacken</li>
+    <li>Butterfly mit weiter Dehnung</li>
+    <li>Aggressives Dehnen der vorderen Schulter (auch Sleeper Stretch)</li>
+    <li>Laufen mit Handy in der Hand oder hochgezogenen Schultern</li></ul></details>`;
+  h+=`<details><summary>Was bedeutet RPE?</summary>
+    <div class="note" style="margin-top:0"><strong>Rate of Perceived Exertion</strong> – gefühlte Anstrengung auf einer Skala von 1 bis 10, unabhängig vom Gewicht auf der Stange. Am einfachsten gedacht als „wie viele Wiederholungen hätte ich noch geschafft?"</div>
+    <table style="width:100%;border-collapse:collapse;font-size:.85rem;margin-top:10px">
+      <tr><td style="padding:6px 0;border-bottom:1px solid var(--line);width:44px"><strong>10</strong></td>
+        <td style="padding:6px 0;border-bottom:1px solid var(--line)">Nichts mehr drin – Muskelversagen</td></tr>
+      <tr><td style="padding:6px 0;border-bottom:1px solid var(--line)"><strong>9</strong></td>
+        <td style="padding:6px 0;border-bottom:1px solid var(--line)">Eine Wiederholung wäre noch gegangen</td></tr>
+      <tr><td style="padding:6px 0;border-bottom:1px solid var(--line)"><strong>8</strong></td>
+        <td style="padding:6px 0;border-bottom:1px solid var(--line)">Zwei hätten noch geklappt</td></tr>
+      <tr><td style="padding:6px 0;border-bottom:1px solid var(--line)"><strong>7</strong></td>
+        <td style="padding:6px 0;border-bottom:1px solid var(--line)">Drei in Reserve</td></tr>
+      <tr><td style="padding:6px 0"><strong>6</strong></td>
+        <td style="padding:6px 0">Vier oder mehr – deutlich unter der Grenze</td></tr>
+    </table>
+    <div class="note" style="margin-top:10px"><strong>Warum in deinem Plan Beine RPE 8 und Oberkörper RPE 7 steht:</strong> Die Beine dürfen hart ran, sie sind dein Trainingsreiz in dieser Phase. Beim Oberkörper bleibst du bewusst zwei bis drei Wiederholungen von der Grenze weg – an der Grenze leidet die Technik und du kompensierst unbewusst mit der Schulter.</div>
+    <div class="note"><strong>Der eigentliche Nutzen:</strong> Du steuerst nach Tagesform statt nach starren Zahlen. Nach einer schlechten Nacht sind 80 kg vielleicht schon RPE 8, ausgeschlafen erst RPE 6. Eine feste Gewichtsvorgabe fängt das nicht ab, die Skala schon.</div></details>`;
+  h+=`<details><summary>Schmerzampel</summary><ul>
+    <li><strong>0–3/10</strong> während der Übung: okay, solange nichts nachbrennt</li>
+    <li><strong>ab 4/10</strong>, Nachtschmerz oder Schmerz am Folgetag: Übung streichen oder ROM verkleinern</li>
+    <li>Kein Muskelversagen im Oberkörper – RPE 7–8</li></ul></details>`;
+  h+=`<details><summary>Progression über 12 Wochen</summary><ul>
+    <li><strong>W1–2:</strong> Gewichte einpendeln, alle Läufe locker, Log starten</li>
+    <li><strong>W3–4:</strong> +2,5–5 % pro Woche, Laufumfang unverändert</li>
+    <li><strong>W5–6:</strong> 4. Satz bei Grundübungen; ab W6 Tempoabschnitt in Lauf 2 – nur wenn die Schulter 2 Wochen ruhig war</li>
+    <li><strong>W7–8:</strong> Langer Lauf auf 12 km; Landmine-Press testen</li>
+    <li><strong>W9:</strong> Deload – Sätze halbieren, langer Lauf zurück auf 8 km. Reha-Block bleibt.</li>
+    <li><strong>W10–12:</strong> Neuer Aufbau, Selbsttest wiederholen</li></ul></details>`;
+  h+=`<details><summary>Ibuprofen – was zu beachten ist</summary>
+    <div class="note">Keine ärztliche Empfehlung. Sprich mit Arzt oder Apotheke – Magenvorgeschichte, Nieren, Blutdruck und andere Medikamente entscheiden.</div><ul>
+    <li>Nicht vor oder direkt nach einem Lauf – NSAR + Ausdauer + Flüssigkeitsdefizit belasten die Nieren</li>
+    <li>Immer zum Essen, viel trinken, kein Alkohol</li>
+    <li>Die Tage nicht nutzen, um mehr zu machen</li>
+    <li>Wenn der Schmerz nach dem Absetzen zurückkommt: Ursache ist unverändert da → Untersuchung statt nächster Packung</li></ul></details>`;
+
+  /* ===== Datensicherung ===== */
+  const nLogs=Object.values(DB.logs).filter(l=>l.done).length;
+  const dsb=daysSinceBackup();
+  h+=`<h2>Datensicherung</h2>`;
+
+  h+=`<div class="card" style="${fsHandle?'border-color:var(--done)':(backupOverdue()?'border-color:var(--warn)':'')}">
+    <div class="row"><div class="grow"><strong>Status</strong>
+      <div class="note" id="fsState">${
+        fsHandle ? 'Automatische Sicherung aktiv – jede Änderung landet sofort in deiner Datei.'
+        : (nLogs===0 ? 'Noch keine Einträge. Richte die Sicherung am besten jetzt ein.'
+        : (dsb>=999 ? '⚠️ Noch nie gesichert. Deine Daten liegen nur im Browser.'
+        : `Letzte Sicherung vor ${dsb} Tag${dsb===1?'':'en'}.`))
+      }</div></div>
+      <span class="pill ${fsHandle?'g':''}">${fsHandle?'sicher':'lokal'}</span></div></div>`;
+
+  if(fsSupported){
+    h+=`<div class="card"><strong style="font-size:.95rem">1 · Automatische Sicherung ${fsHandle?'✓':'(empfohlen)'}</strong>
+      <div class="note">Verknüpfe die App einmalig mit einer Datei auf deiner Festplatte oder in deiner Cloud (Dropbox, iCloud-Ordner, Google Drive). Ab dann schreibt die App jede Änderung automatisch dorthin. Browser-Daten löschen kann dir dann nichts mehr anhaben.</div>
+      <div style="margin-top:10px">${
+        fsHandle
+        ? `<button class="btn sec" onclick="writeFs(true)">Jetzt sichern</button>
+           <div style="margin-top:8px"><button class="btn sec" onclick="unlinkFile()">Verknüpfung lösen</button></div>`
+        : `<button class="btn" onclick="linkFile()">Datei verknüpfen</button>`
+      }</div>
+      <div style="margin-top:8px"><button class="btn sec" onclick="loadFromFile()">Aus Datei laden &amp; verknüpfen</button></div>
+    </div>`;
+  } else {
+    h+=`<div class="card"><strong style="font-size:.95rem">1 · Automatische Sicherung</strong>
+      <div class="note">Dein Browser unterstützt das direkte Schreiben in eine Datei nicht (auf dem iPhone ist das normal). Nutze stattdessen den Backup-Code weiter unten – der funktioniert überall.</div></div>`;
+  }
+
+  h+=`<div class="card"><strong style="font-size:.95rem">2 · Backup-Code (funktioniert überall)</strong>
+    <div class="note">Kopiert deinen gesamten Verlauf als Textblock. Füg ihn in deine Notizen-App, eine Mail an dich selbst oder einen Passwortmanager ein. Zum Wiederherstellen einfach zurückkopieren – auch auf einem anderen Gerät.</div>
+    <div style="margin-top:10px"><button class="btn ${nLogs&&dsb>=7?'':'sec'}" onclick="copyCode()">Backup-Code kopieren</button></div>
+    <div style="margin-top:8px"><button class="btn sec" onclick="toggleRestore()">Aus Code wiederherstellen</button></div>
+    <div id="restoreBox" style="display:none;margin-top:10px">
+      <textarea id="codeIn" placeholder="Backup-Code hier einfügen…" style="min-height:90px;font-size:.75rem"></textarea>
+      <div style="margin-top:8px"><button class="btn" onclick="fromCode(document.getElementById('codeIn').value)">Wiederherstellen</button></div>
+      <div class="note">Achtung: überschreibt den aktuellen Stand.</div>
+    </div></div>`;
+
+  h+=`<div class="card"><strong style="font-size:.95rem">3 · Datei-Export</strong>
+    <div class="note">Klassisch als JSON-Datei – zum Ablegen in der Cloud oder Weitergeben.</div>
+    <div style="margin-top:10px"><button class="btn sec" onclick="shareBackup()">Backup teilen / speichern</button></div>
+    <div style="margin-top:8px"><button class="btn sec" onclick="document.getElementById('imp').click()">Datei importieren</button>
+      <input id="imp" type="file" accept=".json,application/json" style="display:none" onchange="importData(this)"></div>
+    <div style="margin-top:8px"><button class="btn sec" style="color:var(--warn)" onclick="resetAll()">Alles zurücksetzen</button></div>
+  </div>`;
+
+  h+=`<details><summary>Neue App-Version übernehmen</summary>
+    <div class="note">Wenn du eine überarbeitete Version der App bekommst, geht dein Verlauf nicht verloren – du musst ihn nur mitnehmen:</div>
+    <ul>
+      <li><strong>1.</strong> In der alten Version: „Backup-Code kopieren" (oder mit verknüpfter Datei: nichts tun, sie ist schon aktuell).</li>
+      <li><strong>2.</strong> Neue Datei öffnen.</li>
+      <li><strong>3.</strong> Dort „Aus Code wiederherstellen" bzw. „Aus Datei laden &amp; verknüpfen".</li>
+    </ul>
+    <div class="note">Wichtig: Ein selbst bearbeiteter Plan steckt mit im Backup. Nach dem Wiederherstellen gilt also weiter dein Plan, nicht der aus der neuen Datei. Willst du den neuen übernehmen, im Editor „Plan auf Standard zurücksetzen" drücken – der Verlauf bleibt dabei erhalten.</div></details>`;
+  h+=`<details><summary>Warum sind die Daten sonst weg?</summary>
+    <div class="note">Eine reine Browser-App speichert im Browserspeicher dieser Seite. Der verschwindet, wenn du „Website-Daten löschen" nutzt, den privaten Modus verwendest, oder – auf dem iPhone – wenn du die Seite mehrere Wochen nicht öffnest und Safari sie automatisch aufräumt.</div>
+    <ul>
+      <li><strong>Am wirksamsten:</strong> Datei verknüpfen (Punkt 1) – dann liegen die Daten außerhalb des Browsers.</li>
+      <li><strong>Auf dem iPhone:</strong> „Zum Home-Bildschirm hinzufügen". Installierte Web-Apps werden von Safari nicht automatisch aufgeräumt. Zusätzlich alle paar Wochen den Backup-Code in die Notizen legen.</li>
+      <li>Die App hat den Browser um dauerhaften Speicher gebeten – das schützt vor automatischem Aufräumen, aber nicht davor, dass du selbst die Daten löschst.</li>
+      <li>Backup-Codes sind winzig, ein Jahr Training passt problemlos in eine Notiz.</li>
+    </ul></details>`;
+  h+=`<div class="card"><div class="note" style="margin-top:0"><strong>Tipp:</strong> Auf dem Handy „Zum Home-Bildschirm hinzufügen" – dann startet die App im Vollbild und ihre Daten sind deutlich besser geschützt.</div></div>`;
+  h+=`<div class="muted" style="text-align:center;font-size:.75rem;margin-top:22px">Version ${APP_BUILD}</div>`;
+  h+=`<div class="muted" style="text-align:center;font-size:.75rem;margin-top:6px">Kein medizinischer Rat. Bei zunehmenden Schmerzen, Nachtschmerz oder Kraftverlust ärztlich abklären lassen.</div>`;
+  return h;
+}
+
+/* ============ ACTIONS ============ */
+function setVal(x,s,f,v){
+  const L=getLog(activeDate,activeKey), k=x+'_'+s;
+  if(!L.sets[k]) L.sets[k]={};
+  L.sets[k][f]= v===''?null:parseFloat(v);
+  save(DB);
+}
+function toggleSet(x,s){
+  const L=getLog(activeDate,activeKey), k=x+'_'+s;
+  if(!L.sets[k]) L.sets[k]={};
+  L.sets[k].d=!L.sets[k].d;
+  // Auto-fill: leeres Gewicht mit letztem Satz vorbelegen
+  if(L.sets[k].d && L.sets[k].w==null && s>0 && L.sets[x+'_'+(s-1)]){
+    L.sets[k].w=L.sets[x+'_'+(s-1)].w; L.sets[k].r=L.sets[x+'_'+(s-1)].r;
+  }
+  save(DB);
+  if(L.sets[k].d) startTimer(90);
+  render();
+}
+function toggleSh(i){ const L=getLog(activeDate,activeKey); L.sh['s'+i]=!L.sh['s'+i]; save(DB); render(); }
+function toggleShBand(){ const L=getLog(activeDate,activeKey); L.sh.band=!L.sh.band; save(DB); render(); }
+function toggleShStretch(){ const L=getLog(activeDate,activeKey); L.sh.stretch=!L.sh.stretch; save(DB); render(); }
+function setField(f,v){ const L=getLog(activeDate,activeKey); L[f]= v===''?null:v; save(DB);
+  if(f==='km'||f==='min'){ const o=document.getElementById('paceOut'); if(o) o.textContent=paceTxt(L); } }
+function setPain(v){ const L=getLog(activeDate,activeKey); L.pain=parseInt(v); save(DB);
+  const e=document.getElementById('pv'); if(e) e.textContent=v; }
+function paceTxt(L){
+  const km=parseFloat(L.km), min=parseFloat(L.min);
+  if(!km||!min) return 'Pace erscheint, sobald beides eingetragen ist';
+  const p=min/km, m=Math.floor(p), s=Math.round((p-m)*60);
+  return `Pace: ${m}:${String(s).padStart(2,'0')} min/km`;
+}
+function toggleDaily(){ const d=todayKey(); if(DB.daily[d]) delete DB.daily[d]; else DB.daily[d]=1; save(DB); render(); }
+function finish(){
+  const L=getLog(activeDate,activeKey);
+  L.done=!L.done; save(DB);
+  if(L.done){
+    stopTimer();
+    const t=tonnage(L);
+    if(PLAN[activeKey].type==='gym' && t>0){
+      gainsAfter=()=>go('home');
+      showGains(t);
+      return;
+    }
+    if(PLAN[activeKey].type==='run'){
+      const km=parseFloat(L.km)||PLAN[activeKey].km;
+      if(km>0){
+        gainsAfter=()=>go('home');
+        showDist(km, parseFloat(L.min)||0);
+        return;
+      }
+    }
+    toast('Einheit gespeichert ✓'); setTimeout(()=>go('home'),700);
+  }
+  else render();
+}
+function resetAll(){
+  if(!confirm('Wirklich alle Einträge löschen? Das lässt sich nicht rückgängig machen.')) return;
+  DB={logs:{},daily:{},start:todayKey(),meta:{}}; save(DB); go('home'); toast('Zurückgesetzt');
+}
+function exportData(){
+  const blob=new Blob([JSON.stringify(DB,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='trainingslog-'+todayKey()+'.json';
+  a.click();
+  DB.meta.lastBackup=todayKey(); save(DB);
+  toast('Exportiert');
+}
+function toggleRestore(){
+  const b=document.getElementById('restoreBox');
+  b.style.display = b.style.display==='none' ? 'block' : 'none';
+}
+function importData(inp){
+  const f=inp.files[0]; if(!f) return;
+  const r=new FileReader();
+  r.onload=e=>{ try{ const d=JSON.parse(e.target.result);
+    if(!d.logs) throw 0; DB=Object.assign({logs:{},daily:{},start:todayKey(),meta:{}},d);
+    if(!DB.meta) DB.meta={}; save(DB); go('home'); toast('Importiert ✓');
+  }catch(x){ toast('Datei nicht lesbar'); } };
+  r.readAsText(f);
+}
+function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.className='toast on';
+  setTimeout(()=>t.className='toast',1800); }
+
+/* ============ TIMER ============ */
+let tInt=null, tLeft=0;
+function startTimer(s){ tLeft=s; document.getElementById('timerbar').className='timerbar on'; tick();
+  clearInterval(tInt); tInt=setInterval(()=>{ tLeft--; tick(); if(tLeft<=0){ stopTimer(); beep(); } },1000); }
+function tick(){ const m=Math.floor(tLeft/60), s=tLeft%60;
+  document.getElementById('tmDisp').textContent=m+':'+String(s).padStart(2,'0'); }
+function addTime(s){ tLeft+=s; tick(); }
+function stopTimer(){ clearInterval(tInt); tInt=null; document.getElementById('timerbar').className='timerbar'; }
+function beep(){ try{ const c=new (window.AudioContext||window.webkitAudioContext)();
+  [0,180].forEach(d=>{ const o=c.createOscillator(), g=c.createGain();
+    o.connect(g); g.connect(c.destination); o.frequency.value=880;
+    g.gain.setValueAtTime(.001,c.currentTime+d/1000);
+    g.gain.exponentialRampToValueAtTime(.25,c.currentTime+d/1000+.01);
+    g.gain.exponentialRampToValueAtTime(.001,c.currentTime+d/1000+.15);
+    o.start(c.currentTime+d/1000); o.stop(c.currentTime+d/1000+.16); });
+  }catch(e){} if(navigator.vibrate) navigator.vibrate([120,80,120]); }
+
+render();
+restoreHandle().then(h=>{ if(h) render(); });
+
+/* Service Worker – nur über http(s); als lokale Datei nicht möglich */
+let waitingSW=null, reloading=false;
+function applyUpdate(){
+  if(!waitingSW){ location.reload(); return; }
+  waitingSW.postMessage({type:'SKIP_WAITING'});
+}
+function showUpdate(w){ waitingSW=w; document.getElementById('upd').className='on'; }
+
+if('serviceWorker' in navigator && location.protocol.startsWith('http')){
+  navigator.serviceWorker.addEventListener('controllerchange',()=>{
+    if(reloading) return; reloading=true; location.reload();
+  });
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('sw.js').then(reg=>{
+      if(reg.waiting && navigator.serviceWorker.controller) showUpdate(reg.waiting);
+      reg.addEventListener('updatefound',()=>{
+        const w=reg.installing; if(!w) return;
+        w.addEventListener('statechange',()=>{
+          if(w.state==='installed' && navigator.serviceWorker.controller) showUpdate(w);
+        });
+      });
+      setInterval(()=>reg.update().catch(()=>{}), 60*60*1000);
+      document.addEventListener('visibilitychange',()=>{
+        if(!document.hidden) reg.update().catch(()=>{});
+      });
+    }).catch(()=>{});
+  });
+}
+
+window.addEventListener('beforeunload',()=>{ if(fsHandle){ clearTimeout(fsTimer); writeFs(false); } });
+</script>
+</body>
+</html>
