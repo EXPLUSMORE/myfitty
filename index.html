@@ -113,6 +113,13 @@ select{padding:9px;border:1px solid var(--line);border-radius:9px;background:var
   color:var(--ink);font:inherit;font-size:.9rem}
 input.ed{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:9px;
   background:var(--bg);color:var(--ink);font:inherit;font-size:.9rem}
+.stepper{display:flex;align-items:center;border:1px solid var(--line);border-radius:9px;
+  background:var(--bg);overflow:hidden;height:38px}
+.stepper button{flex:none;width:38px;height:100%;font-size:1.15rem;font-weight:700;
+  color:var(--accent);background:transparent;line-height:1}
+.stepper button:disabled{opacity:.3}
+.stepper span{flex:1;text-align:center;font-size:.95rem;font-weight:700;
+  font-variant-numeric:tabular-nums}
 /* Muskelgruppen-Symbol */
 .bodyicon{width:100%;height:100%;display:block}
 .bodyicon *{fill:var(--line)}
@@ -1352,7 +1359,11 @@ function vEditSession(){
         <div class="body">
         <div class="row" style="gap:7px;padding-top:8px">
           <div class="grow"><label class="muted" style="font-size:.7rem">Sätze</label>
-            <input class="ed" type="number" min="1" max="10" value="${e.s}" oninput="setEx(${i},'s',Math.max(1,Math.min(10,parseInt(this.value)||1)))"></div>
+            <div class="stepper">
+              <button onclick="bumpEx(${i},-1)" ${e.s<=1?'disabled':''}>−</button>
+              <span>${e.s}</span>
+              <button onclick="bumpEx(${i},1)" ${e.s>=12?'disabled':''}>+</button>
+            </div></div>
           <div class="grow" style="flex:1.6"><label class="muted" style="font-size:.7rem">Wiederholungen</label>
             <input class="ed" value="${esc(e.r)}" oninput="setEx(${i},'r',this.value)"></div>
           <div class="grow"><label class="muted" style="font-size:.7rem">RPE</label>
@@ -1390,8 +1401,13 @@ function vidTerm(url){ if(!url) return '';
 function editSession(k){ editKey=k; view='editSession'; render(); window.scrollTo(0,0); }
 function setDay(i,k){ WEEK[i][1]=k; planEdited(); render(); }
 function setS(f,v){ PLAN[editKey][f]=v; planEdited(); }
+function bumpEx(i,d){
+  const e=PLAN[editKey].ex[i];
+  e.s = Math.max(1, Math.min(12, (parseInt(e.s)||1) + d));
+  planEdited(); render();
+}
 function setEx(i,f,v){ PLAN[editKey].ex[i][f]=v; planEdited();
-  if(f==='s'||f==='ic') render(); }
+  if(f==='ic') render(); }
 function toggleMg(i,k){
   const e=PLAN[editKey].ex[i];
   const cur=mgOf(e).slice();
