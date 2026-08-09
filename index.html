@@ -379,6 +379,7 @@ const DAILY = [
 ];
 
 const DEFAULT_WEEK = [['Mo','A'],['Di','L1'],['Mi','B'],['Do','L2'],['Fr','C'],['Sa','L3'],['So','R']];
+const EMPTY_WEEK  = [['Mo','R'],['Di','R'],['Mi','R'],['Do','R'],['Fr','R'],['Sa','R'],['So','R']];
 
 /* ============ STORAGE ============ */
 let mem = {};
@@ -405,6 +406,13 @@ function addProfile(){
   if(!n||!n.trim()) return;
   const nm=n.trim().slice(0,20);
   if(profiles().includes(nm)){ toast('Profil gibt es schon'); return; }
+  // Startzustand: Einheiten stehen zur Auswahl, aber kein Tag ist belegt
+  try{
+    localStorage.setItem('tlog::'+nm, JSON.stringify({
+      logs:{}, daily:{}, start:todayKey(), meta:{}, v:2,
+      plan: clone(DEFAULT_PLAN), week: clone(EMPTY_WEEK)
+    }));
+  }catch(e){}
   switchProfile(nm);
 }
 function delProfile(name){
@@ -540,6 +548,7 @@ async function loadFromFile(){
     const f=await h.getFile(); const d=JSON.parse(await f.text());
     if(!d.logs) throw 0;
     DB=Object.assign({logs:{},daily:{},start:todayKey(),meta:{}},d); if(!DB.meta)DB.meta={};
+    applyPlan();
     await idb('readwrite',s=>s.put(h,'handle::'+PROFILE)); fsHandle=h;
     save(DB); go('home'); toast('Geladen und verknüpft ✓');
   }catch(e){ if(e && e.name!=='AbortError') toast('Datei nicht lesbar'); }
@@ -551,7 +560,7 @@ function fromCode(c){
   try{ const d=JSON.parse(decodeURIComponent(escape(atob(c.trim()))));
     if(!d.logs) throw 0;
     DB=Object.assign({logs:{},daily:{},start:todayKey(),meta:{}},d); if(!DB.meta)DB.meta={};
-    save(DB); go('home'); toast('Wiederhergestellt ✓');
+    applyPlan(); save(DB); go('home'); toast('Wiederhergestellt ✓');
   }catch(e){ toast('Code ungültig'); }
 }
 function copyCode(){
@@ -672,7 +681,18 @@ function vHome(){
       <div class="note">${d>=999?'Deine Einträge liegen nur im Browserspeicher.':'Letzte Sicherung vor '+d+' Tagen.'} Ein Klick auf „Website-Daten löschen" würde alles entfernen.</div></div>
       <button class="btn small" onclick="go('more')">Sichern</button></div></div>`;
   }
-  h+=`<div style="margin-top:14px">${tile('',key,date,true)}</div>`;
+  const belegt = WEEK.filter(w=>PLAN[w[1]] && PLAN[w[1]].type!=='rest').length;
+  if(!belegt){
+    h+=`<div class="card" style="border-color:var(--accent)">
+      <strong style="font-size:.95rem">Noch kein Trainingstag festgelegt</strong>
+      <div class="note">Deine Einheiten stehen bereit — du musst nur noch bestimmen, an welchen Tagen du trainierst.</div>
+      <div style="margin-top:10px"><button class="btn" onclick="go('edit')">Tage festlegen</button></div></div>`;
+    h+=`<h2>Verfügbare Einheiten</h2>`;
+    Object.keys(PLAN).filter(k=>PLAN[k].type!=='rest').forEach(k=>{ h+=tile('',k,date,false); });
+    h+=`<div class="note">Antippen, um sie heute zu trainieren — auch ohne feste Zuordnung.</div>`;
+  } else {
+    h+=`<div style="margin-top:14px">${tile('',key,date,true)}</div>`;
+  }
   if(p.type==='rest'){
     h+=`<div class="card"><strong>Ruhetag.</strong><div class="note" style="margin-top:4px">
       Heute nur die 10-Minuten-Mobility. Regeneration ist kein Nichtstun – dein Körper repariert Gewebe nur, wenn er die Kapazität dafür hat. Das gilt auch für die Schulter.</div></div>`;
@@ -709,6 +729,8 @@ function vWeek(){
     h+=tile(l,k,todayKey(d),i===di);
   });
   h+=`</div>`;
+  h+=`<h2>Alle Einheiten</h2><div class="note" style="margin-top:0">Direkt starten, unabhängig vom Wochentag.</div>`;
+  Object.keys(PLAN).filter(k=>PLAN[k].type!=='rest').forEach(k=>{ h+=tile('',k,todayKey(),false); });
   h+=`<details><summary>Warum diese Reihenfolge?</summary><ul>
     <li>Der lockerste Lauf liegt direkt nach dem härtesten Beintag – 6 km ruhig sind aktive Erholung.</li>
     <li>Der lange Lauf liegt am Samstag, weil danach ein voller Ruhetag folgt.</li>
@@ -1747,7 +1769,7 @@ function importData(inp){
   const r=new FileReader();
   r.onload=e=>{ try{ const d=JSON.parse(e.target.result);
     if(!d.logs) throw 0; DB=Object.assign({logs:{},daily:{},start:todayKey(),meta:{}},d);
-    if(!DB.meta) DB.meta={}; save(DB); go('home'); toast('Importiert ✓');
+    if(!DB.meta) DB.meta={}; applyPlan(); save(DB); go('home'); toast('Importiert ✓');
   }catch(x){ toast('Datei nicht lesbar'); } };
   r.readAsText(f);
 }
