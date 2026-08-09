@@ -352,14 +352,14 @@ const DEFAULT_PLAN = {
   W1:{name:'ISCHE OWN 3', type:'gym', short:'O3', sub:'Ganzkörper',
     ex:[
       {id:'i1',n:'Greatest Stretchy', s:1, r:'5 je Seite', rpe:'', note:'Mobilisation zum Einstieg, ohne Gewicht.', v:V('worlds greatest stretch anleitung'), mg:['beine','rumpf']},
-      {id:'i2',n:'Dead Bug', s:3, r:'30', rpe:'7', note:'Mit Gewicht auf Brusthöhe. Lendenwirbelsäule bleibt am Boden.', v:V('dead bug übung anleitung deutsch'), mg:['rumpf']},
-      {id:'i3',n:'Single-Leg Airplane RDL', s:2, r:'8 je Seite', rpe:'7', note:'Standbein leicht gebeugt, Hüfte schließt nicht auf.', v:V('single leg airplane rdl anleitung'), mg:['beine','gesaess','rumpf']},
-      {id:'i4',n:'Kniebeugen seitlich (Cossack)', s:3, r:'10', rpe:'7–8', note:'Ferse des gebeugten Beins bleibt am Boden.', v:V('cossack squat anleitung technik'), mg:['beine','gesaess']},
-      {id:'i5',n:'Hip-Thrusts', s:3, r:'10', rpe:'8', note:'Oben Becken bewusst aufrichten, 1 s halten.', v:V('hip thrust technik anleitung deutsch'), mg:['gesaess','beine']},
-      {id:'i6',n:'Einarmiger Latzug im halben Kniestand', s:2, r:'10 je Seite', rpe:'7', note:'Rumpf stabil, keine Rotation.', v:V('einarmiger latzug halber kniestand technik'), mg:['ruecken','arme','rumpf']},
-      {id:'i7',n:'Brustpresse an der Maschine', s:3, r:'10 / 8 / 6', rpe:'8', note:'Absteigende Wiederholungen bei gleichem Gewicht.', v:V('brustpresse maschine technik'), mg:['brust','arme']},
-      {id:'i8',n:'Beinpresse', s:3, r:'10–11', rpe:'8', note:'Tiefer Bewegungsumfang, Becken bleibt am Polster.', v:V('beinpresse richtige ausführung technik'), mg:['beine','gesaess']},
-      {id:'i9',n:'Wadenheben an der Maschine', s:3, r:'11', rpe:'8', note:'Unten kurz in die Dehnung, oben durchdrücken.', v:V('wadenheben maschine technik'), mg:['waden']},
+      {id:'i2',n:'Dead Bug', s:3, r:'30', rpe:'7', note:'Mit Gewicht auf Brusthöhe. Lendenwirbelsäule bleibt am Boden.', v:V('dead bug übung anleitung deutsch'), mg:['rumpf'], start:6},
+      {id:'i3',n:'Single-Leg Airplane RDL', s:2, r:'8 je Seite', rpe:'7', note:'Standbein leicht gebeugt, Hüfte schließt nicht auf.', v:V('single leg airplane rdl anleitung'), mg:['beine','gesaess','rumpf'], start:6},
+      {id:'i4',n:'Kniebeugen seitlich (Cossack)', s:3, r:'10', rpe:'7–8', note:'Ferse des gebeugten Beins bleibt am Boden.', v:V('cossack squat anleitung technik'), mg:['beine','gesaess'], start:12},
+      {id:'i5',n:'Hip-Thrusts', s:3, r:'10', rpe:'8', note:'Oben Becken bewusst aufrichten, 1 s halten.', v:V('hip thrust technik anleitung deutsch'), mg:['gesaess','beine'], start:42.5},
+      {id:'i6',n:'Einarmiger Latzug im halben Kniestand', s:2, r:'10 je Seite', rpe:'7', note:'Rumpf stabil, keine Rotation.', v:V('einarmiger latzug halber kniestand technik'), mg:['ruecken','arme','rumpf'], start:13},
+      {id:'i7',n:'Brustpresse an der Maschine', s:3, r:'10 / 8 / 6', rpe:'8', note:'Absteigende Wiederholungen bei gleichem Gewicht.', v:V('brustpresse maschine technik'), mg:['brust','arme'], start:25},
+      {id:'i8',n:'Beinpresse', s:3, r:'10–11', rpe:'8', note:'Tiefer Bewegungsumfang, Becken bleibt am Polster.', v:V('beinpresse richtige ausführung technik'), mg:['beine','gesaess'], start:70},
+      {id:'i9',n:'Wadenheben an der Maschine', s:3, r:'11', rpe:'8', note:'Unten kurz in die Dehnung, oben durchdrücken.', v:V('wadenheben maschine technik'), mg:['waden'], start:10},
     ]},
   R:{name:'Ruhetag', type:'rest', short:'–', sub:'Nur die 10-Minuten-Mobility'},
 };
@@ -694,6 +694,7 @@ function render(){
   else if(view==='test') app.innerHTML=vTest();
   else if(view==='editSession') app.innerHTML=vEditSession();
   else if(view==='session') app.innerHTML=vSession();
+  if(typeof updateWake==='function') updateWake();
 }
 
 function tile(dayLabel,key,date,today){
@@ -860,7 +861,7 @@ function vSession(){
       for(let s=0;s<e.s;s++){
         const key=X+'_'+s, st=L.sets[key]||{};
         const pv = prev && prev.sets[key] ? prev.sets[key] : null;
-        const ph = pv&&pv.w ? pv.w : 'kg';
+        const ph = pv&&pv.w ? pv.w : (e.start!=null ? e.start : 'kg');
         const pr = pv&&pv.r ? pv.r : 'Wdh';
         h+=`<div class="setrow">
           <span class="setno">${s+1}</span>
@@ -869,10 +870,13 @@ function vSession(){
           <button class="tick ${st.d?'on':''}" onclick="toggleSet('${X}',${s})">✓</button>
         </div>`;
       }
+      let hatVorher=false;
       if(prev){
         const pw=[]; for(let s=0;s<e.s;s++){const pv=prev.sets[X+'_'+s]; if(pv&&pv.w)pw.push(pv.w+'×'+(pv.r||'?'));}
-        if(pw.length) h+=`<div class="hint">Letztes Mal: ${pw.join('  ·  ')}</div>`;
+        if(pw.length){ h+=`<div class="hint">Letztes Mal: ${pw.join('  ·  ')}</div>`; hatVorher=true; }
       }
+      if(!hatVorher && e.start!=null)
+        h+=`<div class="hint">Startgewicht: ${e.start} kg — beim Abhaken automatisch eingetragen</div>`;
       if(e.note) h+=`<div class="note">${e.note}</div>`;
       if(e.v) h+=`<a class="vid" href="${e.v}" target="_blank">▶ Technik-Video</a>`;
       h+=`</div></div>`;
@@ -1451,6 +1455,10 @@ function vEditSession(){
           <div class="grow"><label class="muted" style="font-size:.7rem">RPE</label>
             <input class="ed" value="${esc(e.rpe||'')}" oninput="setEx(${i},'rpe',this.value)"></div>
         </div>
+        <div style="margin-top:8px"><label class="muted" style="font-size:.7rem">Startgewicht in kg (optional)</label>
+          <input class="ed" type="number" inputmode="decimal" step="0.5" value="${e.start??''}"
+            placeholder="z. B. 40" oninput="setEx(${i},'start',this.value===''?null:parseFloat(this.value))">
+          <div class="note">Einmalig gesetzt. Erscheint als Vorschlag, bis du die Übung zum ersten Mal trainiert hast.</div></div>
         <div style="margin-top:8px"><label class="muted" style="font-size:.7rem">Hinweis (optional)</label>
           <input class="ed" value="${esc(e.note||'')}" oninput="setEx(${i},'note',this.value)"></div>
         <div style="margin-top:8px"><label class="muted" style="font-size:.7rem">Video-Suchbegriff</label>
@@ -1685,6 +1693,14 @@ function vMore(){
   /* ===== Datensicherung ===== */
   const nLogs=Object.values(DB.logs).filter(l=>l.done).length;
   const dsb=daysSinceBackup();
+  h+=`<h2>Bildschirm</h2><div class="card">
+    <div class="row"><div class="grow"><strong style="font-size:.95rem">Während des Trainings anlassen</strong>
+      <div class="note">${wakeSupported
+        ? 'Solange eine Einheit offen ist, der Pausentimer läuft oder die Mobility-Routine aktiv ist, schaltet sich der Bildschirm nicht ab. Kostet Akku — beim Verlassen der Einheit wird die Sperre sofort wieder freigegeben.'
+        : '⚠️ Dieser Browser unterstützt das nicht. Auf dem iPhone bleibt nur, die Bildschirmsperre in den Systemeinstellungen hochzusetzen.'}</div></div>
+      <button class="btn small ${(DB.meta&&DB.meta.nowake)?'sec':''}" onclick="toggleWake()"
+        ${wakeSupported?'':'disabled style="opacity:.4"'}>${(DB.meta&&DB.meta.nowake)?'Aus':'An'}</button></div></div>`;
+
   h+=`<h2>Datensicherung</h2>`;
 
   h+=`<div class="card" style="${fsHandle?'border-color:var(--done)':(backupOverdue()?'border-color:var(--warn)':'')}">
@@ -1768,6 +1784,12 @@ function toggleSet(x,s){
   if(L.sets[k].d && L.sets[k].w==null && s>0 && L.sets[x+'_'+(s-1)]){
     L.sets[k].w=L.sets[x+'_'+(s-1)].w; L.sets[k].r=L.sets[x+'_'+(s-1)].r;
   }
+  // Erster Satz ohne Eintrag: Startgewicht der Übung übernehmen
+  if(L.sets[k].d && L.sets[k].w==null){
+    const p=PLAN[activeKey];
+    const e=(p&&p.ex||[]).find((y,i)=>(y.id||('x'+i))===x);
+    if(e && e.start!=null) L.sets[k].w=e.start;
+  }
   save(DB);
   if(L.sets[k].d) startTimer(90);
   render();
@@ -1822,6 +1844,11 @@ function exportData(){
   DB.meta.lastBackup=todayKey(); save(DB);
   toast('Exportiert');
 }
+function toggleWake(){
+  DB.meta.nowake = !DB.meta.nowake;
+  save(DB); updateWake(); render();
+  toast(DB.meta.nowake ? 'Bildschirm darf sich abschalten' : 'Bildschirm bleibt beim Training an');
+}
 function toggleRestore(){
   const b=document.getElementById('restoreBox');
   b.style.display = b.style.display==='none' ? 'block' : 'none';
@@ -1837,6 +1864,34 @@ function importData(inp){
 }
 function toast(m){ const t=document.getElementById('toast'); t.textContent=m; t.className='toast on';
   setTimeout(()=>t.className='toast',1800); }
+
+/* ============ BILDSCHIRM WACH HALTEN ============ */
+let wakeLock=null, wakeWanted=false;
+const wakeSupported = ('wakeLock' in navigator);
+
+async function setWake(on){
+  wakeWanted = on && !(DB.meta && DB.meta.nowake);
+  if(!wakeSupported) return;
+  try{
+    if(wakeWanted && !wakeLock){
+      wakeLock = await navigator.wakeLock.request('screen');
+      wakeLock.addEventListener('release', ()=>{ wakeLock=null; });
+    } else if(!wakeWanted && wakeLock){
+      await wakeLock.release(); wakeLock=null;
+    }
+  }catch(e){ wakeLock=null; }
+}
+/* Entscheidet anhand des Zustands, ob der Bildschirm an bleiben soll */
+function updateWake(){
+  const aktiv = (view==='session')
+             || (document.getElementById('mob')||{}).className==='on'
+             || tInt!==null;
+  setWake(aktiv);
+}
+/* Android gibt die Sperre beim Wegschalten frei - danach neu anfordern */
+document.addEventListener('visibilitychange', ()=>{
+  if(!document.hidden && wakeWanted && !wakeLock) setWake(true);
+});
 
 /* ============ MOBILITY-DURCHLAUF ============ */
 let mobQ=[], mobIdx=0, mobLeft=0, mobInt=null, mobPause=false, mobGesamt=0;
@@ -1860,6 +1915,7 @@ function startRoutine(nur){
   mobIdx=0; mobPause=false;
   mobGesamt = mobQ.reduce((x,y)=>x+y.sek,0);
   document.getElementById('mob').className='on';
+  updateWake();
   runStep();
 }
 function runStep(){
@@ -1923,7 +1979,7 @@ function drawMob(){
 }
 function mobToggle(){ mobPause=!mobPause; drawMob(); }
 function mobSkip(){ clearInterval(mobInt); mobIdx++; runStep(); }
-function stopRoutine(){ clearInterval(mobInt); document.getElementById('mob').className=''; render(); }
+function stopRoutine(){ clearInterval(mobInt); document.getElementById('mob').className=''; render(); updateWake(); }
 function finishRoutine(){
   clearInterval(mobInt);
   if(navigator.vibrate) navigator.vibrate([40,60,40,60,120]);
@@ -1942,12 +1998,13 @@ function finishRoutine(){
 
 /* ============ TIMER ============ */
 let tInt=null, tLeft=0;
-function startTimer(s){ tLeft=s; document.getElementById('timerbar').className='timerbar on'; tick();
+function updateWake0(){ setTimeout(()=>updateWake(),0); }
+function startTimer(s){ updateWake0(); tLeft=s; document.getElementById('timerbar').className='timerbar on'; tick();
   clearInterval(tInt); tInt=setInterval(()=>{ tLeft--; tick(); if(tLeft<=0){ stopTimer(); beep(); } },1000); }
 function tick(){ const m=Math.floor(tLeft/60), s=tLeft%60;
   document.getElementById('tmDisp').textContent=m+':'+String(s).padStart(2,'0'); }
 function addTime(s){ tLeft+=s; tick(); }
-function stopTimer(){ clearInterval(tInt); tInt=null; document.getElementById('timerbar').className='timerbar'; }
+function stopTimer(){ clearInterval(tInt); tInt=null; setTimeout(()=>updateWake(),0); document.getElementById('timerbar').className='timerbar'; }
 function beep(){ try{ const c=new (window.AudioContext||window.webkitAudioContext)();
   [0,180].forEach(d=>{ const o=c.createOscillator(), g=c.createGain();
     o.connect(g); g.connect(c.destination); o.frequency.value=880;
