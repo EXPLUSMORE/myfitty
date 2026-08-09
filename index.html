@@ -133,6 +133,8 @@ input.ed{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:
   background:var(--bg);color:var(--muted);cursor:pointer;user-select:none}
 .mgchip.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
 .hbar{display:flex;align-items:flex-end;gap:3px;height:60px;margin:10px 0}
+.lc{width:100%;height:110px;display:block;margin:10px 0;overflow:visible}
+.lct{font-size:9px;fill:var(--muted)}
 .hbar div{flex:1;background:var(--accent);border-radius:3px 3px 0 0;min-height:2px;opacity:.85}
 .hist{padding:10px 0;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center}
 .hist:last-child{border-bottom:none}
@@ -1445,6 +1447,62 @@ function weeks(n){ // letzte n Wochen, älteste zuerst
   }
   return out;
 }
+/* Liniendiagramm mit echter Zeitachse. pts: [{d:'YYYY-MM-DD', v:Zahl, r?:Text}]
+   Punkte liegen dort, wo sie zeitlich hingehoeren - Trainingspausen sieht man dadurch. */
+/* glatte Achsenwerte statt 52.4 / 75.1 */
+function achsSchritt(spanne){
+  const roh = spanne/2 || 1, e = Math.pow(10, Math.floor(Math.log10(roh)));
+  return [1,2,2.5,5,10].map(m=>m*e).find(x=>x>=roh) || 10*e;
+}
+function rundHoch(v){ const st=achsSchritt(Math.abs(v)||1); return Math.ceil(v/st)*st; }
+function rundRunter(v){ const st=achsSchritt(Math.abs(v)||1); return Math.floor(v/st)*st; }
+function lineChart(pts, opt){
+  const o = opt||{};
+  if(!pts.length) return '';
+  const W=320, H=o.h||110, PL=30, PR=8, PT=10, PB=18;
+  const iw=W-PL-PR, ih=H-PT-PB;
+  const t = pts.map(p=>new Date(p.d+'T12:00:00').getTime());
+  const t0=Math.min(...t), t1=Math.max(...t), span=(t1-t0)||1;
+  const vs = pts.map(p=>p.v);
+  let lo = o.min!=null ? o.min : Math.min(...vs);
+  let hi = o.max!=null ? o.max : Math.max(...vs);
+  if(hi===lo){ hi=lo+1; lo=Math.max(0,lo-1); }
+  else {
+    const luft=(hi-lo)*0.15;
+    // feste Grenzen (z. B. Schmerzskala 0-10) bleiben unangetastet
+    if(o.max==null) hi=rundHoch(hi+luft);
+    if(o.min==null) lo=Math.max(0, rundRunter(lo-luft));
+  }
+  const X = i => PL + (pts.length===1 ? iw/2 : (t[i]-t0)/span*iw);
+  const Y = v => PT + ih - (v-lo)/(hi-lo)*ih;
+  const farbe = o.color||'var(--accent)';
+  const id = 'g'+Math.abs(pts.length*31+Math.round(hi*7)+Math.round(lo*13));
+
+  const linie = pts.map((p,i)=>(i?'L':'M')+X(i).toFixed(1)+' '+Y(p.v).toFixed(1)).join(' ');
+  const flaeche = linie+` L${X(pts.length-1).toFixed(1)} ${(PT+ih).toFixed(1)} L${X(0).toFixed(1)} ${(PT+ih).toFixed(1)} Z`;
+
+  let g=`<svg class="lc" viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" role="img">
+    <defs><linearGradient id="${id}" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="${farbe}" stop-opacity=".22"/>
+      <stop offset="100%" stop-color="${farbe}" stop-opacity="0"/></linearGradient></defs>`;
+  // Hilfslinien oben/unten
+  [lo,(lo+hi)/2,hi].forEach(v=>{ g+=`<line x1="${PL}" y1="${Y(v).toFixed(1)}" x2="${W-PR}" y2="${Y(v).toFixed(1)}"
+      stroke="var(--line)" stroke-width="1" ${v===hi||v===lo?'':'stroke-dasharray="2 3"'}/>`; });
+  g+=`<text x="2" y="${(Y(hi)+4).toFixed(1)}" class="lct">${(+hi.toFixed(1))}</text>`;
+  g+=`<text x="2" y="${(Y(lo)+4).toFixed(1)}" class="lct">${(+lo.toFixed(1))}</text>`;
+  g+=`<path d="${flaeche}" fill="url(#${id})"/>`;
+  g+=`<path d="${linie}" fill="none" stroke="${farbe}" stroke-width="2.2"
+      stroke-linejoin="round" stroke-linecap="round" vector-effect="non-scaling-stroke"/>`;
+  pts.forEach((p,i)=>{
+    const letzt = i===pts.length-1;
+    g+=`<circle cx="${X(i).toFixed(1)}" cy="${Y(p.v).toFixed(1)}" r="${letzt?4:2.6}"
+      fill="${letzt?farbe:'var(--card)'}" stroke="${farbe}" stroke-width="2"><title>${fmtDate(p.d)}: ${p.v}${o.einheit||''}${p.r?' × '+p.r:''}</title></circle>`;
+  });
+  g+=`<text x="${PL}" y="${H-4}" class="lct">${fmtDate(pts[0].d)}</text>`;
+  if(pts.length>1) g+=`<text x="${W-PR}" y="${H-4}" class="lct" text-anchor="end">${fmtDate(pts[pts.length-1].d)}</text>`;
+  return g+`</svg>`;
+}
+
 function bars(vals,opt){
   const o=opt||{}, max=Math.max(1,...vals.map(v=>v.v));
   let h=`<div class="chart">`;
@@ -1551,7 +1609,6 @@ function vStats(){
     const pigSum   = pigLogs.reduce((a,l)=>a+pigsOf(l),0);
     const pigBest  = pigLogs.slice().sort((a,b)=>pigsOf(b)-pigsOf(a))[0];
     const pigAvg   = (pigSum/pigLogs.length).toFixed(1);
-    const R        = pigRange();
     // Woche
     const pigWeek  = cur.logs.reduce((a,l)=>a+pigsOf(l),0);
     // letzte 12 Einheiten als Balken
@@ -1561,17 +1618,16 @@ function vStats(){
       <div class="row" style="gap:14px">
         <div style="font-size:2.4rem;line-height:1">🐹</div>
         <div class="grow"><div class="big">${pigSum}</div>
-          <div class="muted">Meerschweinchen gesammelt · ${pigLogs.length} Einheiten</div></div></div>`;
+          <div class="muted">Meerschweinchen gesammelt · ${pigLogs.length} Einheit${pigLogs.length===1?'':'en'}</div></div></div>`;
     h+=bars(letzte.map(l=>({v:pigsOf(l), l:wkurz(l.date), t:fmtDate(l.date)+': '+pigsOf(l)})),{cls:()=>'pig'});
     h+=`<div class="kpi" style="margin-top:12px">
       <div class="stat"><div class="v">${pigWeek}</div><div class="l">diese Woche</div></div>
       <div class="stat"><div class="v">${pigAvg}</div><div class="l">Ø pro Einheit</div></div>
       <div class="stat"><div class="v">${pigsOf(pigBest)}</div><div class="l">Rekord (${fmtDate(pigBest.date)})</div></div>
-      <div class="stat"><div class="v">${R.lo}–${R.hi}</div><div class="l">Spanne je Einheit</div></div>
     </div>`;
     h+=`<div class="verdict">${st.txt}</div>`;
     if(st.next) h+=`<div class="note">Noch ${st.next-pigSum} bis „${st.nextName}".</div>`;
-    h+=`<div class="note">Getrennt vom Volumen gezählt: jede abgeschlossene Krafteinheit bringt ${R.lo} bis ${R.hi} Meerschweinchen, und die werden hier aufaddiert. Anders als in der Tierkarte, wo das Gesamtgewicht jedes Mal neu zerlegt wird.</div></div>`;
+    h+=`<div class="note">Getrennt vom Volumen gezählt: jede abgeschlossene Krafteinheit bringt Meerschweinchen ein, und die werden hier aufaddiert. Anders als in der Tierkarte, wo das Gesamtgewicht jedes Mal neu zerlegt wird.</div></div>`;
   }
 
   /* Schulter */
@@ -1588,8 +1644,8 @@ function vStats(){
     h+=`<div class="row" style="gap:18px">
       <div><div class="big">${a2.toFixed(1)}</div><div class="muted">Ø letzte ${n}</div></div>
       <div><div class="big" style="color:${d<-.4?'var(--accent)':d>.4?'var(--warn)':'var(--muted)'}">${d>0?'+':''}${d.toFixed(1)}</div><div class="muted">vs. Start (${a1.toFixed(1)})</div></div></div>`;
-    h+=bars(last.map(l=>({v:Math.max(l.pain,0),l:fmtDate(l.date).slice(0,5),t:fmtDate(l.date)+': '+l.pain+'/10'})),
-      {cls:v=>v.v>=4?'hi':'pain'});
+    h+=lineChart(last.map(l=>({d:l.date, v:Math.max(l.pain,0)})),
+      {min:0, max:10, einheit:'/10', color: a2>=4?'var(--warn)':'var(--accent)'});
     let txt;
     if(d<=-1) txt='<strong>Die Kurve fällt deutlich.</strong> Der Plan wirkt – Belastungssteuerung und Reha-Block greifen. Weitermachen, Bewegungsumfang erst erweitern, wenn zwei Wochen unter 2/10 liegen.';
     else if(d<-.3) txt='<strong>Leicht rückläufig.</strong> Die Richtung stimmt, aber langsam. Prüfe im Notizfeld, welche Übung immer wieder auftaucht.';
@@ -1773,13 +1829,10 @@ function togglePR(id){
   const pts=e?exPunkte(e):[];
   box.style.display='block';
   if(!pts.length){ box.innerHTML='<div class="muted">Noch keine Daten.</div>'; return; }
-  const max=Math.max(...pts.map(p=>p.w));
-  const zeig=pts.slice(-16);
+  const zeig=pts.slice(-20);
   const erst=pts[0], letzt=pts[pts.length-1], diff=letzt.w-erst.w;
-  let h=`<div class="hbar">`;
-  zeig.forEach(p=>{ h+=`<div style="height:${Math.max(6,p.w/max*100)}%"
-    title="${fmtDate(p.d)}: ${p.w} kg × ${p.r}"></div>`; });
-  h+=`</div><div class="muted" style="font-size:.75rem;margin-top:4px">
+  let h=lineChart(zeig.map(p=>({d:p.d, v:p.w, r:p.r})), {einheit:' kg'});
+  h+=`<div class="muted" style="font-size:.75rem;margin-top:4px">
     ${fmtDate(zeig[0].d)} bis ${fmtDate(letzt.d)} · ${pts.length} Trainingstage`;
   if(pts.length>1) h+=` · ${diff>=0?'+':''}${(+diff.toFixed(1))} kg seit dem ersten Mal`;
   h+=`</div>`;
