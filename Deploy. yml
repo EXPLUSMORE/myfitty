@@ -1,0 +1,53 @@
+name: Deploy myfitty
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Wurzel finden
+        id: root
+        run: |
+          if [ -f index.html ]; then
+            DIR="."
+          else
+            DIR="$(dirname "$(find . -name index.html -not -path './.git/*' | head -1)")"
+          fi
+          echo "Gefunden in: $DIR"
+          echo "dir=$DIR" >> "$GITHUB_OUTPUT"
+
+      - name: Versionsstempel setzen
+        run: |
+          BUILD="$(date -u +%Y-%m-%d)-${GITHUB_SHA::7}"
+          echo "Build: $BUILD"
+          sed -i "s/__BUILD__/$BUILD/g" "${{ steps.root.outputs.dir }}/sw.js" "${{ steps.root.outputs.dir }}/index.html"
+
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ steps.root.outputs.dir }}
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
