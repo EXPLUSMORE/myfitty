@@ -141,6 +141,30 @@ input.ed{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:
 .mgbar i{display:block;height:100%;background:var(--accent);border-radius:5px}
 .mgbar u{position:absolute;top:-2px;bottom:-2px;width:2px;background:var(--muted);opacity:.55}
 .prbox{border:2px solid var(--accent);border-radius:12px;padding:11px 13px;margin:10px 0;background:var(--card)}
+
+/* Trink-Erinnerung */
+#trink{position:fixed;left:10px;right:10px;top:10px;z-index:60;pointer-events:none}
+#trink.on{pointer-events:auto}
+#trink .tk{background:var(--card);border:2px solid var(--accent2);border-radius:16px;
+  padding:12px 13px 11px;box-shadow:0 10px 30px rgba(0,0,0,.22);
+  transform:translateY(-150%);opacity:0;transition:transform .45s cubic-bezier(.2,1.3,.4,1),opacity .3s}
+#trink.on .tk{transform:translateY(0);opacity:1}
+#trink .kopf{display:flex;align-items:center;gap:11px}
+#trink .pig{font-size:2.1rem;line-height:1;animation:hopp 1s ease-in-out infinite;transform-origin:50% 100%}
+#trink .sprech{flex:1;font-size:.92rem;line-height:1.35;font-weight:600}
+#trink .sub{font-size:.75rem;color:var(--muted);font-weight:400;margin-top:2px}
+#trink .tropfen{position:absolute;top:-14px;font-size:.9rem;animation:fall 1.6s linear infinite;opacity:.85}
+#trink .btns{display:flex;gap:8px;margin-top:10px}
+@keyframes hopp{
+  0%,100%{transform:translateY(0) rotate(-4deg) scaleY(1)}
+  25%{transform:translateY(-9px) rotate(3deg) scaleY(1.06)}
+  50%{transform:translateY(0) rotate(-2deg) scaleY(.94)}
+  75%{transform:translateY(-4px) rotate(2deg) scaleY(1.02)}}
+@keyframes fall{0%{transform:translateY(0);opacity:0}
+  15%{opacity:.9} 100%{transform:translateY(46px);opacity:0}}
+@media (prefers-reduced-motion:reduce){
+  #trink .pig{animation:none} #trink .tropfen{display:none}
+  #trink .tk{transition:opacity .2s}}
 .lc{width:100%;height:110px;display:block;margin:10px 0;overflow:visible}
 .lct{font-size:9px;fill:var(--muted)}
 .hbar div{flex:1;background:var(--accent);border-radius:3px 3px 0 0;min-height:2px;opacity:.85}
@@ -268,6 +292,7 @@ details ul{padding-left:18px;font-size:.87rem}
 
 <div class="toast" id="toast"></div>
 <div id="gains" onclick="closeGains()"></div>
+<div id="trink"></div>
 <div id="mob"></div>
 <div id="upd"><span class="t">Neue Version verfügbar</span>
   <button onclick="applyUpdate()">Laden</button>
@@ -1113,6 +1138,12 @@ function vSession(){
       <input class="ed" type="date" value="${activeDate}" onchange="moveLog(this.value)" style="margin-top:8px">
       ${L.dauer?`<div class="note">Erfasste Dauer: ${L.dauer} Min</div>`:''}
     </details></div>`;
+  if(!L.done){
+    h+=`<div class="row" style="gap:8px;margin-top:8px">
+      <button class="btn sec small" onclick="trinkOk()">💧 Getrunken${L.trink?' ('+L.trink+')':''}</button>
+      ${trinkAus()?'<span class="muted" style="font-size:.75rem">Erinnerung aus</span>'
+        :`<span class="muted" style="font-size:.75rem">Das Meerschweinchen meldet sich alle ${trinkIntervall()} Minuten</span>`}</div>`;
+  }
 
   if(p.type==='run'){
     h+=`<div class="card"><div class="row" style="gap:12px"><div class="icobox lg">${bodyIcon(['beine','waden','gesaess'])}</div>
@@ -1443,6 +1474,111 @@ function sessOf(k){
   return PLAN[k] || (typeof SESSIONS!=='undefined' && SESSIONS[k]) || DEFAULT_SESSIONS[k]
       || {name:k, short:'?', type:'gym', ex:[]};
 }
+/* ============ TRINK-ERINNERUNG ============ */
+/* Ein Meerschweinchen huepft waehrend der Einheit alle paar Minuten rein und
+   erinnert ans Trinken. Zwei Prozent Fluessigkeitsverlust kosten spuerbar Kraft -
+   der Spruch ist der Zucker, das Wasser ist der Punkt. */
+const TRINKSPRUECHE = [
+  'Prost! Auf dich, auf die Schulter, auf lauwarmes Leitungswasser.',
+  'Ein Meerschweinchen trinkt sein Körpergewicht in Ruhm. Du trinkst jetzt Wasser.',
+  'Dein Blut ist gerade dicker als dein Trainingsplan. Trink was.',
+  'Zwei Prozent weniger Wasser sind zehn Prozent weniger Kraft. Rechne das mal auf deine Sätze hoch.',
+  'Hoch die Flasche! Und zwar wirklich hoch, nicht so ein Alibi-Schlückchen.',
+  'Muskeln bestehen zu drei Vierteln aus Wasser. Deine gerade eher aus Optimismus.',
+  'Auf die Freundschaft zwischen dir und der Wasserflasche, die du seit 20 Minuten ignorierst.',
+  'Trinkspruch: Wasser marsch, Nashorn parkt, Meerschweinchen quiekt.',
+  'Die Kaffeemaschine zählt nicht. Das Proteinshake-Wasser von gestern auch nicht.',
+  'Ein Schluck für die Schulter, ein Schluck für die Beine, ein Schluck für mich.',
+  'Kameltaktik funktioniert nicht. Kamele haben auch keinen Latzug.',
+  'Dein Körper meldet sich. Nicht dramatisch, aber bestimmt: Wasser. Jetzt.',
+  'Wer nicht trinkt, wird nicht stark — sondern nur müde und leicht reizbar.',
+  'Auf dass dein Urin heller sei als deine Zukunft. Also ziemlich hell.',
+  'Halbzeit für die Flasche. Sie hat sich das verdient.',
+  'Ein Meerschweinchen wiegt ein Kilo. Ein Liter Wasser auch. Zufall? Absolut.',
+  'Trinken ist die einzige Übung, die du garantiert richtig ausführst.',
+  'Zum Wohl! Sagt das Meerschweinchen und meint es ernst.',
+  'Deine Faszien knirschen. Das ist entweder das Alter oder Wassermangel. Fang mit dem Wasser an.',
+  'Isotonisch, hypotonisch, ironisch — hauptsache nass.',
+  'Kurze Pause, langer Schluck. So macht das der Profi.',
+  'Wasser ist das einzige Supplement, das wirklich jeder braucht und trotzdem keiner nimmt.',
+  'Auf die Gelenke! Die schmieren sich nicht von allein.',
+  'Ein Toast auf die Bandscheibe: sie ist im Grunde ein Wasserkissen mit Anspruchshaltung.',
+  'Trink, bevor du Durst hast. Durst ist schon die Mahnung, nicht die Rechnung.',
+  'Die Nashörner aus deiner Tierkarte trinken 100 Liter am Tag. Du schaffst 0,3.',
+  'Schulterreha läuft auf Wasser, Geduld und Meerschweinchen. Zwei davon liefere ich.',
+  'Flasche hoch. Kopf in den Nacken. Fertig ist der Trinkspruch.',
+];
+const TRINK_STD = 15;                       // Minuten
+var trinkTimer=null, trinkOffen=false, trinkSpruch=0;
+
+function trinkAus(){ return !!(DB.meta && DB.meta.trinkAus); }
+function trinkIntervall(){ return (DB.meta && DB.meta.trinkMin) || TRINK_STD; }
+function toggleTrink(){ DB.meta.trinkAus = !trinkAus(); save(DB);
+  if(trinkAus()) trinkWeg(); render(); }
+function setTrinkMin(v){ DB.meta.trinkMin = parseInt(v)||TRINK_STD; save(DB); render(); }
+
+/* Laeuft gerade eine Einheit? Nur dann darf gequiekt werden. */
+function trainingLaeuft(){
+  if(view!=='session' || !activeKey || !PLAN[activeKey]) return false;
+  if(PLAN[activeKey].type!=='gym' && PLAN[activeKey].type!=='run') return false;
+  const L=DB.logs[activeDate+'|'+activeKey];
+  return !!(L && L.t0 && !L.done);
+}
+function trinkPruefen(){
+  if(trinkAus() || trinkOffen || !trainingLaeuft()) return;
+  const L=getLog(activeDate,activeKey);
+  const letzte = L.trinkZeit || L.t0;
+  if(Date.now() - letzte >= trinkIntervall()*60000) trinkZeigen();
+}
+function trinkZeigen(){
+  const L=getLog(activeDate,activeKey);
+  // Spruch rotiert, damit nicht zweimal hintereinander derselbe kommt
+  trinkSpruch = (trinkSpruch + 1 + ((L.trink||0) % 3)) % TRINKSPRUECHE.length;
+  const nr = (L.trink||0) + 1;
+  const box=document.getElementById('trink');
+  box.innerHTML = `<div class="tk" style="position:relative;overflow:hidden">
+    <span class="tropfen" style="left:34px;animation-delay:0s">💧</span>
+    <span class="tropfen" style="left:52px;animation-delay:.6s">💧</span>
+    <div class="kopf">
+      <div class="pig">🐹</div>
+      <div class="sprech">${TRINKSPRUECHE[trinkSpruch]}
+        <div class="sub">Trinkpause ${nr} · nächste Erinnerung in ${trinkIntervall()} Minuten</div></div>
+    </div>
+    <div class="btns">
+      <button class="btn small grow" onclick="trinkOk()">💧 Getrunken</button>
+      <button class="btn sec small" onclick="trinkSpaeter()">Gleich</button>
+      <button class="btn sec small" onclick="trinkStumm()">Aus</button>
+    </div></div>`;
+  box.className='on';
+  trinkOffen=true;
+  if(navigator.vibrate) navigator.vibrate([12,60,12]);
+  // nach 25 s von allein weg - eine Erinnerung darf nichts dauerhaft verdecken
+  clearTimeout(trinkTimer);
+  trinkTimer = setTimeout(()=>{ if(trinkOffen) trinkSpaeter(); }, 25000);
+}
+function trinkWeg(){
+  clearTimeout(trinkTimer);
+  const box=document.getElementById('trink');
+  if(box){ box.className=''; setTimeout(()=>{ if(!trinkOffen) box.innerHTML=''; }, 450); }
+  trinkOffen=false;
+}
+function trinkOk(){
+  const L=getLog(activeDate,activeKey);
+  L.trink = (L.trink||0) + 1;
+  L.trinkZeit = Date.now();
+  save(DB); trinkWeg(); toast('Quiek. '+L.trink+'× getrunken heute.');
+}
+function trinkSpaeter(){
+  const L=getLog(activeDate,activeKey);
+  L.trinkZeit = Date.now() - (trinkIntervall()-4)*60000;   // in 4 Minuten nochmal
+  save(DB); trinkWeg();
+}
+function trinkStumm(){
+  DB.meta.trinkAus = true; save(DB); trinkWeg();
+  toast('Trink-Erinnerung aus – im Setup wieder einschaltbar');
+}
+setInterval(trinkPruefen, 20000);
+
 /* ============ TRAININGSLOGIK ============ */
 
 /* Geschätztes Einwiederholungsmaximum nach Epley. Macht 60 kg x 12 und
@@ -2375,6 +2511,7 @@ function vTest(){
     <li>Dashboard: Ring, Heatmap, Diagramme, Bestwerte – eine Zeile antippen zeigt den Verlauf</li>
     <li>Übung mit Vorgeschichte öffnen → Vorschlag erscheint, „Übernehmen" füllt alle Sätze</li>
     <li>Deload im Dashboard starten → Banner in der Einheit, Vorschläge fallen auf rund 60 %</li>
+    <li>Während der Einheit warten oder Uhr vorstellen → Meerschweinchen erinnert ans Trinken</li>
     <li>Mobility abhaken, dann Datum einen Tag weiterstellen und nochmal → Streak zählt</li>
     <li>Plan bearbeiten: Übung hinzufügen, verschieben, Tag umstellen – dann prüfen, ob die Einheit sich öffnen lässt</li>
     <li>Backup-Code kopieren, „Alles zurücksetzen", Code wieder einspielen → alles zurück</li>
@@ -2477,6 +2614,15 @@ function vMore(){
     <div class="grow"><div class="t1">Plan bearbeiten</div>
       <div class="t2">Übungen, Sätze, Trainingstage, eigene Einheiten</div></div>
     <div class="chk" style="color:var(--muted);font-size:.9rem">›</div></div>`;
+  h+=`<h2 style="margin-top:26px">Trinkerinnerung</h2>
+    <div class="card"><div class="row"><div class="grow">
+      <strong style="font-size:.92rem">🐹 Meerschweinchen mit Wasserflasche</strong>
+      <div class="note" style="margin-top:2px">Während einer laufenden Einheit hüpft alle paar Minuten ein Meerschweinchen ins Bild und erinnert ans Trinken – mit wechselndem Spruch. Zwei Prozent Flüssigkeitsverlust kosten spürbar Kraft, deshalb steht das hier und nicht im Kleingedruckten.</div></div>
+      <button class="btn small ${trinkAus()?'sec':''}" onclick="toggleTrink()">${trinkAus()?'Aus':'An'}</button></div>
+    ${trinkAus()?'':`<div class="row" style="gap:8px;margin-top:10px">
+      ${[10,15,20,30].map(m=>`<button class="btn ${trinkIntervall()===m?'':'sec'} small grow" onclick="setTrinkMin(${m})">${m} Min</button>`).join('')}
+    </div>`}</div>`;
+
   h+=`<h2 style="margin-top:26px">Trainingsplan</h2>
     <div class="note" style="margin-top:0">Der aktive Plan bestimmt, welche Einheiten du siehst. Dein Verlauf bleibt bei jedem Wechsel erhalten.</div>`;
   const alle = allPlans(), aid = activePlanId();
@@ -2636,7 +2782,7 @@ function setVal(x,s,f,v){
 }
 function toggleSet(x,s){
   const L=getLog(activeDate,activeKey), k=x+'_'+s;
-  if(!L.t0) L.t0 = Date.now();
+  if(!L.t0){ L.t0 = Date.now(); L.trinkZeit = L.t0; }
   if(!L.sets[k]) L.sets[k]={};
   L.sets[k].d=!L.sets[k].d;
   // Auto-fill: leeres Gewicht mit letztem Satz vorbelegen
@@ -2679,6 +2825,7 @@ function toggleDaily(){ const d=todayKey(); if(DB.daily[d]) delete DB.daily[d]; 
 function finish(){
   const L=getLog(activeDate,activeKey);
   L.done=!L.done;
+  if(L.done) trinkWeg();
   if(L.done && L.t0 && !L.t1){
     L.t1 = Date.now();
     L.dauer = Math.max(1, Math.round((L.t1-L.t0)/60000));
