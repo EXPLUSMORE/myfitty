@@ -1138,12 +1138,7 @@ function vSession(){
       <input class="ed" type="date" value="${activeDate}" onchange="moveLog(this.value)" style="margin-top:8px">
       ${L.dauer?`<div class="note">Erfasste Dauer: ${L.dauer} Min</div>`:''}
     </details></div>`;
-  if(!L.done){
-    h+=`<div class="row" style="gap:8px;margin-top:8px">
-      <button class="btn sec small" onclick="trinkOk()">💧 Getrunken${L.trink?' ('+L.trink+')':''}</button>
-      ${trinkAus()?'<span class="muted" style="font-size:.75rem">Erinnerung aus</span>'
-        :`<span class="muted" style="font-size:.75rem">Das Meerschweinchen meldet sich alle ${trinkIntervall()} Minuten</span>`}</div>`;
-  }
+  // Drink reminder removed from session header - now a pure surprise gadget in Setup
 
   if(p.type==='run'){
     h+=`<div class="card"><div class="row" style="gap:12px"><div class="icobox lg">${bodyIcon(['beine','waden','gesaess'])}</div>
@@ -1180,10 +1175,7 @@ function vSession(){
     (WARMUP[activeKey]||[]).forEach(([n,d,v])=>{ h+=`<div class="row" style="padding:5px 0"><div class="grow"><strong style="font-size:.88rem">${n}</strong> <span class="muted">${d}</span></div><a class="vid" href="${v}" target="_blank">▶</a></div>`;});
     h+=`<div class="note">Dynamisch bewegen, nicht statisch halten. Davor 5 Min lockeres Cardio.</div></details>`;
 
-    h+=`<details><summary>RPE – kurz erklärt</summary>
-      <div class="note" style="margin-top:6px">Gefühlte Anstrengung von 1–10. Praktisch gedacht: <strong>wie viele Wiederholungen hättest du noch geschafft?</strong></div>
-      <div class="note"><strong>RPE 10</strong> = keine mehr · <strong>9</strong> = eine · <strong>8</strong> = zwei · <strong>7</strong> = drei · <strong>6</strong> = vier oder mehr in Reserve</div>
-      <div class="note">Beine RPE 8, Oberkörper RPE 7 – an der Grenze leidet die Technik und du kompensierst unbewusst mit der Schulter.</div></details>`;
+    // RPE explanation moved to Setup section
 
     if(deloadAktiv(activeDate)){
       const dl=deload();
@@ -1508,7 +1500,7 @@ const TRINKSPRUECHE = [
   'Schulterreha läuft auf Wasser, Geduld und Meerschweinchen. Zwei davon liefere ich.',
   'Flasche hoch. Kopf in den Nacken. Fertig ist der Trinkspruch.',
 ];
-const TRINK_STD = 15;                       // Minuten
+const TRINK_STD = 10;                       // Minuten
 var trinkTimer=null, trinkOffen=false, trinkSpruch=0;
 
 function trinkAus(){ return !!(DB.meta && DB.meta.trinkAus); }
@@ -2614,15 +2606,6 @@ function vMore(){
     <div class="grow"><div class="t1">Plan bearbeiten</div>
       <div class="t2">Übungen, Sätze, Trainingstage, eigene Einheiten</div></div>
     <div class="chk" style="color:var(--muted);font-size:.9rem">›</div></div>`;
-  h+=`<h2 style="margin-top:26px">Trinkerinnerung</h2>
-    <div class="card"><div class="row"><div class="grow">
-      <strong style="font-size:.92rem">🐹 Meerschweinchen mit Wasserflasche</strong>
-      <div class="note" style="margin-top:2px">Während einer laufenden Einheit hüpft alle paar Minuten ein Meerschweinchen ins Bild und erinnert ans Trinken – mit wechselndem Spruch. Zwei Prozent Flüssigkeitsverlust kosten spürbar Kraft, deshalb steht das hier und nicht im Kleingedruckten.</div></div>
-      <button class="btn small ${trinkAus()?'sec':''}" onclick="toggleTrink()">${trinkAus()?'Aus':'An'}</button></div>
-    ${trinkAus()?'':`<div class="row" style="gap:8px;margin-top:10px">
-      ${[10,15,20,30].map(m=>`<button class="btn ${trinkIntervall()===m?'':'sec'} small grow" onclick="setTrinkMin(${m})">${m} Min</button>`).join('')}
-    </div>`}</div>`;
-
   h+=`<h2 style="margin-top:26px">Trainingsplan</h2>
     <div class="note" style="margin-top:0">Der aktive Plan bestimmt, welche Einheiten du siehst. Dein Verlauf bleibt bei jedem Wechsel erhalten.</div>`;
   const alle = allPlans(), aid = activePlanId();
@@ -2643,6 +2626,25 @@ function vMore(){
       </div></div>`;
   });
   h+=`<button class="btn sec" onclick="addPlan()">+ Eigenen Plan anlegen</button>`;
+
+  h+=`<details style="margin:22px 0">
+    <summary style="font-size:1.05rem;font-weight:600;cursor:pointer;user-select:none;margin:0 0 8px">🐹 Trinkerinnerung</summary>
+    <div class="card"><div class="row"><div class="grow">
+      <div class="note" style="margin-top:0">Während einer laufenden Einheit hüpft alle paar Minuten ein Meerschweinchen ins Bild und erinnert ans Trinken – mit wechselndem Spruch. Zwei Prozent Flüssigkeitsverlust kosten spürbar Kraft.</div></div>
+      <button class="btn small ${trinkAus()?'sec':''}" onclick="toggleTrink()">${trinkAus()?'Aus':'An'}</button></div>
+    ${trinkAus()?'':`<div class="row" style="gap:8px;margin-top:10px">
+      ${[10,15,20,30].map(m=>`<button class="btn ${trinkIntervall()===m?'':'sec'} small grow" onclick="setTrinkMin(${m})">${m} Min</button>`).join('')}
+    </div>`}</div>
+  </details>`;
+
+  h+=`<details style="margin:22px 0">
+    <summary style="font-size:1.05rem;font-weight:600;cursor:pointer;user-select:none;margin:0 0 8px">💪 Training-Grundlagen: RPE</summary>
+    <div class="card">
+      <div class="note" style="margin-top:0">RPE = Gefühlte Anstrengung von 1–10. Praktisch gedacht: <strong>wie viele Wiederholungen hättest du noch geschafft?</strong></div>
+      <div class="note"><strong>RPE 10</strong> = keine mehr · <strong>9</strong> = eine · <strong>8</strong> = zwei · <strong>7</strong> = drei · <strong>6</strong> = vier oder mehr in Reserve</div>
+      <div class="note">Beine RPE 8, Oberkörper RPE 7 – an der Grenze leidet die Technik und du kompensierst unbewusst mit der Schulter.</div>
+    </div>
+  </details>`;
 
   h+=`<h2 style="margin-top:26px">Werkzeuge</h2>`;
   h+=`<div class="tile" onclick="go('test')"><div class="badge" style="background:var(--accent2)">🧪</div>
